@@ -4,17 +4,34 @@ export default function Page() {
 
     return (
         <>
-            <div
-                className="h-dvh w-full flex flex-row items-center justify-around">
-                <div className="w-1/4 h-1/5 p-5  bg-gray-200 text-center">Staff
-                    <Image src="/teacher.webp" width={50} height={50} alt="an icon representing teachers"/></div>
-                <div className="w-1/4 h-1/5 p-5  bg-gray-200 text-center">Student
-                    <Image src="/student.webp" width={50} height={50} alt="an icon representing students"/>
+            <section
+                className="h-dvh w-full flex flex-col items-center justify-evenly bg-linear-to-r from-yellow-400 to-orange-300">
+                <div>
+                    <h1 className="text-5xl">LuMineScence</h1>
                 </div>
-                <div className="w-1/4 h-1/5 p-5  bg-gray-200 text-center">Parent
-                    <Image src="/parent.webp" width={50} height={50} alt="icon representing parents"/>
+                <div>
+                    <h2 className="text-lg">Sign in to your account as</h2>
                 </div>
-            </div>
+                <div
+                    className="w-full flex flex-row items-center justify-around">
+                    <div
+                        className="ww-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
+                        <span className="mt-5">Staff</span>
+                        <Image src="/teacher.webp" width={100} height={100} alt="an icon representing teachers"/></div>
+                    <div
+                        className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
+                        <span className="mt-5">Parent</span>
+                        <Image src="/parent.webp" width={75} height={75} alt="icon representing parents"
+                               className="mt-[20px]"/>
+                    </div>
+                    <div
+                        className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
+                        <span className="mt-5">Student</span>
+                        <Image src="/student.webp" width={100} height={100} alt="an icon representing students"/>
+                    </div>
+
+                </div>
+            </section>
         </>
     )
 }
