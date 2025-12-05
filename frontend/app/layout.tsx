@@ -1,6 +1,7 @@
 import type {Metadata} from "next";
 import "./globals.css";
 import React from "react";
+import ThemeProvider from '@/providers/theme-provider';
 
 
 export const metadata: Metadata = {
@@ -18,7 +19,9 @@ export default function RootLayout({
         <body
 
         >
-        {children}
+        <ThemeProvider>
+            {children}
+        </ThemeProvider>
         </body>
         </html>
     );
