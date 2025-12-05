@@ -11,4 +11,5 @@ export interface SectionHeaderProps {
   intro: string;
   title: string;
   description?: string;
+	align?: "left" | "right" | "center";
 }

@@ -14,7 +14,7 @@ export default function Button({
     accent: 'bg-accent text-accent-foreground hover:bg-accent/90',
     icon: 'border border-border bg-background shadow-xs hover:bg-gray-400/10 hover:text-foreground/85 dark:bg-input/30 dark:border-input dark:hover:bg-input/50 size-9',
     outline:
-      'border border-border bg-background shadow-xs hover:bg-gray-400/10 hover:text-foreground/85 dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
+      'border border-border bg-background shadow-sm hover:bg-gray-400/10 hover:text-foreground/85 dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
   };
   return (
     <button className={defaultStyle + s[variant] + ' ' + className} {...props}>
