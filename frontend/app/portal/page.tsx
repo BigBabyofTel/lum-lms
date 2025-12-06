@@ -9,7 +9,11 @@ export default function Page() {
             <section
                 className="h-dvh w-full flex flex-col items-center justify-evenly">
                 <div>
-                    <h1 className="text-5xl ">LuMineScence</h1>
+                    <h1 className="text-5xl "><span
+                        className="text-indigo-700 dark:text-orange-600">l</span>u<span
+                        className="text-indigo-700 dark:text-orange-600">m</span>ine<span
+                        className="text-indigo-700 dark:text-orange-600">s</span>cence
+                    </h1>
                 </div>
                 <div>
                     <h2 className="text-lg">Sign in to your account as</h2>
