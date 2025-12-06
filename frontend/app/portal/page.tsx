@@ -7,9 +7,9 @@ export default function Page() {
     return (
         <>
             <section
-                className="h-dvh w-full flex flex-col items-center justify-evenly bg-linear-to-r from-yellow-400 to-orange-300">
+                className="h-dvh w-full flex flex-col items-center justify-evenly">
                 <div>
-                    <h1 className="text-5xl dark:text-white">LuMineScence</h1>
+                    <h1 className="text-5xl ">LuMineScence</h1>
                 </div>
                 <div>
                     <h2 className="text-lg">Sign in to your account as</h2>
