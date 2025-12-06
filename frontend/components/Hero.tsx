@@ -10,16 +10,7 @@ export default function Hero() {
         blanditiis eligendi ratione quaerat! Id maxime suscipit consequatur
         tempore vel culpa.
       </p>
-      <Button className="mx-auto">Get started</Button>
-				{/*   <div className="mt-24 bg-gray-100 w-full h-[70vh] rounded-lg p-3 relative"> */}
-				{/*     <div className="bg-slate-300 w-full h-full rounded-md"></div> */}
-				{/**/}
-				{/* <div */}
-				{/* 	className=" pointer-events-none absolute inset-x-0 -bottom-12 h-1/3 bg-linear-to-t from-background via-background to-transparent lg:h-1/4" */}
-				{/* /> */}
-				{/*   </div> */}
-
-
+      <Button className="mx-auto" variant="accent">Get started</Button>
     </div>
   );
 }

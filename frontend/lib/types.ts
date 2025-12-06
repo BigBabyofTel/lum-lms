@@ -1,3 +1,5 @@
+export type VariantButton =  'default' | 'outline' | 'accent' | 'icon';
+
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant?: 'default' | 'outline' | 'accent' | 'icon';

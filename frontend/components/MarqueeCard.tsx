@@ -1,48 +1,48 @@
 const topMarquee = [
 	{
 		review:
-			"Lorem ipsum dolor sit amet, consectetur adipisicing elit. *Rem repellat quia ut recusandae voluptas quaerat minus* ex similique architecto? Iste? ",
-		name: "000000",
-		description: "Name of a song by the artist Clairo",
+			"This LMS has completely streamlined our training process. *The interface is intuitive and easy to navigate,* even for team members who aren’t tech-savvy.",
+		name: "Sarah M.",
+		description: "Review from a corporate training coordinator",
 	},
 	{
 		review:
-			"Lorem ipsum dolor sit amet, consectetur adipisicing elit. *Hello how are you?* ex similique architecto? Iste? ",
-		name: "111111",
-		description: "Name of a song by the artist Clairo",
+			"I was impressed by how quickly we could upload courses and track progress. *The analytics dashboard is incredibly detailed,* giving us insights we never had before.",
+		name: "Daniel K.",
+		description: "Review from an HR manager",
 	},
 	{
 		review:
-			"Lorem ipsum dolor sit amet, consectetur adipisicing elit. *Hello how are you?* ex similique architecto? Iste? ",
-		name: "222222",
-		description: "Name of a song by the artist Clairo",
+			"As an instructor, this platform has been a game-changer. *Creating and updating modules is fast and straightforward,* saving me hours each week.",
+		name: "Maya R.",
+		description: "Review from an online course instructor",
 	},
 	{
 		review:
-			"Lorem ipsum dolor sit amet, consectetur adipisicing elit. *Hello how are you?* ex similique architecto? Iste? ",
-		name: "333333",
-		description: "Name of a song by the artist Clairo",
+			"Our onboarding has improved significantly since switching to this LMS. *Learners appreciate how organized and clean everything is,* and completion rates have gone up.",
+		name: "Leo D.",
+		description: "Review from a team lead",
 	},
 	{
 		review:
-			"Lorem ipsum dolor sit amet, consectetur adipisicing elit. *Hello how are you?* ex similique architecto? Iste? ",
-		name: "444444",
-		description: "Name of a song by the artist Clairo",
+			"I love how customizable the platform is. *The ability to tailor learning paths for different departments* has made training much more effective.",
+		name: "Hannah S.",
+		description: "Review from a learning and development specialist",
 	},
 	{
 		review:
-			"Lorem ipsum dolor sit amet, consectetur adipisicing elit. *Hello how are you?* ex similique architecto? Iste? ",
-		name: "555555",
-		description: "Name of a song by the artist Clairo",
+			"Support has been fantastic. *Whenever we had questions or needed adjustments, the team responded quickly* and guided us through everything.",
+		name: "Marcus T.",
+		description: "Review from a project manager",
 	},
 ];
 
 export default function MarqueeCard() {
 	return (
-		<div className="group relative my-10 flex max-h-screen flex-col gap-4 overflow-hidden p-2 [--gap:1rem] sm:flex-row">
+		<div className="group relative my-10 flex max-h-screen flex-col gap-4 overflow-hidden p-2 [--gap:1rem] sm:flex-row group">
 			{Array.from({ length: 2 }, (_, ix) => (
 				<ul
-					className="animate-marquee flex shrink-0 min-w-full flex-col gap-(--gap) overflow-hidden sm:flex-row animate-marquee-y sm:animate-marquee-x"
+					className="animate-marquee flex shrink-0 min-w-full flex-col gap-(--gap) overflow-hidden sm:flex-row animate-marquee-y sm:animate-marquee-x group-hover:[animation-play-state:paused]"
 					key={ix}
 				>
 					{topMarquee.map(({ review, name, description }, idx) => {
@@ -55,7 +55,7 @@ export default function MarqueeCard() {
 								className="w-fit rounded-xl border p-2 border-border bg-gray-100"
 								key={idx}
 							>
-								<div className="bg-slate-300 rounded-md h-full flex flex-col p-4 inset-ring inset-ring-white/10">
+								<div className="bg-background rounded-md h-full flex flex-col p-4 inset-ring inset-ring-white/10">
 									<p className="text-foreground/90 max-w-96 pb-6 leading-relaxed font-normal select-none">
 										{textSplitted[1]}
 										<span className="text-accent-foreground font-medium">

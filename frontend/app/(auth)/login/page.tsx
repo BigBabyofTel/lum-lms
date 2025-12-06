@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { ArrowRight } from "@/components/ui/icons";
+import { ArrowRight, Logo } from "@/components/ui/icons";
 import Link from "next/link";
 
 
@@ -32,9 +32,9 @@ export default function Page() {
   return (
     <div className="grid h-screen grid-cols-1 place-items-center">
       <div className="grid grid-cols-1 gap-8 sm:min-w-md">
-        <Link href="/">
-          {/* <Logo className="fill-foreground flex items-start" /> */}
-					Logo
+        <Link href="/" className="flex gap-2">
+          <Logo className="fill-foreground flex items-start size-8" />
+					<h3 className="text-2xl font-semibold tracking-tight"> lualms </h3>
         </Link>
         {error && <p className="text-destructive text-sm/6 font-semibold"> {error} </p>}
         <form onSubmit={handleSubmit}>

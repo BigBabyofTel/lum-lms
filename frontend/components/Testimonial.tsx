@@ -7,7 +7,6 @@ export default function Testimonial() {
       <SectionHeader
         intro="See what they think about us"
         title="Reviews"
-        description="lorem"
       />
       <MarqueeCard />
     </section>

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import Button from './ui/Button';
-import { HamburgerMenu, Moon, Sun, X } from './ui/icons';
+import { HamburgerMenu, Logo, Moon, Sun, X } from './ui/icons';
 
 const navigationLink = [
   {
@@ -73,14 +73,15 @@ export default function Navbar() {
   }
 
   return (
-    <div className="flex h-14 items-center justify-between gap-8 px-4 sm:px-6">
-      <div className="flex-1">
-        <Link href="/" aria-label="home">
-          Logo
+    <div className="flex h-14 items-center justify-between gap-8 px-4 sm:px-6 fixed top-0 left-0 w-full bg-background z-100 border-b border-border">
+      <div className="flex-1 flex">
+        <Link href="/" aria-label="home" className='inline-flex gap-2'>
+         <Logo className="size-8" /> 
+				<h3 className="text-2xl font-semibold tracking-tight"> lualms </h3>
         </Link>
       </div>
 
-      <ul className="flex flex-1 justify-center gap-5 max-sm:hidden">
+      <ul className="flex flex-1 justify-center gap-5 max-[700px]:hidden">
         {navigationLink.map(({ href, name }, idx) => (
           <li key={idx}>
             <Link
@@ -93,7 +94,7 @@ export default function Navbar() {
         ))}
       </ul>
 
-      <div className="flex items-center justify-end gap-5 max-sm:hidden flex-1">
+      <div className="flex items-center justify-end gap-5 max-[700px]:hidden flex-1">
         <ToggleTheme />
 
         <div className="h-6 w-px bg-gray-950/10 dark:bg-white/10" />
@@ -107,7 +108,7 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="flex gap-2.5 items-center sm:hidden">
+      <div className="flex gap-2.5 items-center min-[700px]:hidden">
         <ToggleTheme />
 
         <Button variant="icon" onClick={handleHamburger}>

@@ -1,12 +1,13 @@
 import Button from './ui/Button';
 import { Check } from './ui/icons';
 import SectionHeader from './ui/SectionHeader';
+import type { VariantButton } from "@/lib/types";
 
 interface PriceCards {
 	label: string;
 	price: string;
 	description: string;
-	buttonLabel: string;
+	buttonProps: { children: string, variant: VariantButton };
 	features: string[];
 }[]
 
@@ -15,21 +16,21 @@ const priceCards: PriceCards[] = [
 		label: "Free",
 		price: "$0",
 		description: "Perferct for solo freelance, students",
-		buttonLabel: "Get started",
+		buttonProps: { children: "Get Started", variant: "outline" },
 		features: ["Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor"],
 	},
 	{
 		label: "Regular",
 		price: "$12",
 		description: "Ideal for a group",
-		buttonLabel: "Upgrade now",
-		features: ["Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor"],
+		buttonProps: { children: "Upgrade now", variant: "accent" },
+		features: ["Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor"],
 	},
 	{
 		label: "Enterprise",
 		price: "$24",
 		description: "Ideal for a teams and enterprise",
-		buttonLabel: "lorem something",
+		buttonProps: { children: "Contact Sales", variant: "default" },
 		features: ["Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor", "Lorem ipsum dolor"],
 	}
 ]
@@ -37,7 +38,7 @@ const priceCards: PriceCards[] = [
 function PriceCard() {
 	return (
 		<>
-			{priceCards.map(({ label, price, description, buttonLabel, features }, idx) =>
+			{priceCards.map(({ label, price, description, buttonProps, features }, idx) =>
 				<div
 					className={`rounded-xl ${label === "Regular" ? "bg-background shadow-xl inset-ring inset-ring-secondary" : "bg-secondary"} p-4`}
 					key={idx}
@@ -46,7 +47,7 @@ function PriceCard() {
 						<h3 className="font-medium text-sm/5 pb-2"> {label} </h3>
 						<h2 className="text-5xl font-semibold pb-6"> {price}  <span className="text-base font-normal">/month </span> </h2>
 						<p className="text-base/6 pb-10">{description}</p>
-						<Button className="mb-4">{buttonLabel}</Button>
+						<Button {...buttonProps} className="mb-4" />
 					</div>
 
 					<ul className="border-t pt-4 flex flex-col gap-2">
@@ -79,7 +80,7 @@ export default function Pricing() {
 				intro="Pricing"
 				title="Pricing thinked for you"
 			/>
-			<div className="grid grid-cols-[400px] min-[650px]:grid-cols-2 min-[900px]:grid-cols-3 gap-2">
+			<div className="grid grid-cols-[400px] min-[650px]:grid-cols-2 min-[900px]:grid-cols-3 gap-2 place-content-center">
 				<PriceCard />
 			</div>
 		</section>
