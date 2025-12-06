@@ -17,14 +17,14 @@ const sidebarItems: SidebarItem[] = [
 ]
 
 export default function Sidebar() {
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(true)
 
     return (
         <>
-            {/* Mobile Menu Button */}
+            {/* Menu Toggle Button - Works on all screen sizes */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg"
+                className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
                 {isOpen ? <X size={24}/> : <Menu size={24}/>}
             </button>
@@ -43,7 +43,6 @@ export default function Sidebar() {
                     fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 
                     transition-transform duration-300 z-40
                     ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-                    md:translate-x-0
                 `}
             >
                 <div className="flex flex-col h-full">
