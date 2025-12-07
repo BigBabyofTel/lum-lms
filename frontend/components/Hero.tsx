@@ -1,4 +1,5 @@
 import Button from '@/components/ui/Button';
+
 export default function Hero() {
   return (
     <div className="mb-24 grid place-content-center text-center">
