@@ -49,7 +49,11 @@ export default function Sidebar() {
                     {/* Logo/Header */}
                     <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                         <h2 className="text-2xl font-bold text-gray-800 dark:text-white ml-10">
-                            LuMineScence
+                            <span
+                                className="text-indigo-700 dark:text-orange-600">l</span>u<span
+                            className="text-indigo-700 dark:text-orange-600">m</span>ine<span
+                            className="text-indigo-700 dark:text-orange-600">s</span>cence
+
                         </h2>
                     </div>
 
