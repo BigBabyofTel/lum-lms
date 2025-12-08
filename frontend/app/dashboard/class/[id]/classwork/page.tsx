@@ -107,7 +107,7 @@ export default function ClassworkPage() {
                     <select
                         value={selectedTopic}
                         onChange={(e) => setSelectedTopic(e.target.value)}
-                        className="appearance-none px-4 py-2 pr-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+                        className="appearance-none px-4 py-2 pr-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white text-sm hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors cursor-pointer w-64"
                     >
                         <option>All topics</option>
                         {topics.map((topic) => (
@@ -116,7 +116,7 @@ export default function ClassworkPage() {
                             </option>
                         ))}
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 pointer-events-none" size={20}/>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none" size={20}/>
                 </div>
             </div>
 

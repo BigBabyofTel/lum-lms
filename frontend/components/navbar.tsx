@@ -6,9 +6,10 @@ import {ThemeToggleButton} from '@/providers/theme-provider'
 interface NavbarProps {
     isSidebarOpen: boolean
     onToggleSidebar: () => void
+    title?: string
 }
 
-export default function Navbar({isSidebarOpen, onToggleSidebar}: NavbarProps) {
+export default function Navbar({isSidebarOpen, onToggleSidebar, title}: NavbarProps) {
     return (
         <nav
             className="fixed top-0 right-0 left-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-50">
@@ -22,12 +23,16 @@ export default function Navbar({isSidebarOpen, onToggleSidebar}: NavbarProps) {
                     {isSidebarOpen ? <X size={24}/> : <Menu size={24}/>}
                 </button>
 
-                {/* Center - Brand name */}
+                {/* Center - Brand name or custom title */}
                 <div className="flex-1 px-4 flex justify-center">
                     <h1 className="text-xl font-bold text-gray-800 dark:text-white">
-                        <span className="text-indigo-700 dark:text-orange-600">l</span>u<span
-                        className="text-indigo-700 dark:text-orange-600">m</span>ine<span
-                        className="text-indigo-700 dark:text-orange-600">s</span>cence
+                        {title || (
+                            <>
+                                <span className="text-indigo-700 dark:text-orange-600">l</span>u<span
+                                className="text-indigo-700 dark:text-orange-600">m</span>ine<span
+                                className="text-indigo-700 dark:text-orange-600">s</span>cence
+                            </>
+                        )}
                     </h1>
                 </div>
 
