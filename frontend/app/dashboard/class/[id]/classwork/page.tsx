@@ -103,11 +103,11 @@ export default function ClassworkPage() {
             {/* Topic Filter */}
             <div className="flex items-center gap-2">
                 <label className="text-sm text-gray-600 dark:text-gray-400">Topic filter</label>
-                <div className="relative">
+                <div className="relative z-10">
                     <select
                         value={selectedTopic}
                         onChange={(e) => setSelectedTopic(e.target.value)}
-                        className="appearance-none px-4 py-2 pr-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+                        className="appearance-none px-4 py-2 pr-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer w-64"
                     >
                         <option>All topics</option>
                         {topics.map((topic) => (

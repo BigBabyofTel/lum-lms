@@ -1,7 +1,8 @@
 'use client'
-import React, {use} from 'react'
+import React, {use, useEffect} from 'react'
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
+import {useNavbar} from '@/providers/navbar-provider'
 
 interface ClassLayoutProps {
     children: React.ReactNode
@@ -10,10 +11,29 @@ interface ClassLayoutProps {
     }>
 }
 
+// Mock class data - in a real app, this would come from an API
+const classData: {[key: string]: {name: string, grade: string}} = {
+    '1': {name: '2B', grade: 'Grade 2'},
+}
+
 export default function ClassLayout({children, params}: ClassLayoutProps) {
     const pathname = usePathname()
     const {id} = use(params)
     const baseUrl = `/dashboard/class/${id}`
+    const {setTitle} = useNavbar()
+    
+    // Get class info from mock data
+    const classInfo = classData[id] || {name: 'Class', grade: ''}
+    
+    // Update navbar title when component mounts or id changes
+    useEffect(() => {
+        setTitle(classInfo.name)
+        
+        // Clean up: reset title when component unmounts
+        return () => {
+            setTitle(null)
+        }
+    }, [id, classInfo.name, setTitle])
 
     const tabs = [
         {name: 'Stream', href: baseUrl},
