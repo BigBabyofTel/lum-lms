@@ -1,11 +1,16 @@
 "use client"
 import Image from "next/image"
 import {useRouter} from "next/navigation"
+import {ThemeToggleButton} from '@/providers/theme-provider'
 
 export default function Page() {
     const router = useRouter()
     return (
         <>
+            {/* Theme toggle button */}
+            <div className="absolute top-4 right-4 z-10">
+                <ThemeToggleButton/>
+            </div>
             <section
                 className="h-dvh w-full flex flex-col items-center justify-evenly">
                 <div>

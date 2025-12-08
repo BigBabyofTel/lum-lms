@@ -1,6 +1,35 @@
 'use client'
-import React, {useEffect, useState} from 'react'
+import React, {createContext, useContext, useEffect, useState} from 'react'
 import {Moon, Sun} from 'lucide-react'
+
+interface ThemeContextType {
+    isDark: boolean
+    toggleTheme: () => void
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+
+export function useTheme() {
+    const context = useContext(ThemeContext)
+    if (!context) {
+        throw new Error('useTheme must be used within ThemeProvider')
+    }
+    return context
+}
+
+export function ThemeToggleButton() {
+    const {isDark, toggleTheme} = useTheme()
+
+    return (
+        <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Toggle theme"
+        >
+            {isDark ? <Sun size={20} className="text-yellow-500"/> : <Moon size={20} className="text-gray-700"/>}
+        </button>
+    )
+}
 
 export default function ThemeProvider({children}: { children: React.ReactNode }) {
     const [isDark, setIsDark] = useState(false)
@@ -21,18 +50,11 @@ export default function ThemeProvider({children}: { children: React.ReactNode })
         document.documentElement.classList.toggle('dark', isDark)
     }, [isDark])
 
-    console.log(isDark)
+    const toggleTheme = () => setIsDark(!isDark)
+
     return (
-        <>
-            <button
-                className="absolute top-4 right-4"
-                onClick={() => setIsDark(!isDark)}>
-                {
-                    isDark ? <Sun color="white"/> :
-                        <Moon/>
-                }
-            </button>
+        <ThemeContext.Provider value={{isDark, toggleTheme}}>
             {children}
-        </>
+        </ThemeContext.Provider>
     )
 }
