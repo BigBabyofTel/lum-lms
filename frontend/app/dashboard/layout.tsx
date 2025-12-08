@@ -17,7 +17,7 @@ function DashboardContent({
             <Navbar
                 isSidebarOpen={isSidebarOpen}
                 onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-                title={title || undefined}
+                title={title ?? undefined}
             />
             <Sidebar
                 isOpen={isSidebarOpen}

@@ -11,9 +11,11 @@ interface ClassLayoutProps {
     }>
 }
 
-// Mock class data - in a real app, this would come from an API
+// Mock class data - in a real app, this would come from an API or database
 const classData: {[key: string]: {name: string, grade: string}} = {
     '1': {name: '2B', grade: 'Grade 2'},
+    '2': {name: '3A', grade: 'Grade 3'},
+    '3': {name: '4C', grade: 'Grade 4'},
 }
 
 export default function ClassLayout({children, params}: ClassLayoutProps) {
