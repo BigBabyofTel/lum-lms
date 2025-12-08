@@ -32,7 +32,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            // Handle people action
+                            console.log('View people clicked for class:', id)
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="View people"
@@ -42,7 +42,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            // Handle folder action
+                            console.log('View folder clicked for class:', id)
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="View folder"
@@ -52,7 +52,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            // Handle more options
+                            console.log('More options clicked for class:', id)
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="More options"

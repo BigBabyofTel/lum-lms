@@ -1,3 +1,4 @@
+'use client'
 import ClassCard from '@/components/class-card'
 import {Menu, Plus} from 'lucide-react'
 
@@ -19,6 +20,7 @@ export default function Page() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <button
+                        onClick={() => console.log('Dashboard menu clicked')}
                         className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
                         aria-label="Menu"
                     >
@@ -29,6 +31,7 @@ export default function Page() {
                     </h1>
                 </div>
                 <button
+                    onClick={() => console.log('Add new class clicked')}
                     className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     aria-label="Add class"
                 >

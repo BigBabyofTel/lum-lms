@@ -69,6 +69,7 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
                             </div>
                         </div>
                         <button
+                            onClick={() => console.log('Add account clicked')}
                             className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             aria-label="Add account"
                         >
