@@ -1,15 +1,33 @@
+'use client'
+import ClassCard from '@/components/class-card'
+
+// Mock data - would come from data fetching in a real app
+const classes = [
+    {
+        id: '1',
+        name: '2B',
+        grade: 'Grade 2',
+        teacher: 'Unknown user',
+        color: 'bg-blue-600'
+    },
+]
+
 export default function Page() {
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    Dashboard
-                </h1>
-                <p className="mt-2 text-gray-600 dark:text-gray-300">
-                    This is where you should be able to create a group and see all existing groups
-                </p>
+            {/* Class Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {classes.map((classItem) => (
+                    <ClassCard
+                        key={classItem.id}
+                        id={classItem.id}
+                        name={classItem.name}
+                        grade={classItem.grade}
+                        teacher={classItem.teacher}
+                        color={classItem.color}
+                    />
+                ))}
             </div>
-            {/* Add your dashboard content here */}
         </div>
     )
 }
