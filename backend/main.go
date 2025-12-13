@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,8 @@ func main() {
 		})
 	})
 
-	router.Run()
+	if err := router.Run(); err != nil {
+		log.Printf("Failed to start server: %v\n", err)
+	}
 
 }
