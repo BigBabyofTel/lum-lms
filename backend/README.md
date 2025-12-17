@@ -5,4 +5,4 @@
     - Postgres
     - Goose
     - SQLC
-    
+    - Air for live reload
