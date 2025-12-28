@@ -1,0 +1,5 @@
+name: lum-lms
+services:
+  db:
+    image: postgres:latest
+    environment:
