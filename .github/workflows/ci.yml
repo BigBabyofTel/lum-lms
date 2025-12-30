@@ -44,9 +44,6 @@ jobs:
       - name: Run Tests
         run: cd backend && go test -race -covermode=atomic -v ./...
 
-      - name: Testing Func
-        run: go test -v -cover ./...
-
       - name: Install gosec
         run: go install github.com/securego/gosec/v2/cmd/gosec@latest
 
