@@ -16,12 +16,16 @@ jobs:
         with:
           go-version-file: 'backend/go.mod'
 
+      - name: Download Go Dependencies
+        run: cd backend && go mod download
+
       # Replaces manual staticcheck and go fmt
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
           working-directory: backend
+          skip-cache: true
 
   test:
     name: Test & Security
