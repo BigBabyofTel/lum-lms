@@ -3,9 +3,9 @@ name: ci
 on:
   push:
     branches: [ main ]      # Run when code merges to main
-    pull_request:
-      branches: [ main ]      # Run on PRs targeting main
-    workflow_dispatch:
+  pull_request:
+    branches: [ main ]      # Run on PRs targeting main
+  workflow_dispatch:
 
 jobs:
   # Combined quality check (Linting + Formatting)
