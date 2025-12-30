@@ -1,5 +1,23 @@
 name: lum-lms
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - db
   db:
     image: postgres:latest
     environment:
@@ -10,3 +28,5 @@ services:
       - '5432:5432'
     volumes:
       - lum_db_volume:/var/lib/postgresql/18/data
+volumes:
+  lum_db_volume:
