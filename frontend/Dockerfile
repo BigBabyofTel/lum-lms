@@ -1,15 +1,20 @@
-FROM docker.io/oven/bun:1 AS base
-WORKDIR /usr/src/app
+FROM oven/bun:1 AS base
+WORKDIR /app
 
-# Install stage for dependency caching
-FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json bun.lock /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
+FROM base AS deps
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile
 
-                                # Final stage
-FROM base AS final
-COPY --from=install /temp/dev/node_modules /usr/src/app/node_modules
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN chown -R bun:bun /usr/src/app
-ENTRYPOINT ["bun", "run", "dev"]
+RUN bun run build
+
+FROM base AS runner
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY package.json ./
+
+EXPOSE 3001
+CMD ["bun", "run", "dev"]
