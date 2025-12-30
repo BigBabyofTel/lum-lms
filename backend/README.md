@@ -1,8 +1,11 @@
 # Lum-lms Backend
 
-## Dependencies 
+## Dependencies
+
     - Golang
     - Postgres
     - Goose
     - SQLC
     - Air for live reload
+        * use the cli "air" to start the server
+        
