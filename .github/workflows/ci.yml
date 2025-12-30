@@ -21,6 +21,7 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.65.0
+          working-directory: backend
 
   test:
     name: Test & Security
@@ -32,10 +33,10 @@ jobs:
           go-version-file: 'backend/go.mod'
 
       - name: Run Tests
-        run: go test -race -covermode=atomic -v ./...
+        run: cd backend && go test -race -covermode=atomic -v ./...
 
       # Security scan
       - name: Run Gosec
         uses: securego/gosec@master
         with:
-          args: './... -no-fail'
+          args: 'backend/... -no-fail'
