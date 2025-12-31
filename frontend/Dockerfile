@@ -1,19 +1,17 @@
 FROM oven/bun:1 AS base
-WORKDIR /app
+WORKDIR /frontend
 
 FROM base AS deps
 COPY package.json bun.lock* ./
 RUN bun install --frozen-lockfile
 
 FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /frontend/node_modules ./node_modules
 COPY . .
 RUN bun run build
 
 FROM base AS runner
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+COPY --from=builder /frontend/ ./
 COPY package.json ./
 
 EXPOSE 3001

@@ -10,4 +10,6 @@ CREATE TABLE groups
     created_at      timestamptz NOT NULL DEFAULT now(),
     updated_at      timestamptz NOT NULL DEFAULT now()
 );
+
 -- +goose Down
+DROP TABLE groups;
