@@ -8,6 +8,9 @@ source code for Luminescence frontend
 - TailwindCSS
 - Typescript
 - minimal external dependencies
+- Golang
+- Postgres
+- Docker
 
 ## TO-DO
 
