@@ -1,0 +1,67 @@
+export interface User {
+    id: string
+    name: string;
+    email: string;
+    //link to the url for the image
+    avatar?: string;
+    avatarColor: string;
+    role: 'teacher' | 'student' | 'parent';
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface Class {
+    id: string;
+    subject: string;
+    numOfStudents: number;
+    grade: string;
+    teacher: string;
+    color: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface Assignment {
+    id: string;
+    title: string;
+    type: 'assignment' | 'material';
+    assignDate?: string;
+    dueDate?: string;
+    attachmentCount?: number;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface Topic {
+    id: string;
+    name: string;
+    assignments: Assignment[];
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface Post {
+    id: string;
+    author: string;
+    content: string;
+    createdAt: string;
+    updatedAt?: string;
+    comments: {
+        id: string;
+        author: string;
+        content: string;
+        avatar?: string;
+        createdAt?: string;
+        updatedAt?: string;
+    }[];
+}
+
+export interface ClassDetail extends Class {
+    classId: string;
+    topics: Topic[];
+    teachers: User[];
+    students: User[];
+    posts: Post[];
+    createdAt?: string;
+    updatedAt?: string;
+}

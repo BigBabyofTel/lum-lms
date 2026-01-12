@@ -5,9 +5,9 @@ import ClassCard from '@/components/class-card'
 const classes = [
     {
         id: '1',
-        name: '2B',
+        name: '5B',
         grade: 'Grade 2',
-        teacher: 'Unknown user',
+        teacher: 'Mr. Baker',
         color: 'bg-blue-600'
     },
 ]

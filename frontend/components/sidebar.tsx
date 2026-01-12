@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import {Home, Calendar, CheckSquare, Archive, Settings, Plus} from 'lucide-react'
+import {Archive, Calendar, CheckSquare, Home, Plus, Settings} from 'lucide-react'
 import Link from 'next/link'
 
 interface SidebarItem {
@@ -16,6 +16,12 @@ interface EnrolledClass {
     grade: string
     color: string
 }
+
+/*
+* add the function to add a new group
+*
+* */
+
 
 // Mock enrolled classes - this would come from data fetching in a real app
 const enrolledClasses: EnrolledClass[] = [
@@ -60,7 +66,8 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
                     {/* User Profile Section */}
                     <div className="p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
+                            <div
+                                className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
                                 A
                             </div>
                             <div className="flex-1">
@@ -117,7 +124,8 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
                                     onClick={onClose}
                                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                                 >
-                                    <div className={`w-8 h-8 ${classItem.color} rounded flex items-center justify-center text-white text-sm font-bold`}>
+                                    <div
+                                        className={`w-8 h-8 ${classItem.color} rounded flex items-center justify-center text-white text-sm font-bold`}>
                                         {classItem.name.charAt(0)}
                                     </div>
                                     <div>
@@ -153,7 +161,9 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
                             className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                             aria-label="Help"
                         >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 dark:text-gray-400">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                 className="text-gray-600 dark:text-gray-400">
                                 <circle cx="12" cy="12" r="10"/>
                                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                                 <line x1="12" y1="17" x2="12.01" y2="17"/>
