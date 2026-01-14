@@ -6,6 +6,7 @@ export interface User {
     avatar?: string;
     avatarColor: string;
     role: 'teacher' | 'student' | 'parent';
+    parent_of_id?: string;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -15,7 +16,7 @@ export interface Class {
     subject: string;
     numOfStudents: number;
     grade: string;
-    teacher: string;
+    teacher: string[];
     color: string;
     createdAt?: string;
     updatedAt?: string;
@@ -59,7 +60,6 @@ export interface Post {
 export interface ClassDetail extends Class {
     classId: string;
     topics: Topic[];
-    teachers: User[];
     students: User[];
     posts: Post[];
     createdAt?: string;
