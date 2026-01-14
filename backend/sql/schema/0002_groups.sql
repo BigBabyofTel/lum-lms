@@ -55,6 +55,7 @@ CREATE TABLE topics
     created_at    timestamptz  NOT NULL DEFAULT now(),
     updated_at    timestamptz
 );
+
 CREATE TYPE type AS ENUM ('assignment', 'material');
 
 CREATE TABLE assignments
@@ -85,10 +86,16 @@ CREATE TABLE user_assignments
     updated_at    timestamptz
 );
 
-CREATE TABLE class_details (
-    class_id uuid REFERENCES classes (id),
-    topics
-)
+CREATE TABLE class_details
+(
+    class_id   uuid REFERENCES classes (id),
+    topics     uuid REFERENCES topics (id),
+    teachers   uuid REFERENCES users (id),
+    students   uuid REFERENCES users (id),
+    posts      uuid REFERENCES posts (id),
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz
+);
 
 
 -- +goose Down
@@ -96,3 +103,6 @@ DROP TABLE users;
 DROP TABLE classes;
 DROP TABLE posts;
 DROP TABLE comments;
+DROP TABLE topics;
+DROP TABLE assignments;
+DROP TABLE user_assignments;
