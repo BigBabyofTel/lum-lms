@@ -487,4 +487,61 @@ Success in the LMS space requires not just matching the core features that all p
 
 ---
 
+## References and Sources
+
+This research was compiled from the following industry sources and market analysis reports:
+
+1. **Forbes Advisor** - "9 Best Learning Management Systems of 2025"  
+   https://www.forbes.com/advisor/business/the-best-learning-management-systems/
+
+2. **TalentLMS Blog** - "Best Learning Management Systems (LMS) of 2025"  
+   https://www.talentlms.com/blog/best-learning-management-systems/
+
+3. **Leverage AI** - "Top Learning Management Systems (LMS) in 2025: Features, Pricing, and Best Use Cases"  
+   https://www.leveragai.com/top-learning-management-systems-lms-in-2025-features-pricing-and-best-use-cases
+
+4. **Tenneo** - "Top LMS Platforms in 2025 | Best Learning Management Systems"  
+   https://tenneo.com/articles/top-best-learning-management-systems-in-2025/
+
+5. **eLearning Industry** - "LMS In 2025: Top Trends Transforming The Future Of Education"  
+   https://elearningindustry.com/lms-top-trends-transforming-the-future-of-education
+
+6. **Wellness360** - "The 12 Best Learning Management System (LMS) Platforms in 2025"  
+   https://www.wellness360.co/the-12-best-learning-management-system-lms-platforms-in-2025/
+
+7. **eLearning Street** - "The Best Learning Management Systems for Schools in 2025"  
+   https://elearningstreet.com/the-best-learning-management-systems-for-schools-in-2025/
+
+8. **iSpring Solutions** - "The Top 20 LMS Features to Consider Before Purchasing"  
+   https://www.ispringsolutions.com/blog/lms-features
+
+9. **SelectHub** - "Top 15 Learning Management System (LMS) Features"  
+   https://www.selecthub.com/learning-management/lms-features/
+
+10. **Absorb LMS** - "The top 30 features of learning management systems"  
+    https://www.absorblms.com/blog/the-top-30-features-of-learning-management-systems
+
+11. **People Managing People** - "26 Key Learning Management System (LMS) Features"  
+    https://peoplemanagingpeople.com/learning-development/learning-management-system-features/
+
+12. **Momentive Software** - "The 27 Most Important Learning Management System Features"  
+    https://momentivesoftware.com/blog/learning-management-system-features/
+
+13. **Docebo** - "Top 24 Learning Management System (LMS) Features"  
+    https://www.docebo.com/learning-network/blog/lms-features/
+
+14. **Paradiso LMS** - "Top 10 Must-Have Features in an LMS for 2025"  
+    https://paradisolms.net/blog/top-must-have-features-in-an-lms/
+
+15. **SkillBuilder Learning** - "10 Must Have LMS and Platform Features"  
+    https://skillbuilderlearning.com/blog/10-must-have-lms-and-platform-features
+
+16. **eLEAP Software** - "Top 15 Must-Have LMS Features for 2025"  
+    https://www.eleapsoftware.com/top-15-must-have-lms-features-for-2025-the-ultimate-guide-to-building-a-smarter-learning-platform/
+
+17. **Lumineo AI** - "Learning Management Systems (LMS): Key Features and Comparative Analysis"  
+    https://lumineo.ai/helpful-resources/learning-management-systems-lms-key-features-and-comparative-analysis-for-effective-e-learning/
+
+---
+
 *Research compiled from industry sources and market analysis as of January 2025*
