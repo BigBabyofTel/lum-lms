@@ -21,7 +21,7 @@ export function LmsProvider({children}: { children: ReactNode }) {
 
     // This would eventually be fetched from your Go backend
     const [classes] = useState<Class[]>([
-        {id: '1', name: '2B', grade: 'Grade 2', teacher: 'Unknown user', color: 'bg-blue-600'}
+        {id: '1', subject: '2B', grade: 'Grade 2', numOfStudents: 25, teacher: ['Unknown user'], color: 'bg-blue-600'}
     ])
 
     const [activeClass, setActiveClassData] = useState<ClassDetail | null>(null)

@@ -14,10 +14,12 @@ export const lmsConfig = {
 
   // User Profile Settings (default values)
   user: {
+    id: 'default-user-id',
     name: 'Augustus Baker',
     email: 'augustus.tb@gmail.com',
     avatar: 'A',
     avatarColor: 'bg-purple-600',
+    role: 'teacher' as const,
   },
 
   // Sidebar Settings
