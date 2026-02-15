@@ -20,7 +20,7 @@ type apiConfig struct {
 	DBConn *sql.DB
 }
 
-func (cfg *apiConfig) createUser(c *gin.Context) {
+func (cfg *apiConfig) createUser() {
 	//do what was in the createClass
 }
 
@@ -48,7 +48,7 @@ func (cfg *apiConfig) createClass(c *gin.Context) {
 		TeacherID: uuid.NullUUID{UUID: teacherUUID, Valid: true},
 	}
 	//add to db using cfg
-	_, err := cfg.DB.CreateClass(c, classParams)
+	_, err = cfg.DB.CreateClass(c, classParams)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 	}
