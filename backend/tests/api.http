@@ -1,0 +1,19 @@
+### Get request
+GET http://localhost:8080/home
+Accept: application/json
+
+
+### another get request
+GET http://localhost:8080/v1
+Accept: application/json
+
+
+
+### POST request
+POST http://localhost:8080/v1/api/classes
+Content-Type: application/json
+
+{
+  "subject": "English",
+  "grade": 5
+}
