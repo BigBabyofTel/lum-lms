@@ -7,3 +7,5 @@ VALUES (gen_random_uuid(),
         sqlc.arg(grade),
         sqlc.arg(teacher_id))
 RETURNING *;
+
+-- name: UpdateClass :one
