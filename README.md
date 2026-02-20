@@ -17,3 +17,7 @@ source code for Luminescence frontend
 - [ ] add tests
 - [ ] api calls to backend
 - [ ] add auth
+
+## notes
+
+    - need to spin up container and test for data persistence. 

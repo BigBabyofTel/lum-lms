@@ -1,0 +1,20 @@
+### Get request
+GET http://localhost:8080/home
+Accept: application/json
+
+
+### another get request
+GET http://localhost:8080/v1
+Accept: application/json
+
+
+
+### POST request
+POST http://localhost:8080/v1/api/classes
+Content-Type: application/json
+
+{
+  "subject": "Math",
+  "grade": 5,
+  "teacher_id": "49afc0c3-a283-4364-a0a7-dfda2d440880"
+}
