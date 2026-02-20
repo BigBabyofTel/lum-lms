@@ -5,7 +5,7 @@ import {FormState} from "@/lib/types";
 export async function submitForm(state: FormState | null, formData: FormData): Promise<FormState>  {
     const subject = formData.get('subject')
     const grade = formData.get('grade')
-    const teacherId = formData.get('teacherId')
+    const teacher_id = formData.get('teacherId')
 
     if (!subject || !grade) {
         return { error: 'All fields are required.'}
@@ -16,8 +16,8 @@ export async function submitForm(state: FormState | null, formData: FormData): P
             method: 'POST',
             body: JSON.stringify({
                 subject,
-                grade,
-                teacherId
+                grade: Number(grade),
+                teacher_id
             }),
             headers: { 'Content-Type': 'application/json'},
         })

@@ -12,9 +12,11 @@ interface ClassFormModalProps {
 export default function ClassFormModal({onClose}: ClassFormModalProps) {
     const [subject, setSubject] = useState('')
     const [grade, setGrade] = useState<number | ''>('')
+    const [teacherId, setTeacherId] = useState<string>('49afc0c3-a283-4364-a0a7-dfda2d440880')
 
 const [state, formAction, isPending] = useActionState<FormState |null, FormData>(submitForm, null)
 
+console.log(subject, grade, teacherId)
     return (
         /* Backdrop — click outside the card to close */
         <div
@@ -87,6 +89,24 @@ const [state, formAction, isPending] = useActionState<FormState |null, FormData>
                                        focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400
                                        transition-colors"
                         />
+                        <label
+                            htmlFor="teacherId"
+                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                            Teacher Id
+                        </label>
+                        <input
+                            name="teacherId"
+                            id="teacherId"
+                            type="text"
+                            value={teacherId}
+                            onChange={(e) => setTeacherId(e.target.value)}
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2
+                                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                                       placeholder-gray-400 dark:placeholder-gray-500
+                                       focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400
+                                       transition-colors"
+                        />
                     </div>
 
                     {/* Footer buttons */}
@@ -107,8 +127,9 @@ const [state, formAction, isPending] = useActionState<FormState |null, FormData>
                         >
                             Create
                         </button>
-                        { isPending? 'Submitting...' : 'Send Message'}
+
                     </div>
+                    { isPending? 'Submitting...' : 'Send Message'}
                     {state?.error && <p className="text-red-500">{state.error}</p>}
                     {state?.success && <p className="text-green-500">{state.success}</p>}
                 </form>
