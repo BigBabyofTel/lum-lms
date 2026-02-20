@@ -12,20 +12,8 @@ import {CreatedClass, DashboardClassContext} from "@/providers/dashboard-class-p
 function DashboardContent({children}: Readonly<{ children: React.ReactNode }>) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [createdClasses, setCreatedClasses] = useState<CreatedClass[]>([])
+    const [createdClasses, _setCreatedClasses] = useState<CreatedClass[]>([])
     const {title} = useNavbar()
-
-    const handleCreateClass = (data: { subject: string; grade: string }) => {
-        const newClass: CreatedClass = {
-            id: crypto.randomUUID(),
-            name: data.subject,
-            grade: data.grade,
-            teacher: 'Unknown user',
-            color: 'bg-indigo-600',
-        }
-        setCreatedClasses((prev) => [...prev, newClass])
-        setIsModalOpen(false)
-    }
 
     return (
         <DashboardClassContext.Provider value={{createdClasses}}>
@@ -51,7 +39,6 @@ function DashboardContent({children}: Readonly<{ children: React.ReactNode }>) {
                 {isModalOpen && (
                     <ClassFormModal
                         onClose={() => setIsModalOpen(false)}
-                        onSubmit={handleCreateClass}
                     />
                 )}
             </div>
