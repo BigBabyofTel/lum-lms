@@ -21,23 +21,24 @@ type apiConfig struct {
 }
 
 func (cfg *apiConfig) updateClass() {
-	var parameters struct {
-		Subject   string `json:"subject" binding:"required"`
-		Grade     int32  `json:"grade" binding:"required"`
-		TeacherId string `json:"teacher_id" binding:"required"`
-	}
+	/*
+		var parameters struct {
+			Subject   string `json:"subject" binding:"required"`
+			Grade     int32  `json:"grade" binding:"required"`
+			TeacherId string `json:"teacher_id" binding:"required"`
+		}
 
-	if err := c.ShouldBindJSON(&parameters); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
-	}
+		if err := c.ShouldBindJSON(&parameters); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		}
 
-	teacherUUID, err := uuid.Parse(parameters.TeacherId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "TeacherId is not a valid UUID"})
-	}
+		teacherUUID, err := uuid.Parse(parameters.TeacherId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "TeacherId is not a valid UUID"})
+		}
 
-	classParams := database.
-
+		classParams := database
+	*/
 }
 
 func (cfg *apiConfig) createClass(c *gin.Context) {
