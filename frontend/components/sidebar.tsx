@@ -2,6 +2,7 @@
 import React from 'react'
 import {Archive, Calendar, CheckSquare, Home, Plus, Settings} from 'lucide-react'
 import Link from 'next/link'
+import {useDashboardClasses} from '@/providers/dashboard-class-provider'
 
 interface SidebarItem {
     label: string
@@ -17,23 +18,23 @@ interface EnrolledClass {
     color: string
 }
 
-/*
-* add the function to add a new group
-*
-* */
-
-
-// Mock enrolled classes - this would come from data fetching in a real app
-const enrolledClasses: EnrolledClass[] = [
-    {id: '1', name: '2B', grade: 'Grade 2', color: 'bg-blue-600'},
-]
 
 interface SidebarProps {
     isOpen: boolean
     onClose: () => void
+    onOpenCreateClass: () => void
 }
 
-export default function Sidebar({isOpen, onClose}: SidebarProps) {
+export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarProps) {
+    const {createdClasses} = useDashboardClasses()
+
+    // Seed classes — replace with API data when available
+    const initialEnrolledClasses: EnrolledClass[] = [
+        {id: '1', name: '2B', grade: 'Grade 2', color: 'bg-blue-600'},
+    ]
+
+    const enrolledClasses: EnrolledClass[] = [...initialEnrolledClasses, ...createdClasses]
+
     const mainItems: SidebarItem[] = [
         {label: 'Home', href: '/dashboard', icon: <Home size={20}/>, active: true},
         {label: 'Calendar', href: '/dashboard/calendar', icon: <Calendar size={20}/>},
@@ -76,7 +77,7 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
                             </div>
                         </div>
                         <button
-                            onClick={() => console.log('Add account clicked')}
+                            onClick={onOpenCreateClass}
                             className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             aria-label="Add account"
                         >
@@ -105,9 +106,11 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
 
                     {/* Enrolled Section */}
                     <div className="mt-6 px-4">
-                        <h3 className="px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                            Enrolled
-                        </h3>
+                        <div className="flex items-center justify-between px-4 mb-2">
+                            <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                Enrolled
+                            </h3>
+                        </div>
                         <nav className="space-y-1">
                             <Link
                                 href="/dashboard/todo"

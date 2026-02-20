@@ -11,6 +11,12 @@ export interface User {
     updatedAt?: string;
 }
 
+export interface FormState {
+    error?: string,
+    success?: string
+}
+
+
 export interface Class {
     id: string;
     subject: string;
