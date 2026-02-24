@@ -63,11 +63,3 @@ export interface Post {
     }[];
 }
 
-export interface ClassDetail extends Class {
-    classId: string;
-    topics: Topic[];
-    students: User[];
-    posts: Post[];
-    createdAt?: string;
-    updatedAt?: string;
-}

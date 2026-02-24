@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import Link from 'next/link'
-import {UserCircle2, Folder, MoreVertical} from 'lucide-react'
+import Image from 'next/image'
 
 interface ClassCardProps {
     id: string
@@ -20,10 +20,10 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                     <h3 className="text-white text-2xl font-bold">{name}</h3>
                     <p className="text-white text-sm mt-1">{grade}</p>
                     <p className="text-white text-xs mt-1">{teacher}</p>
-                    
+
                     {/* User Avatar */}
                     <div className="absolute bottom-4 right-4 w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                        <UserCircle2 size={40} className="text-gray-500 dark:text-gray-400"/>
+                        <Image src="/icons/user-circle.svg" alt="User" width={40} height={40} className="text-gray-500 dark:text-gray-400"/>
                     </div>
                 </div>
 
@@ -37,7 +37,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="View people"
                     >
-                        <UserCircle2 size={20} className="text-gray-600 dark:text-gray-400"/>
+                        <Image src="/icons/user-circle.svg" alt="View people" width={20} height={20} className="text-gray-600 dark:text-gray-400"/>
                     </button>
                     <button
                         onClick={(e) => {
@@ -47,7 +47,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="View folder"
                     >
-                        <Folder size={20} className="text-gray-600 dark:text-gray-400"/>
+                        <Image src="/icons/folder.svg" alt="View folder" width={20} height={20} className="text-gray-600 dark:text-gray-400"/>
                     </button>
                     <button
                         onClick={(e) => {
@@ -57,7 +57,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="More options"
                     >
-                        <MoreVertical size={20} className="text-gray-600 dark:text-gray-400"/>
+                        <Image src="/icons/more-vertical.svg" alt="More options" width={20} height={20} className="text-gray-600 dark:text-gray-400"/>
                     </button>
                 </div>
             </div>

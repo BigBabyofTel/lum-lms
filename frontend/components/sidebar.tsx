@@ -1,8 +1,7 @@
 'use client'
 import React from 'react'
-import {Archive, Calendar, CheckSquare, Home, Plus, Settings} from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
-import {useDashboardClasses} from '@/providers/dashboard-class-provider'
 
 interface SidebarItem {
     label: string
@@ -26,23 +25,23 @@ interface SidebarProps {
 }
 
 export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarProps) {
-    const {createdClasses} = useDashboardClasses()
 
-    // Seed classes — replace with API data when available
+
+    // this is what is adding classes to the sidebar
     const initialEnrolledClasses: EnrolledClass[] = [
         {id: '1', name: '2B', grade: 'Grade 2', color: 'bg-blue-600'},
     ]
 
-    const enrolledClasses: EnrolledClass[] = [...initialEnrolledClasses, ...createdClasses]
+    const enrolledClasses: EnrolledClass[] = [...initialEnrolledClasses]
 
     const mainItems: SidebarItem[] = [
-        {label: 'Home', href: '/dashboard', icon: <Home size={20}/>, active: true},
-        {label: 'Calendar', href: '/dashboard/calendar', icon: <Calendar size={20}/>},
+        {label: 'Home', href: '/dashboard', icon: <Image src="/icons/home.svg" alt="Home" width={20} height={20}/>, active: true},
+        {label: 'Calendar', href: '/dashboard/calendar', icon: <Image src="/icons/calendar.svg" alt="Calendar" width={20} height={20}/>},
     ]
 
     const bottomItems: SidebarItem[] = [
-        {label: 'Archived classes', href: '/dashboard/archived', icon: <Archive size={20}/>},
-        {label: 'Settings', href: '/dashboard/settings', icon: <Settings size={20}/>},
+        {label: 'Archived classes', href: '/dashboard/archived', icon: <Image src="/icons/archive.svg" alt="Archived classes" width={20} height={20}/>},
+        {label: 'Settings', href: '/dashboard/settings', icon: <Image src="/icons/settings.svg" alt="Settings" width={20} height={20}/>},
     ]
 
     return (
@@ -81,7 +80,7 @@ export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarPro
                             className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             aria-label="Add account"
                         >
-                            <Plus size={20} className="text-gray-600 dark:text-gray-400"/>
+                            <Image src="/icons/plus.svg" alt="Add class" width={20} height={20} className="text-gray-600 dark:text-gray-400"/>
                         </button>
                     </div>
 
@@ -117,7 +116,7 @@ export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarPro
                                 onClick={onClose}
                                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                             >
-                                <CheckSquare size={20}/>
+                                <Image src="/icons/check-square.svg" alt="To-do" width={20} height={20}/>
                                 <span className="font-medium">To-do</span>
                             </Link>
                             {enrolledClasses.map((classItem) => (

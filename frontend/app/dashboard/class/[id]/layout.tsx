@@ -2,7 +2,7 @@
 import React, {use, useEffect} from 'react'
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
-import {useNavbar} from '@/providers/navbar-provider'
+import {useNavbar} from '@/components/providers/navbar-provider'
 
 interface ClassLayoutProps {
     children: React.ReactNode

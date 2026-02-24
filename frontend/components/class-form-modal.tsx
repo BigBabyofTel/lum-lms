@@ -1,7 +1,7 @@
 'use client'
 import React, {useActionState, useState} from 'react'
 import {X} from 'lucide-react'
-import {submitForm} from "@/app/actions";
+import {submitForm} from "@/lib/actions";
 import {FormState} from "@/lib/types";
 
 interface ClassFormModalProps {
@@ -129,6 +129,9 @@ console.log(subject, grade, teacherId)
                         </button>
 
                     </div>
+                    {/*
+                    Make a spinner to use isPending
+                    */}
                     { isPending? 'Submitting...' : 'Send Message'}
                     {state?.error && <p className="text-red-500">{state.error}</p>}
                     {state?.success && <p className="text-green-500">{state.success}</p>}

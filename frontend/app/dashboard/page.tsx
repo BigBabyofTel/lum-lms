@@ -1,7 +1,6 @@
 'use client'
 import React from 'react'
 import ClassCard from '@/components/class-card'
-import {useDashboardClasses} from '@/providers/dashboard-class-provider'
 
 interface ClassItem {
     id: string
@@ -11,7 +10,7 @@ interface ClassItem {
     color: string
 }
 
-// Mock data - would come from data fetching in a real app
+// Mock data | Make api call to fetch class data
 const initialClasses: ClassItem[] = [
     {
         id: '1',
@@ -23,8 +22,7 @@ const initialClasses: ClassItem[] = [
 ]
 
 export default function Page() {
-    const {createdClasses} = useDashboardClasses()
-    const classes = [...initialClasses, ...createdClasses]
+    const classes = [...initialClasses]
 
     return (
         <div className="space-y-6">

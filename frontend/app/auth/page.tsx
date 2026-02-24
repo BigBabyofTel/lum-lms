@@ -1,7 +1,7 @@
 "use client"
 import Image from "next/image"
 import {useRouter} from "next/navigation"
-import {ThemeToggleButton} from '@/providers/theme-provider'
+import {ThemeToggleButton} from '@/components/providers/theme-provider'
 
 export default function Page() {
     const router = useRouter()
