@@ -41,3 +41,39 @@ func (q *Queries) CreateClass(ctx context.Context, arg CreateClassParams) (Class
 	)
 	return i, err
 }
+
+const getClasses = `-- name: GetClasses :many
+SELECT id, subject, grade, teacher_id, created_at, updated_at
+FROM classes
+WHERE teacher_id = $1
+`
+
+func (q *Queries) GetClasses(ctx context.Context, teacherID uuid.NullUUID) ([]Class, error) {
+	rows, err := q.db.QueryContext(ctx, getClasses, teacherID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Class
+	for rows.Next() {
+		var i Class
+		if err := rows.Scan(
+			&i.ID,
+			&i.Subject,
+			&i.Grade,
+			&i.TeacherID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
