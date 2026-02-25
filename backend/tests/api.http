@@ -18,3 +18,7 @@ Content-Type: application/json
   "grade": 5,
   "teacher_id": "49afc0c3-a283-4364-a0a7-dfda2d440880"
 }
+
+### GET request
+GET http://localhost:8080/v1/api/classes?teacherId=49afc0c3-a283-4364-a0a7-dfda2d440880
+Accept: application/json

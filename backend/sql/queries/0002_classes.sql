@@ -8,4 +8,7 @@ VALUES (gen_random_uuid(),
         sqlc.arg(teacher_id))
 RETURNING *;
 
--- name: UpdateClass :one
+-- name: GetClasses :many
+SELECT *
+FROM classes
+WHERE teacher_id = sqlc.arg(teacher_id);

@@ -20,25 +20,21 @@ type apiConfig struct {
 	DBConn *sql.DB
 }
 
-func (cfg *apiConfig) updateClass() {
-	/*
-		var parameters struct {
-			Subject   string `json:"subject" binding:"required"`
-			Grade     int32  `json:"grade" binding:"required"`
-			TeacherId string `json:"teacher_id" binding:"required"`
-		}
+func (cfg *apiConfig) getClasses(c *gin.Context) {
+	teacherIdStr := c.Query("teacherId")
+	teacherUUID, err := uuid.Parse(teacherIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-		if err := c.ShouldBindJSON(&parameters); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err})
-		}
+	classes, err := cfg.DB.GetClasses(c, uuid.NullUUID{UUID: teacherUUID, Valid: true})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-		teacherUUID, err := uuid.Parse(parameters.TeacherId)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "TeacherId is not a valid UUID"})
-		}
-
-		classParams := database
-	*/
+	c.JSON(http.StatusOK, gin.H{"classes": classes})
 }
 
 func (cfg *apiConfig) createClass(c *gin.Context) {
@@ -51,7 +47,8 @@ func (cfg *apiConfig) createClass(c *gin.Context) {
 	}
 	// data binding
 	if err := c.ShouldBindJSON(&parameters); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "data not provided"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	teacherUUID, err := uuid.Parse(parameters.TeacherId)
@@ -110,6 +107,7 @@ func main() {
 	})
 
 	router.POST("/v1/api/classes", cfg.createClass)
+	router.GET("/v1/api/classes", cfg.getClasses)
 
 	if err := router.Run(); err != nil {
 		log.Printf("Failed to start server: %v\n", err)
