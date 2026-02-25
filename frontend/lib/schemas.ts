@@ -7,6 +7,9 @@ export const userSchema = z.object({
     last_name: z.string()
 })
 
+export const testUserSchema = userSchema.omit({email: true, first_name: true, last_name: true})
+
+
 export type User = z.infer<typeof userSchema>;
 
 export const classSchema = z.object({

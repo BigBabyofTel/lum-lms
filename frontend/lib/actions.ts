@@ -1,6 +1,7 @@
 "use server"
 
 import {FormState} from "@/lib/types";
+import {redirect} from "next/navigation"
 
 export async function submitForm(state: FormState | null, formData: FormData): Promise<FormState>  {
     const subject = formData.get('subject')
@@ -30,6 +31,20 @@ export async function submitForm(state: FormState | null, formData: FormData): P
     }
 
 
+    redirect('http://localhost:3000/dashboard')
+}
 
-    return { success: 'Class created successfully.'}
+
+export async function getAllClasses(teacherId: string) {
+    if (!teacherId) {
+        console.error("Teacher Id is missing")
+    }
+
+    try {
+
+        const response
+
+    } catch (e) {
+
+    }
 }

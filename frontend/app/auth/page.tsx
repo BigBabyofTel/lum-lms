@@ -34,8 +34,8 @@ export default function Page() {
                     <div
                         className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
                         <span className="mt-5">Parent</span>
-                        <Image src="/parent.webp" width={75} height={75} alt="icon representing parents"
-                               className="mt-[20px]"/>
+                        <Image src="/parent.webp" width={75} height={75} style={{height:'auto', width:'auto'}} alt="icon representing parents"
+                               />
                     </div>
                     <div
                         className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">

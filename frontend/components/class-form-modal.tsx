@@ -3,6 +3,7 @@ import React, {useActionState, useState} from 'react'
 import {X} from 'lucide-react'
 import {submitForm} from "@/lib/actions";
 import {FormState} from "@/lib/types";
+import {useUserStore} from "@/store/useUserStore";
 
 interface ClassFormModalProps {
     onClose: () => void
@@ -12,11 +13,12 @@ interface ClassFormModalProps {
 export default function ClassFormModal({onClose}: ClassFormModalProps) {
     const [subject, setSubject] = useState('')
     const [grade, setGrade] = useState<number | ''>('')
-    const [teacherId, setTeacherId] = useState<string>('49afc0c3-a283-4364-a0a7-dfda2d440880')
+
+    const teacherId = useUserStore((state) => state.id)
 
 const [state, formAction, isPending] = useActionState<FormState |null, FormData>(submitForm, null)
 
-console.log(subject, grade, teacherId)
+console.log(teacherId)
     return (
         /* Backdrop — click outside the card to close */
         <div
@@ -89,18 +91,11 @@ console.log(subject, grade, teacherId)
                                        focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400
                                        transition-colors"
                         />
-                        <label
-                            htmlFor="teacherId"
-                            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                        >
-                            Teacher Id
-                        </label>
                         <input
                             name="teacherId"
                             id="teacherId"
-                            type="text"
+                            type="hidden"
                             value={teacherId}
-                            onChange={(e) => setTeacherId(e.target.value)}
                             className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2
                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                                        placeholder-gray-400 dark:placeholder-gray-500
