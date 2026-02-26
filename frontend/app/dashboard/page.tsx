@@ -1,6 +1,7 @@
 'use client'
-import React, {useEffect, useState} from 'react'
+import React, {useEffect} from 'react'
 import ClassCard from '@/components/class-card'
+import {useUser} from "@/components/providers/user-provider";
 
 interface ClassItem {
     id: string
@@ -23,13 +24,14 @@ const initialClasses: ClassItem[] = [
 
 export default function Page() {
     const classes = [...initialClasses]
-    const [userClasses, setUserClasses] = useState('');
+    const id = useUser()
+
 //load the data attached to users_id that is set in auth
     useEffect(() => {
-        setUserClasses('test')
-    }, [userClasses])
+        console.log(id)
+    })
 
-    console.log(userClasses)
+
 
 
     return (

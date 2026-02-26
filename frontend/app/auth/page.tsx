@@ -2,9 +2,12 @@
 import Image from "next/image"
 import {useRouter} from "next/navigation"
 import {ThemeToggleButton} from '@/components/providers/theme-provider'
+import {useUser} from "@/components/providers/user-provider";
+
 
 export default function Page() {
     const router = useRouter()
+    const { setId } = useUser()
     return (
         <>
             {/* Theme toggle button */}
@@ -27,7 +30,9 @@ export default function Page() {
                     className="w-full flex flex-row items-center justify-around">
                     <div
                         role="button"
-                        onClick={() => router.push('/dashboard')}
+                        onClick={() => {
+                            setId('49afc0c3-a283-4364-a0a7-dfda2d440880')
+                            router.push('/dashboard')}}
                         className="ww-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
                         <span className="mt-5">Staff</span>
                         <Image src="/teacher.webp" width={100} height={100} alt="an icon representing teachers"/></div>

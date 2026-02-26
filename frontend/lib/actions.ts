@@ -34,7 +34,7 @@ export async function submitForm(state: FormState | null, formData: FormData): P
     redirect('http://localhost:3000/dashboard')
 }
 
-
+/*
 export async function getAllClasses(teacherId: string) {
     if (!teacherId) {
         console.error("Teacher Id is missing")
@@ -48,3 +48,4 @@ export async function getAllClasses(teacherId: string) {
 
     }
 }
+*/
