@@ -2,12 +2,13 @@
 import Image from "next/image"
 import {useRouter} from "next/navigation"
 import {ThemeToggleButton} from '@/components/providers/theme-provider'
-import {useUser} from "@/components/providers/user-provider";
+import {useUserStore} from "@/store/useUserStore";
 
 
 export default function Page() {
     const router = useRouter()
-    const { setId } = useUser()
+    const setId = useUserStore((state) => state.setId);
+    const id = useUserStore((state) => state.id)
     return (
         <>
             {/* Theme toggle button */}
@@ -32,6 +33,7 @@ export default function Page() {
                         role="button"
                         onClick={() => {
                             setId('49afc0c3-a283-4364-a0a7-dfda2d440880')
+                            console.log(id)
                             router.push('/dashboard')}}
                         className="ww-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
                         <span className="mt-5">Staff</span>
@@ -39,7 +41,7 @@ export default function Page() {
                     <div
                         className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
                         <span className="mt-5">Parent</span>
-                        <Image src="/parent.webp" width={75} height={75} style={{height:'auto', width:'auto'}} alt="icon representing parents"
+                        <Image src="/parent.webp" width={75} height={75} style={{height:'auto', width:'auto'}} loading="eager" alt="icon representing parents"
                                />
                     </div>
                     <div

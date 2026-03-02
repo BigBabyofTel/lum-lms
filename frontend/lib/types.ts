@@ -20,10 +20,8 @@ export interface FormState {
 export interface Class {
     id: string;
     subject: string;
-    numOfStudents: number;
     grade: string;
-    teacher: string[];
-    color: string;
+    teacherId: string;
     createdAt?: string;
     updatedAt?: string;
 }

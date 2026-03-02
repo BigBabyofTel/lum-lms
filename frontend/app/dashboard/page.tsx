@@ -1,39 +1,31 @@
 'use client'
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import ClassCard from '@/components/class-card'
-import {useUser} from "@/components/providers/user-provider";
+import {useUserStore} from "@/store/useUserStore";
+import {getAllClasses} from "@/lib/actions";
+import {Class} from "@/lib/types";
 
-interface ClassItem {
-    id: string
-    name: string
-    grade: string
-    teacher: string
-    color: string
-}
-
-// Mock data | Make api call to fetch class data
-const initialClasses: ClassItem[] = [
-    {
-        id: '1',
-        name: '5B',
-        grade: 'Grade 2',
-        teacher: 'Mr. Baker',
-        color: 'bg-blue-600'
-    },
-]
 
 export default function Page() {
-    const classes = [...initialClasses]
-    const id = useUser()
+    const id = useUserStore((state) => state.id)
+    const [classData, setClassData] = useState<Class[]>([])
 
 //load the data attached to users_id that is set in auth
     useEffect(() => {
         console.log(id)
-    })
+        if (!id) return
+        //add logic for GET request
+        const timer = setTimeout(async() => {
+            const data: Class[] = await getAllClasses(id as string)
+            setClassData(data)
+            return
+        }, 500)
+        return () => clearTimeout(timer)
+    }, [id])
 
 
 
-
+console.log(classData[0].id)
     return (
         <div className="space-y-6">
             {/* Page header */}
@@ -43,14 +35,14 @@ export default function Page() {
 
             {/* Class Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {classes.map((classItem) => (
+                {classData?.map((classDetails) => (
                     <ClassCard
-                        key={classItem.id}
-                        id={classItem.id}
-                        name={classItem.name}
-                        grade={classItem.grade}
-                        teacher={classItem.teacher}
-                        color={classItem.color}
+                        key={classDetails.id}
+                        id={classDetails.id}
+                        name={classDetails.subject}
+                        grade={classDetails.grade}
+                        teacher={classDetails.subject}
+                        color={'blue'}
                     />
                 ))}
             </div>
