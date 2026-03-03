@@ -4,16 +4,15 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 interface ClassCardProps {
-    id: string
     name: string
-    grade: string
+    grade: number
     teacher: string
     color?: string
 }
 
-export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-600'}: ClassCardProps) {
+export default function ClassCard({name, grade, teacher, color = 'bg-blue-600'}: ClassCardProps) {
     return (
-        <Link href={`/dashboard/class/${id}`}>
+        <Link href={`/dashboard/class/${name}`}>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
                 {/* Card Header */}
                 <div className={`${color} p-4 h-32 relative`}>
@@ -32,7 +31,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            console.log('View people clicked for class:', id)
+                            console.log('View people clicked for class:', name)
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="View people"
@@ -42,7 +41,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            console.log('View folder clicked for class:', id)
+                            console.log('View folder clicked for class:', name)
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="View folder"
@@ -52,7 +51,7 @@ export default function ClassCard({id, name, grade, teacher, color = 'bg-blue-60
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            console.log('More options clicked for class:', id)
+                            console.log('More options clicked for class:', name)
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="More options"

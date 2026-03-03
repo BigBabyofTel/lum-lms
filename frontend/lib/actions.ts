@@ -1,6 +1,6 @@
 "use server"
 
-import {FormState} from "@/lib/types";
+import {Class, FormState} from "@/lib/types";
 import {redirect} from "next/navigation"
 import {testUserSchema} from "@/lib/schemas";
 import * as z from "zod";
@@ -37,7 +37,7 @@ export async function submitForm(state: FormState | null, formData: FormData): P
 }
 
 
-export async function getAllClasses(teacherId: string) {
+export async function getAllClasses(teacherId: string): Promise<Class[]> {
     if (!teacherId) {
         console.error("Teacher Id is missing")
     }
@@ -50,10 +50,10 @@ export async function getAllClasses(teacherId: string) {
     try {
         const response = await fetch(`http://localhost:8080/v1/api/classes?teacherId=${  valid.data?.id}`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json'},
+            headers: { 'Accept': 'application/json'},
         })
-        const results = await response.json()
-        return results.classes
+        if (!response.ok) return []
+        return await response.json() as Class[]
     } catch (err) {
         if (err instanceof z.ZodError) {
             console.error(err.issues)
@@ -61,4 +61,5 @@ export async function getAllClasses(teacherId: string) {
             console.error(err)
         }
     }
+    return []
 }

@@ -20,7 +20,7 @@ export interface FormState {
 export interface Class {
     id: string;
     subject: string;
-    grade: string;
+    grade: number;
     teacherId: string;
     createdAt?: string;
     updatedAt?: string;
