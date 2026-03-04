@@ -12,16 +12,17 @@ export default function Page() {
 
 //load the data attached to users_id that is set in auth
     useEffect(() => {
-        console.log(id)
         if (!id) return
         //add logic for GET request
-        const timer = setTimeout(async() => {
-            const data: Class[] = await getAllClasses(id as string)
+       (async() => {
+            const data = await getAllClasses(id as string) ?? []
             setClassData(data)
             return
-        })
-        return () => clearTimeout(timer)
+        })()
     }, [id])
+
+
+console.log(classData)
 
     return (
         <div className="space-y-6">
@@ -32,12 +33,12 @@ export default function Page() {
 
             {/* Class Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {classData?.map((data) => (
+                {classData.map((data) => (
                     <ClassCard
                         key={data.id}
-                        name={data.id}
+                        name={data.subject}
                         grade={data.grade}
-                        teacher={data.subject}
+                        teacher={data.teacherId as string}
                         color={'blue'}
                     />
                 ))}

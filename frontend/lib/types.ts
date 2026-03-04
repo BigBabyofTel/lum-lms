@@ -21,7 +21,7 @@ export interface Class {
     id: string;
     subject: string;
     grade: number;
-    teacherId: string;
+    teacherId?: string;
     createdAt?: string;
     updatedAt?: string;
 }
