@@ -85,7 +85,17 @@ CREATE TABLE comments
     updated_at timestamptz
 );
 
+CREATE TABLE class_enrollments
+(
+    id          uuid PRIMARY KEY     default gen_random_uuid(),
+    class_id    uuid        NOT NULL REFERENCES classes (id) ON DELETE CASCADE,
+    student_id  uuid        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    enrolled_at timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (class_id, student_id)
+);
+
 -- +goose Down
+DROP TABLE IF EXISTS class_enrollments;
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS user_assignments;

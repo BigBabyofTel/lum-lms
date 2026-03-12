@@ -32,17 +32,19 @@ export default function Page() {
                     <div
                         role="button"
                         onClick={() => {
-                            setId('49afc0c3-a283-4364-a0a7-dfda2d440880')
+                            setId('9518dd4e-49f6-4c4e-984f-24c0ab9f77ba')
                             console.log(id)
-                            router.push('/dashboard')}}
+                            router.push('/dashboard')
+                        }}
                         className="ww-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
                         <span className="mt-5">Staff</span>
                         <Image src="/teacher.webp" width={100} height={100} alt="an icon representing teachers"/></div>
                     <div
                         className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
                         <span className="mt-5">Parent</span>
-                        <Image src="/parent.webp" width={75} height={75} style={{height:'auto', width:'auto'}} loading="eager" alt="icon representing parents"
-                               />
+                        <Image src="/parent.webp" width={75} height={75} style={{height: 'auto', width: 'auto'}}
+                               loading="eager" alt="icon representing parents"
+                        />
                     </div>
                     <div
                         className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">

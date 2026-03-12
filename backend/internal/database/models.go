@@ -164,6 +164,13 @@ type Class struct {
 	UpdatedAt sql.NullTime
 }
 
+type ClassEnrollment struct {
+	ID         uuid.UUID
+	ClassID    uuid.UUID
+	StudentID  uuid.UUID
+	EnrolledAt time.Time
+}
+
 type Comment struct {
 	ID        uuid.UUID
 	PostID    uuid.NullUUID
