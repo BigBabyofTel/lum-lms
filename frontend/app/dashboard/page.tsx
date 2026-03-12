@@ -1,36 +1,28 @@
 'use client'
 import React, {useEffect, useState} from 'react'
-import ClassCard from '@/components/class-card'
+import {useUserStore} from "@/store/useUserStore";
+import {getAllClasses} from "@/lib/actions";
+import {Class} from "@/lib/types";
+import ClassCard from "@/components/class-card";
 
-interface ClassItem {
-    id: string
-    name: string
-    grade: string
-    teacher: string
-    color: string
-}
-
-// Mock data | Make api call to fetch class data
-const initialClasses: ClassItem[] = [
-    {
-        id: '1',
-        name: '5B',
-        grade: 'Grade 2',
-        teacher: 'Mr. Baker',
-        color: 'bg-blue-600'
-    },
-]
 
 export default function Page() {
-    const classes = [...initialClasses]
-    const [userClasses, setUserClasses] = useState('');
+    const id = useUserStore((state) => state.id)
+    const [classData, setClassData] = useState<Class[]>([])
+
 //load the data attached to users_id that is set in auth
     useEffect(() => {
-        setUserClasses('test')
-    }, [userClasses])
+        if (!id) return
+        //add logic for GET request
+       (async() => {
+            const data = await getAllClasses(id as string) ?? []
+            setClassData(data)
+            return
+        })()
+    }, [id])
 
-    console.log(userClasses)
 
+console.log(classData)
 
     return (
         <div className="space-y-6">
@@ -41,14 +33,13 @@ export default function Page() {
 
             {/* Class Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {classes.map((classItem) => (
+                {classData.map((data) => (
                     <ClassCard
-                        key={classItem.id}
-                        id={classItem.id}
-                        name={classItem.name}
-                        grade={classItem.grade}
-                        teacher={classItem.teacher}
-                        color={classItem.color}
+                        key={data.id}
+                        name={data.subject}
+                        grade={data.grade}
+                        teacher={data.teacherId as string}
+                        color={'blue'}
                     />
                 ))}
             </div>

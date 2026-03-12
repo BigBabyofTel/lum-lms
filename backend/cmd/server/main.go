@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
@@ -18,6 +19,15 @@ import (
 type apiConfig struct {
 	DB     *database.Queries
 	DBConn *sql.DB
+}
+
+type ClassesResponse struct {
+	Id        string    `json:"id"`
+	Subject   string    `json:"subject"`
+	Grade     int       `json:"grade"`
+	TeacherId string    `json:"teacherId"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (cfg *apiConfig) getClasses(c *gin.Context) {
@@ -34,7 +44,23 @@ func (cfg *apiConfig) getClasses(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"classes": classes})
+	if classes == nil {
+		classes = []database.Class{}
+	}
+
+	response := make([]ClassesResponse, len(classes))
+	for i, class := range classes {
+		response[i] = ClassesResponse{
+			Id:        class.ID.String(),
+			Subject:   class.Subject,
+			Grade:     int(class.Grade),
+			TeacherId: class.TeacherID.UUID.String(),
+			CreatedAt: class.CreatedAt,
+			UpdatedAt: class.UpdatedAt.Time,
+		}
+	}
+	fmt.Println(response)
+	c.JSON(http.StatusOK, response)
 }
 
 func (cfg *apiConfig) createClass(c *gin.Context) {

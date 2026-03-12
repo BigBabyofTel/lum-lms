@@ -15,9 +15,9 @@ source code for Luminescence frontend
 ## TO-DO
 
 - [ ] add tests
-- [ ] api calls to backend
 - [ ] add auth
 
 ## notes
 
-    - need to spin up container and test for data persistence. 
+- finish up to the people component
+- start auth after people component is complete

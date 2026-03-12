@@ -35,13 +35,30 @@ export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarPro
     const enrolledClasses: EnrolledClass[] = [...initialEnrolledClasses]
 
     const mainItems: SidebarItem[] = [
-        {label: 'Home', href: '/dashboard', icon: <Image src="/icons/home.svg" alt="Home" width={20} height={20}/>, active: true},
-        {label: 'Calendar', href: '/dashboard/calendar', icon: <Image src="/icons/calendar.svg" alt="Calendar" width={20} height={20}/>},
+        {
+            label: 'Home',
+            href: '/dashboard',
+            icon: <Image src="/icons/home.svg" alt="Home" width={20} height={20}/>,
+            active: true
+        },
+        {
+            label: 'Calendar',
+            href: '/dashboard/calendar',
+            icon: <Image src="/icons/calendar.svg" alt="Calendar" width={20} height={20}/>
+        },
     ]
 
     const bottomItems: SidebarItem[] = [
-        {label: 'Archived classes', href: '/dashboard/archived', icon: <Image src="/icons/archive.svg" alt="Archived classes" width={20} height={20}/>},
-        {label: 'Settings', href: '/dashboard/settings', icon: <Image src="/icons/settings.svg" alt="Settings" width={20} height={20}/>},
+        {
+            label: 'Archived classes',
+            href: '/dashboard/archived',
+            icon: <Image src="/icons/archive.svg" alt="Archived classes" width={20} height={20}/>
+        },
+        {
+            label: 'Settings',
+            href: '/dashboard/settings',
+            icon: <Image src="/icons/settings.svg" alt="Settings" width={20} height={20}/>
+        },
     ]
 
     return (
@@ -72,7 +89,7 @@ export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarPro
                             </div>
                             <div className="flex-1">
                                 <p className="text-sm font-semibold text-gray-900 dark:text-white">Augustus Baker</p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400">augustus.tb@gmail.com</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">mrbaker@gmail.com</p>
                             </div>
                         </div>
                         <button
@@ -80,7 +97,8 @@ export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarPro
                             className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             aria-label="Add account"
                         >
-                            <Image src="/icons/plus.svg" alt="Add class" width={20} height={20} className="text-gray-600 dark:text-gray-400"/>
+                            <Image src="/icons/plus.svg" alt="Add class" width={20} height={20}
+                                   className="text-gray-600 dark:text-gray-400"/>
                         </button>
                     </div>
 

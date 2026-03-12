@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/phases/*
+LMS_CORE_FEATURES.md
+LMS_MVP_PACING_GUIDE.md
