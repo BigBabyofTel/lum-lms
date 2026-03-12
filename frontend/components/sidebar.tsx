@@ -46,6 +46,11 @@ export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarPro
             href: '/dashboard/calendar',
             icon: <Image src="/icons/calendar.svg" alt="Calendar" width={20} height={20}/>
         },
+        {
+            label: 'Students',
+            href: '/dashboard/admin',
+            icon: <Image src="/icons/users.svg" alt="students" width={20} height={20}/>
+        }
     ]
 
     const bottomItems: SidebarItem[] = [
