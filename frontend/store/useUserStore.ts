@@ -4,8 +4,8 @@ import {$ZodIssue} from "zod/v4/core";
 import {createJSONStorage, persist} from "zustand/middleware";
 
 export interface UserState {
-    id: string| null;
-    setId: (id: string ) => void;
+    id: string | null;
+    setId: (id: string) => void;
     errors?: $ZodIssue[];
 }
 
@@ -34,7 +34,7 @@ export const useUserStore = create<UserState>()(
         {
             name: 'user-storage', // name of the item in storage
             storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
-            partialize: (state) => ({ id: state.id }) // only persist the 'id' field
+            //partialize: (state) => ({ id: state.id }) // only persist the 'id' field
         }
     )
 )
