@@ -17,7 +17,7 @@ export default function StudentCard({firstName, lastName, email, grade}: Student
         <div
             className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
             {/* Card Header */}
-            <div className="bg-blue-400 p-4 h-32 relative">
+            <div className="bg-blue-300 p-4 h-32 relative">
                 <h3 className="dark:text-white text-2xl font-bold">{firstName}</h3>
                 <h3 className="dark:text-white text-2xl font-bold">{lastName}</h3>
                 <p className="dark:text-white text-sm mt-1">{grade}</p>
