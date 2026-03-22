@@ -10,16 +10,16 @@ interface ClassCardProps {
     color?: string
 }
 
-export default function ClassCard({name, grade, teacher, color = 'bg-blue-600'}: ClassCardProps) {
+export default function ClassCard({name, grade, teacher = 'Mr.Baker', color = 'bg-blue-400'}: ClassCardProps) {
     return (
         <Link href={`/dashboard/class/${name}`}>
             <div
                 className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
                 {/* Card Header */}
-                <div className={`${color = 'bg-blue-400'} p-4 h-32 relative`}>
+                <div className={`${color} p-4 h-32 relative`}>
                     <h3 className="dark:text-white text-2xl font-bold">{name}</h3>
                     <p className="dark:text-white text-sm mt-1">{grade}</p>
-                    <p className="dark:text-white text-xs mt-1">{teacher = 'Mr.Baker'}</p>
+                    <p className="dark:text-white text-xs mt-1">{teacher}</p>
 
                     {/* User Avatar */}
                     <div
@@ -34,7 +34,7 @@ export default function ClassCard({name, grade, teacher, color = 'bg-blue-600'}:
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            console.log('View people clicked for class:', name)
+                            console.log('View people clicked for class:')
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="View people"
@@ -45,7 +45,7 @@ export default function ClassCard({name, grade, teacher, color = 'bg-blue-600'}:
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            console.log('View folder clicked for class:', name)
+                            console.log('View folder clicked for class:')
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="View folder"
@@ -56,7 +56,7 @@ export default function ClassCard({name, grade, teacher, color = 'bg-blue-600'}:
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            console.log('More options clicked for class:', name)
+                            console.log('More options clicked for class:')
                         }}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         aria-label="More options"
