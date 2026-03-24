@@ -21,9 +21,6 @@ export default function Page() {
         })()
     }, [id])
 
-
-console.log(classData)
-
     return (
         <div className="space-y-6">
             {/* Page header */}
@@ -38,7 +35,7 @@ console.log(classData)
                         key={data.id}
                         name={data.subject}
                         grade={data.grade}
-                        teacher={data.teacherId as string}
+                        teacher={'Mr.Baker'}
                         color={'blue'}
                     />
                 ))}
