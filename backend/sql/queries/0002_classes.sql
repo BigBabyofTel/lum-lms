@@ -12,3 +12,8 @@ RETURNING *;
 SELECT *
 FROM classes
 WHERE teacher_id = sqlc.arg(teacher_id);
+
+-- name: GetStudents :many
+SELECT *
+FROM users
+WHERE type = 'student';

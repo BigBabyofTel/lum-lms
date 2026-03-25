@@ -16,6 +16,7 @@ func RegisterRoutes(router *gin.Engine, h *handlers.Handler) {
 	v1 := router.Group("/api/v1")
 	{
 		RegisterClassRoutes(v1, h)
+		RegisterUserRoutes(v1, h)
 	}
 
 }

@@ -5,9 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterClassRoutes(v1 *gin.RouterGroup, h *handlers.Handler) {
+func RegisterClassRoutes(router *gin.RouterGroup, h *handlers.Handler) {
 
-	classes := v1.Group("/classes")
+	classes := router.Group("/classes")
 	{
 		classes.GET("", h.GetClasses)
 		classes.POST("", h.CreateClass)
