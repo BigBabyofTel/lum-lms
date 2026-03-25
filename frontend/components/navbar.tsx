@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import {Menu, X} from 'lucide-react'
-import {ThemeToggleButton} from '@/providers/theme-provider'
+import {ThemeToggleButton} from '@/components/providers/theme-provider'
 
 interface NavbarProps {
     isSidebarOpen: boolean

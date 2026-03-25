@@ -16,7 +16,7 @@ services:
       - "8080:8080"
     command: sh -c "goose -dir sql/schema postgres $$DATABASE_URL up && /usr/local/bin/app"
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
     depends_on:
       db:
         condition: service_healthy

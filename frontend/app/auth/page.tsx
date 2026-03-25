@@ -1,10 +1,14 @@
 "use client"
 import Image from "next/image"
 import {useRouter} from "next/navigation"
-import {ThemeToggleButton} from '@/providers/theme-provider'
+import {ThemeToggleButton} from '@/components/providers/theme-provider'
+import {useUserStore} from "@/store/useUserStore";
+
 
 export default function Page() {
     const router = useRouter()
+    const setId = useUserStore((state) => state.setId);
+    const id = useUserStore((state) => state.id)
     return (
         <>
             {/* Theme toggle button */}
@@ -27,15 +31,20 @@ export default function Page() {
                     className="w-full flex flex-row items-center justify-around">
                     <div
                         role="button"
-                        onClick={() => router.push('/dashboard')}
+                        onClick={() => {
+                            setId('9518dd4e-49f6-4c4e-984f-24c0ab9f77ba')
+                            console.log(id)
+                            router.push('/dashboard')
+                        }}
                         className="ww-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
                         <span className="mt-5">Staff</span>
                         <Image src="/teacher.webp" width={100} height={100} alt="an icon representing teachers"/></div>
                     <div
                         className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">
                         <span className="mt-5">Parent</span>
-                        <Image src="/parent.webp" width={75} height={75} alt="icon representing parents"
-                               className="mt-[20px]"/>
+                        <Image src="/parent.webp" width={75} height={75} style={{height: 'auto', width: 'auto'}}
+                               loading="eager" alt="icon representing parents"
+                        />
                     </div>
                     <div
                         className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100">

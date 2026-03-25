@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import {Home, Calendar, CheckSquare, Archive, Settings, Plus} from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 interface SidebarItem {
@@ -17,25 +17,53 @@ interface EnrolledClass {
     color: string
 }
 
-// Mock enrolled classes - this would come from data fetching in a real app
-const enrolledClasses: EnrolledClass[] = [
-    {id: '1', name: '2B', grade: 'Grade 2', color: 'bg-blue-600'},
-]
 
 interface SidebarProps {
     isOpen: boolean
     onClose: () => void
+    onOpenCreateClass: () => void
 }
 
-export default function Sidebar({isOpen, onClose}: SidebarProps) {
+export default function Sidebar({isOpen, onClose, onOpenCreateClass}: SidebarProps) {
+
+
+    // this is what is adding classes to the sidebar
+    const initialEnrolledClasses: EnrolledClass[] = [
+        {id: '1', name: '2B', grade: 'Grade 2', color: 'bg-blue-600'},
+    ]
+
+    const enrolledClasses: EnrolledClass[] = [...initialEnrolledClasses]
+
     const mainItems: SidebarItem[] = [
-        {label: 'Home', href: '/dashboard', icon: <Home size={20}/>, active: true},
-        {label: 'Calendar', href: '/dashboard/calendar', icon: <Calendar size={20}/>},
+        {
+            label: 'Home',
+            href: '/dashboard',
+            icon: <Image src="/icons/home.svg" alt="Home" width={20} height={20}/>,
+            active: true
+        },
+        {
+            label: 'Calendar',
+            href: '/dashboard/calendar',
+            icon: <Image src="/icons/calendar.svg" alt="Calendar" width={20} height={20}/>
+        },
+        {
+            label: 'Students',
+            href: '/dashboard/admin',
+            icon: <Image src="/icons/users.svg" alt="students" width={20} height={20}/>
+        }
     ]
 
     const bottomItems: SidebarItem[] = [
-        {label: 'Archived classes', href: '/dashboard/archived', icon: <Archive size={20}/>},
-        {label: 'Settings', href: '/dashboard/settings', icon: <Settings size={20}/>},
+        {
+            label: 'Archived classes',
+            href: '/dashboard/archived',
+            icon: <Image src="/icons/archive.svg" alt="Archived classes" width={20} height={20}/>
+        },
+        {
+            label: 'Settings',
+            href: '/dashboard/settings',
+            icon: <Image src="/icons/settings.svg" alt="Settings" width={20} height={20}/>
+        },
     ]
 
     return (
@@ -60,20 +88,22 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
                     {/* User Profile Section */}
                     <div className="p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
+                            <div
+                                className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
                                 A
                             </div>
                             <div className="flex-1">
                                 <p className="text-sm font-semibold text-gray-900 dark:text-white">Augustus Baker</p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400">augustus.tb@gmail.com</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">mrbaker@gmail.com</p>
                             </div>
                         </div>
                         <button
-                            onClick={() => console.log('Add account clicked')}
+                            onClick={onOpenCreateClass}
                             className="p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors"
                             aria-label="Add account"
                         >
-                            <Plus size={20} className="text-gray-600 dark:text-gray-400"/>
+                            <Image src="/icons/plus.svg" alt="Add class" width={20} height={20}
+                                   className="text-gray-600 dark:text-gray-400"/>
                         </button>
                     </div>
 
@@ -98,16 +128,18 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
 
                     {/* Enrolled Section */}
                     <div className="mt-6 px-4">
-                        <h3 className="px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                            Enrolled
-                        </h3>
+                        <div className="flex items-center justify-between px-4 mb-2">
+                            <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                Enrolled
+                            </h3>
+                        </div>
                         <nav className="space-y-1">
                             <Link
                                 href="/dashboard/todo"
                                 onClick={onClose}
                                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                             >
-                                <CheckSquare size={20}/>
+                                <Image src="/icons/check-square.svg" alt="To-do" width={20} height={20}/>
                                 <span className="font-medium">To-do</span>
                             </Link>
                             {enrolledClasses.map((classItem) => (
@@ -117,7 +149,8 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
                                     onClick={onClose}
                                     className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
                                 >
-                                    <div className={`w-8 h-8 ${classItem.color} rounded flex items-center justify-center text-white text-sm font-bold`}>
+                                    <div
+                                        className={`w-8 h-8 ${classItem.color} rounded flex items-center justify-center text-white text-sm font-bold`}>
                                         {classItem.name.charAt(0)}
                                     </div>
                                     <div>
@@ -153,7 +186,9 @@ export default function Sidebar({isOpen, onClose}: SidebarProps) {
                             className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                             aria-label="Help"
                         >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 dark:text-gray-400">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                 className="text-gray-600 dark:text-gray-400">
                                 <circle cx="12" cy="12" r="10"/>
                                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                                 <line x1="12" y1="17" x2="12.01" y2="17"/>
