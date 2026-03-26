@@ -35,8 +35,8 @@ func (e *AssignmentStatus) Scan(src interface{}) error {
 }
 
 type NullAssignmentStatus struct {
-	AssignmentStatus AssignmentStatus
-	Valid            bool // Valid is true if AssignmentStatus is not NULL
+	AssignmentStatus AssignmentStatus `json:"assignment_status"`
+	Valid            bool             `json:"valid"` // Valid is true if AssignmentStatus is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -77,8 +77,8 @@ func (e *ContentType) Scan(src interface{}) error {
 }
 
 type NullContentType struct {
-	ContentType ContentType
-	Valid       bool // Valid is true if ContentType is not NULL
+	ContentType ContentType `json:"content_type"`
+	Valid       bool        `json:"valid"` // Valid is true if ContentType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -120,8 +120,8 @@ func (e *Role) Scan(src interface{}) error {
 }
 
 type NullRole struct {
-	Role  Role
-	Valid bool // Valid is true if Role is not NULL
+	Role  Role `json:"role"`
+	Valid bool `json:"valid"` // Valid is true if Role is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -143,78 +143,78 @@ func (ns NullRole) Value() (driver.Value, error) {
 }
 
 type Assignment struct {
-	ID              uuid.UUID
-	Type            ContentType
-	Title           string
-	ClassID         uuid.NullUUID
-	Details         sql.NullString
-	AssignDate      sql.NullTime
-	DueDate         sql.NullTime
-	AttachmentCount sql.NullInt32
-	CreatedAt       time.Time
-	UpdatedAt       sql.NullTime
+	ID              uuid.UUID      `json:"id"`
+	Type            ContentType    `json:"type"`
+	Title           string         `json:"title"`
+	ClassID         uuid.NullUUID  `json:"class_id"`
+	Details         sql.NullString `json:"details"`
+	AssignDate      sql.NullTime   `json:"assign_date"`
+	DueDate         sql.NullTime   `json:"due_date"`
+	AttachmentCount sql.NullInt32  `json:"attachment_count"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       sql.NullTime   `json:"updated_at"`
 }
 
 type Class struct {
-	ID        uuid.UUID
-	Subject   string
-	Grade     int32
-	TeacherID uuid.NullUUID
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	ID        uuid.UUID     `json:"id"`
+	Subject   string        `json:"subject"`
+	Grade     int32         `json:"grade"`
+	TeacherID uuid.NullUUID `json:"teacher_id"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt sql.NullTime  `json:"updated_at"`
 }
 
 type ClassEnrollment struct {
-	ID         uuid.UUID
-	ClassID    uuid.UUID
-	StudentID  uuid.UUID
-	EnrolledAt time.Time
+	ID         uuid.UUID `json:"id"`
+	ClassID    uuid.UUID `json:"class_id"`
+	StudentID  uuid.UUID `json:"student_id"`
+	EnrolledAt time.Time `json:"enrolled_at"`
 }
 
 type Comment struct {
-	ID        uuid.UUID
-	PostID    uuid.NullUUID
-	AuthorID  uuid.NullUUID
-	Content   string
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	ID        uuid.UUID     `json:"id"`
+	PostID    uuid.NullUUID `json:"post_id"`
+	AuthorID  uuid.NullUUID `json:"author_id"`
+	Content   string        `json:"content"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt sql.NullTime  `json:"updated_at"`
 }
 
 type Post struct {
-	ID        uuid.UUID
-	AuthorID  uuid.NullUUID
-	ParentID  uuid.NullUUID
-	Content   string
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
+	ID        uuid.UUID     `json:"id"`
+	AuthorID  uuid.NullUUID `json:"author_id"`
+	ParentID  uuid.NullUUID `json:"parent_id"`
+	Content   string        `json:"content"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt sql.NullTime  `json:"updated_at"`
 }
 
 type Topic struct {
-	ID           uuid.UUID
-	Name         string
-	AssignmentID uuid.NullUUID
-	CreatedAt    time.Time
-	UpdatedAt    sql.NullTime
+	ID           uuid.UUID     `json:"id"`
+	Name         string        `json:"name"`
+	AssignmentID uuid.NullUUID `json:"assignment_id"`
+	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    sql.NullTime  `json:"updated_at"`
 }
 
 type User struct {
-	ID          uuid.UUID
-	FirstName   string
-	LastName    string
-	Email       string
-	Type        Role
-	Avatar      sql.NullString
-	AvatarColor sql.NullString
-	CreatedAt   time.Time
-	UpdatedAt   sql.NullTime
+	ID          uuid.UUID      `json:"id"`
+	FirstName   string         `json:"first_name"`
+	LastName    string         `json:"last_name"`
+	Email       string         `json:"email"`
+	Type        Role           `json:"type"`
+	Avatar      sql.NullString `json:"avatar"`
+	AvatarColor sql.NullString `json:"avatar_color"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   sql.NullTime   `json:"updated_at"`
 }
 
 type UserAssignment struct {
-	ID           uuid.UUID
-	AssignmentID uuid.NullUUID
-	StudentID    uuid.NullUUID
-	Grade        sql.NullInt32
-	Status       AssignmentStatus
-	CreatedAt    time.Time
-	UpdatedAt    sql.NullTime
+	ID           uuid.UUID        `json:"id"`
+	AssignmentID uuid.NullUUID    `json:"assignment_id"`
+	StudentID    uuid.NullUUID    `json:"student_id"`
+	Grade        sql.NullInt32    `json:"grade"`
+	Status       AssignmentStatus `json:"status"`
+	CreatedAt    time.Time        `json:"created_at"`
+	UpdatedAt    sql.NullTime     `json:"updated_at"`
 }

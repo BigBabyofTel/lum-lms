@@ -2,11 +2,8 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/BigBabyofTel/lum-lms/internal/handlers"
 	"github.com/BigBabyofTel/lum-lms/internal/routes"

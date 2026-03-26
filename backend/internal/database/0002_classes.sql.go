@@ -23,9 +23,9 @@ RETURNING id, subject, grade, teacher_id, created_at, updated_at
 `
 
 type CreateClassParams struct {
-	Subject   string
-	Grade     int32
-	TeacherID uuid.NullUUID
+	Subject   string        `json:"subject"`
+	Grade     int32         `json:"grade"`
+	TeacherID uuid.NullUUID `json:"teacher_id"`
 }
 
 func (q *Queries) CreateClass(ctx context.Context, arg CreateClassParams) (Class, error) {

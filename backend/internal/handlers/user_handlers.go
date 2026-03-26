@@ -12,5 +12,5 @@ func (h *Handler) GetStudents(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "could not get students"})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"students": students})
+	c.JSON(http.StatusOK, students)
 }

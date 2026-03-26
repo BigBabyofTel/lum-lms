@@ -1,8 +1,11 @@
 "use client"
 import {useState} from 'react'
+import {User} from "@/lib/types";
 
 export default function Page() {
     const [role, setRole] = useState('teacher')
+    const [students, setStudents] = useState<User[]>([{}])
+
 
     return (
         <>

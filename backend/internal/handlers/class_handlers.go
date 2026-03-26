@@ -23,7 +23,7 @@ func (h *Handler) GetClasses(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"classes": classes})
+	c.JSON(http.StatusOK, classes)
 }
 
 func (h *Handler) CreateClass(c *gin.Context) {

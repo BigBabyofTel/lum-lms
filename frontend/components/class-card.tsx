@@ -10,7 +10,7 @@ interface ClassCardProps {
     color?: string
 }
 
-export default function ClassCard({name, grade, teacher = 'Mr.Baker', color = 'bg-blue-400'}: ClassCardProps) {
+export default function ClassCard({name, grade, teacher, color}: ClassCardProps) {
     return (
         <Link href={`/dashboard/class/${name}`}>
             <div

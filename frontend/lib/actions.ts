@@ -48,7 +48,7 @@ export async function getAllClasses(teacherId: string): Promise<Class[]> {
     }
 
     try {
-        const response = await fetch(`http://localhost:8080/v1/api/classes?teacherId=${valid.data?.id}`, {
+        const response = await fetch(`http://localhost:8080/api/v1/classes?teacherId=${valid.data?.id}`, {
             method: 'GET',
             headers: {'Accept': 'application/json'},
         })
