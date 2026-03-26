@@ -8,19 +8,26 @@ import ClassCard from "@/components/class-card";
 
 export default function Page() {
     const id = useUserStore((state) => state.id)
-    const [classData, setClassData] = useState<Class[]>([])
+    const [classData, setClassData] = useState<Class[]>([{
+        id: '',
+        subject: '',
+        grade: 0,
+        teacher: '',
+    }])
 
 //load the data attached to users_id that is set in auth
     useEffect(() => {
         if (!id) return
         //add logic for GET request
        (async() => {
-            const data = await getAllClasses(id as string) ?? []
+            const data: Class[] = await getAllClasses(id as string)
             setClassData(data)
             return
         })()
     }, [id])
 console.log(classData)
+//add conditional rendering for if there is nothing here
+// this is the view for a teacher
     return (
         <div className="space-y-6">
             {/* Page header */}
@@ -30,13 +37,13 @@ console.log(classData)
 
             {/* Class Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {classData.map((data) => (
+                {classData?.map((data) => (
                     <ClassCard
                         key={data.id}
                         name={data.subject}
                         grade={data.grade}
-                        teacher={'Mr.Baker'}
-                        color={'blue'}
+                        teacher={data.teacherId?.UUID ?? 'Mr. Baker'}
+                        color={'bg-blue-400'}
                     />
                 ))}
             </div>

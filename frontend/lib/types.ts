@@ -22,7 +22,8 @@ export interface Class {
     id: string;
     subject: string;
     grade: number;
-    teacherId?: string;
+    teacher?: string;
+    teacherId?: {UUID: string, Valid: boolean};
     createdAt?: string;
     updatedAt?: string;
 }
