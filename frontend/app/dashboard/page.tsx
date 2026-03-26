@@ -25,8 +25,6 @@ export default function Page() {
             return
         })()
     }, [id])
-
-
 console.log(classData)
 //add conditional rendering for if there is nothing here
 // this is the view for a teacher
