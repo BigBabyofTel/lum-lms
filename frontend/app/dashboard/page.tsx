@@ -20,7 +20,7 @@ export default function Page() {
             return
         })()
     }, [id])
-
+console.log(classData)
     return (
         <div className="space-y-6">
             {/* Page header */}

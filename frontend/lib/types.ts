@@ -1,6 +1,7 @@
 export interface User {
     id: string
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     //link to the url for the image
     avatar?: string;
