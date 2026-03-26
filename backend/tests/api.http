@@ -20,5 +20,14 @@ Content-Type: application/json
 }
 
 ### GET request
-GET http://localhost:8080/v1/api/classes?teacherId=49afc0c3-a283-4364-a0a7-dfda2d440880
+GET http://localhost:8080/api/v1/classes?teacherId=9518dd4e-49f6-4c4e-984f-24c0ab9f77ba
 Accept: application/json
+
+### GET request
+GET http://localhost:8080/health
+Accept: application/json
+
+### GET request
+GET http://localhost:8080/api/v1/users
+Accept: application/json
+
