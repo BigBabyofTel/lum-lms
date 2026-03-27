@@ -66,11 +66,12 @@ export async function getAllClasses(teacherId: string): Promise<Class[]> {
 
 export async function getAllStudents(): Promise<User[]> {
     try {
-        const response = await fetch(`http://localhost:8080/api`, {
-
+        const response = await fetch(`http://localhost:8080/api/v1/users`, {
+            method: 'GET',
+            headers: {'Accept': 'application/json'},
         })
-
-
+        if (!response.ok) console.log('data was not fetched')
+        return await response.json()
     } catch (err) {
         if (err instanceof z.ZodError) {
             console.error(err.issues)

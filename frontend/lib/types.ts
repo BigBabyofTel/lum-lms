@@ -1,12 +1,12 @@
 export interface User {
     id: string
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
     email: string;
     //link to the url for the image
     avatar?: string;
-    avatarColor: string;
-    role: 'teacher' | 'student' | 'parent';
+    avatarColor?: string;
+    role?: 'teacher' | 'student' | 'parent';
     parent_of_id?: string;
     createdAt?: string;
     updatedAt?: string;

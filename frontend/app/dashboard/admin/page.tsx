@@ -7,8 +7,13 @@ import {useUserStore} from "@/store/useUserStore";
 
 export default function Page() {
     const [role, _] = useState('teacher')
-    const [user, setUser] = useState<User[]>([])
     const id = useUserStore((state) => state.id)
+    const [user, setUser] = useState<User[]>([{
+        id: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+    }])
 
     useEffect(() => {
         if (!id) return
@@ -17,8 +22,9 @@ export default function Page() {
             setUser(data)
             return
         })()
-    }, [])
+    }, [id])
 
+    console.log(user)
     return (
         <>
             {role === 'student' && (
@@ -32,8 +38,8 @@ export default function Page() {
                     {
                         user.map((data) => (
                             <StudentCard key ={data.id}
-                                         firstName={data.firstName}
-                                         lastName={data.lastName}
+                                         firstName={data.first_name}
+                                         lastName={data.last_name}
                                          email={data.email}
                                          grade={'0'} />
                         ))
