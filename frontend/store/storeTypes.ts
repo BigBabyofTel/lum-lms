@@ -13,6 +13,10 @@ export interface UserState extends User {
 export interface ClassState extends Class {
     setClasses: (data: Class[]) => void;
     clearClasses: () => void;
+    isLoading: boolean;
+    setLoading: (value: boolean) => void;
+    setError: (e: string | null) => void
+    error: string | null;
     errors?: [];
     classes: Class[]
 }

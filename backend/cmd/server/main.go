@@ -15,6 +15,10 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error: %v", err)
@@ -41,7 +45,7 @@ func main() {
 	router := gin.Default()
 	routes.RegisterRoutes(router, h)
 
-	if err := router.Run(); err != nil {
+	if err := router.Run(":" + port); err != nil {
 		log.Printf("Failed to start server: %v\n", err)
 	}
 

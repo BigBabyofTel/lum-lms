@@ -8,8 +8,20 @@ export const useClassStore = create<ClassState>((set) => ({
     subject: '',
     grade: 0,
     teacher_id: '',
+    isLoading: false,
+    error: null,
     errors: [],
     classes: [],
+    setLoading: (v: boolean) => {
+        set(() => ({
+            isLoading: v
+        }))
+    },
+    setError: (e:string| null) => {
+        set(() => ({
+            error: e
+        }))
+    },
     setClasses: (data: Class[]) => {
         set(() => ({
             classes: data,

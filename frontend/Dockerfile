@@ -14,5 +14,5 @@ FROM base AS runner
 COPY --from=builder /frontend/ ./
 COPY package.json ./
 
-EXPOSE 3001
+EXPOSE 3000
 CMD ["bun", "run", "dev"]
