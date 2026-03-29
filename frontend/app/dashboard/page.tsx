@@ -14,15 +14,12 @@ export default function Page() {
 //load the data attached to users_id that is set in auth
     useEffect(() => {
         if (!id) return
-        //add logic for GET request
+        if (classes.length > 0) return
        (async() => {
             const data = await getAllClasses(id as string)
-           console.log(data)
             setClasses(data)
-            return
-        })()
+           })()
     }, [id])
-console.log(classes)
 //add conditional rendering for if there is nothing here
 // this is the view for a teacher
     return (
@@ -46,7 +43,6 @@ console.log(classes)
                     ))}
                 </div>
             )}
-
         </div>
     )
 }

@@ -4,7 +4,7 @@ FROM users
 WHERE email = sqlc.arg(email)
 LIMIT 1;
 
--- name: createUser :one
+-- name: CreateUser :one
 INSERT INTO users (id, first_name, last_name, email, password, type, avatar_color, created_at)
 VALUES (gen_random_uuid(),
         sqlc.arg(first_name),
@@ -20,3 +20,10 @@ RETURNING *;
 SELECT *
 FROM users
 WHERE type = 'student';
+
+-- name: GetUserByID :one
+SELECT *
+FROM users
+WHERE id = sqlc.arg(id)
+LIMIT 1;
+

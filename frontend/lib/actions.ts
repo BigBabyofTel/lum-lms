@@ -1,32 +1,28 @@
 "use server"
 
-import {ClassState, FormState, UserState} from "@/lib/types";
-import {testUserSchema} from "@/lib/schemas";
+import {Class, FormState, User} from "@/lib/types";
+import {classSchema, testUserSchema} from "@/lib/schemas";
 import {redirect} from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
 
 export async function submitForm(_state: FormState | null, formData: FormData): Promise<FormState> {
-    const subject = formData.get('subject')
-    const grade = formData.get('grade')
-    const teacher_id = formData.get('teacherId')
-
+    const {subject, grade, teacher_id} = Object.fromEntries(formData)
     if (!subject || !grade || !teacher_id) {
         return {error: 'All fields are required.'}
     }
 
     try {
+        const valid = classSchema.safeParse({subject, grade, teacher_id})
+        if (!valid.success) {
+            return { error: valid.error.issues.map(i => i.message).join(', ') };
+        }
         const response = await fetch(`${API_URL}/api/v1/classes`, {
             method: 'POST',
-            body: JSON.stringify({
-                subject,
-                grade: Number(grade),
-                teacher_id
-            }),
+            body: JSON.stringify(valid.data),
             headers: {'Content-Type': 'application/json'},
         })
-
         if (!response.ok) {
             return {error: 'Failed to create class.'}
         }
@@ -39,7 +35,7 @@ export async function submitForm(_state: FormState | null, formData: FormData): 
 }
 
 
-export async function getAllClasses(teacherId: string): Promise<ClassState[]> {
+export async function getAllClasses(teacherId: string): Promise<Class[]> {
     if (!teacherId) {
         return []
     }
@@ -62,7 +58,7 @@ export async function getAllClasses(teacherId: string): Promise<ClassState[]> {
     return []
 }
 
-export async function getAllStudents(): Promise<UserState[]> {
+export async function getAllStudents(): Promise<User[]> {
     try {
         const response = await fetch(`${API_URL}/api/v1/users`, {
             method: 'GET',

@@ -19,7 +19,7 @@ func (h *Handler) GetClasses(c *gin.Context) {
 
 	classes, err := h.DB.GetClasses(c, uuid.NullUUID{UUID: teacherUUID, Valid: true})
 	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -54,7 +54,7 @@ func (h *Handler) CreateClass(c *gin.Context) {
 	//add to db using cfg
 	_, err = h.DB.CreateClass(c, classParams)
 	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"class created": classParams})

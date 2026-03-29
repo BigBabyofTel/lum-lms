@@ -1,8 +1,7 @@
-import {$ZodIssue} from "zod/v4/core";
 
-export interface UserState {
+
+export interface User {
     id: string
-    accessToken?: string;
     first_name: string;
     last_name: string;
     email: string;
@@ -10,14 +9,10 @@ export interface UserState {
     //link to the url for the image
     avatar?: string;
     avatarColor?: string;
-    role?: 'teacher' | 'student' | 'parent';
+    role?: 'teacher' | 'student' | 'parent' | null;
     createdAt?: string;
     updatedAt?: string;
-    setId: (id: string) => void;
-    setAccessToken: (token: string) => void;
-    setUser: ({id, first_name, last_name, email, type}: {id: string, first_name: string, last_name: string, email: string, type: string} ) => void;
-    clearUser: () => void;
-    errors?: $ZodIssue[];
+
 }
 
 export interface FormState {
@@ -26,7 +21,7 @@ export interface FormState {
 }
 
 
-export interface ClassState {
+export interface Class {
     id: string;
     subject: string;
     grade: number;
@@ -34,19 +29,7 @@ export interface ClassState {
     teacherId?: string | {UUID: string, Valid: boolean};
     createdAt?: string;
     updatedAt?: string;
-    setClasses: (data: Classes[]) => void;
-    updateSubject?: (subject: string) => void;
-    updateGrade?: (grade: number) => void;
-    errors?: $ZodIssue[];
-    classes: Classes[]
-}
 
-export interface Classes {
-    id: string;
-    subject: string;
-    grade: number;
-    teacher?: string;
-    teacherId?: string | {UUID: string, Valid: boolean};
 }
 
 export interface Assignment {
