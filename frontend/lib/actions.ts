@@ -1,21 +1,23 @@
 "use server"
 
-import {Class, FormState, User} from "@/lib/types";
-import {redirect} from "next/navigation"
+import {ClassState, FormState, UserState} from "@/lib/types";
 import {testUserSchema} from "@/lib/schemas";
-import * as z from "zod";
+import {redirect} from 'next/navigation';
 
-export async function submitForm(formData: FormData): Promise<FormState> {
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
+
+
+export async function submitForm(_state: FormState | null, formData: FormData): Promise<FormState> {
     const subject = formData.get('subject')
     const grade = formData.get('grade')
     const teacher_id = formData.get('teacherId')
 
-    if (!subject || !grade) {
+    if (!subject || !grade || !teacher_id) {
         return {error: 'All fields are required.'}
     }
 
     try {
-        const response = await fetch('http://localhost:8080/v1/api/classes', {
+        const response = await fetch(`${API_URL}/api/v1/classes`, {
             method: 'POST',
             body: JSON.stringify({
                 subject,
@@ -28,57 +30,51 @@ export async function submitForm(formData: FormData): Promise<FormState> {
         if (!response.ok) {
             return {error: 'Failed to create class.'}
         }
-    } catch (e) {
-        console.log(e)
+
+    } catch (err) {
+        console.error(err)
+        return { error: 'Something went wrong. Please try again.' }
     }
-
-
-    redirect('http://localhost:3000/dashboard')
+    redirect('/dashboard')
 }
 
 
-export async function getAllClasses(teacherId: string): Promise<Class[]> {
+export async function getAllClasses(teacherId: string): Promise<ClassState[]> {
     if (!teacherId) {
-        console.error("Teacher Id is missing")
+        return []
     }
     const valid = testUserSchema.safeParse({id: teacherId})
 
     if (!valid.success) {
-        console.error("Id can not be validated")
+        return []
     }
 
     try {
-        const response = await fetch(`http://localhost:8080/api/v1/classes?teacherId=${valid.data?.id}`, {
+        const response = await fetch(`${API_URL}/api/v1/classes?teacherId=${valid.data.id}`, {
             method: 'GET',
             headers: {'Accept': 'application/json'},
         })
         if (!response.ok) return []
-        return await response.json() as Class[]
+        return await response.json()
     } catch (err) {
-        if (err instanceof z.ZodError) {
-            console.error(err.issues)
-        } else {
-            console.error(err)
-        }
+        console.error(err)
     }
     return []
 }
 
-export async function getAllStudents(): Promise<User[]> {
+export async function getAllStudents(): Promise<UserState[]> {
     try {
-        const response = await fetch(`http://localhost:8080/api/v1/users`, {
+        const response = await fetch(`${API_URL}/api/v1/users`, {
             method: 'GET',
             headers: {'Accept': 'application/json'},
         })
-        if (!response.ok) console.log('data was not fetched')
+        if (!response.ok) {
+            console.error('data was not fetched')
+            return []
+        }
         return await response.json()
     } catch (err) {
-        if (err instanceof z.ZodError) {
-            console.error(err.issues)
-        } else {
-            console.error(err)
-        }
+        console.error(err)
     }
-
     return []
 }

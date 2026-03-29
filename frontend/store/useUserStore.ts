@@ -1,28 +1,21 @@
 import {create} from 'zustand';
-import {testUserSchema, userSchema} from "@/lib/schemas";
-import {$ZodIssue} from "zod/v4/core";
+import {testUserSchema, tokenSchema, userSchema} from "@/lib/schemas";
 import {createJSONStorage, persist} from "zustand/middleware";
+import {UserState} from "@/lib/types";
 
-export interface UserState {
-    id: string | null;
-    firstName: string | null;
-    lastName: string | null;
-    email: string | null;
-    type: string | null;
-    setId: (id: string) => void;
-    setUser: ({id, firstName, lastName, email, type}: {id: string, firstName: string, lastName: string, email: string, type: string} ) => void;
-    errors?: $ZodIssue[];
-}
 
 export const useUserStore = create<UserState>()(
     persist(
         (set) => ({
             //hard coded ID
             id: '',
-            firstName: '',
-            lastName: '',
+            accessToken: '',
+            first_name: '',
+            last_name: '',
             email: '',
             type: '',
+            errors: [],
+            //functions
             setId: (id: string) => {
                 const result = testUserSchema.safeParse({id})
                 if (!result.success) {
@@ -38,8 +31,8 @@ export const useUserStore = create<UserState>()(
                     errors: []
                 }))
             },
-            setUser: ({id, firstName, lastName, email, type}: {id: string, firstName: string, lastName: string, email: string, type: string}) => {
-                const result = userSchema.safeParse({id, firstName, lastName, email, type})
+            setUser: ({id, first_name, last_name, email, type}: {id: string, first_name: string, last_name: string, email: string, type: string}) => {
+                const result = userSchema.safeParse({id, first_name, last_name, email, type})
                 if(!result.success) {
                     const fieldErrors = result.error.issues;
                     set(() => ({
@@ -50,13 +43,27 @@ export const useUserStore = create<UserState>()(
                 }
                 set(()=> ({
                     id: result.data.id,
-                    firstName: result.data.first_name,
-                    lastName: result.data.last_name,
+                    first_name: result.data.first_name,
+                    last_name: result.data.last_name,
                     email: result.data.email,
                     type: result.data.type,
                 }))
             },
-            errors: []
+            setAccessToken: (token) => {
+                const result = tokenSchema.safeParse(token)
+                if (!result.success) {
+                    const fieldErrors = result.error.issues;
+                    set(() => ({
+                        errors: {...fieldErrors}
+                    }))
+                    console.error('Access token is not valid', fieldErrors)
+                    return false
+                }
+                set(() => ({
+                    accessToken: result.data.accessToken
+                }))
+            } ,
+            clearUser: () => {}
         }),
         {
             name: 'user-storage', // name of the item in storage

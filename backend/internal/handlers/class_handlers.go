@@ -19,7 +19,7 @@ func (h *Handler) GetClasses(c *gin.Context) {
 
 	classes, err := h.DB.GetClasses(c, uuid.NullUUID{UUID: teacherUUID, Valid: true})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -43,6 +43,7 @@ func (h *Handler) CreateClass(c *gin.Context) {
 	teacherUUID, err := uuid.Parse(parameters.TeacherId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "TeacherId is not a valid UUID"})
+		return
 	}
 	//create params
 	classParams := database.CreateClassParams{
@@ -54,6 +55,7 @@ func (h *Handler) CreateClass(c *gin.Context) {
 	_, err = h.DB.CreateClass(c, classParams)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"class created": classParams})
 

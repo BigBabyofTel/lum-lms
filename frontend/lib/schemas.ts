@@ -6,6 +6,12 @@ export const userSchema = z.object({
     first_name: z.string(),
     last_name: z.string(),
     type: z.string(),
+    //functions
+
+})
+
+export const tokenSchema = z.object({
+    accessToken: z.string().min(1),
 })
 
 // Omits certain values
@@ -18,10 +24,12 @@ export const classSchema = z.object({
     id: z.uuid(),
     subject: z.string(),
     grade: z.number(),
-    teacherId: z.uuid(),
+    teacher_id: z.string(),
 })
 
-export type UserClass = z.infer<typeof classSchema>;
+export const classArraySchema = z.array(classSchema)
+
+export type Class = z.infer<typeof classSchema>;
 
 
 

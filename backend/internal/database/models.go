@@ -162,6 +162,7 @@ type Class struct {
 	TeacherID uuid.NullUUID `json:"teacher_id"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt sql.NullTime  `json:"updated_at"`
+	Color     string        `json:"color"`
 }
 
 type ClassEnrollment struct {
@@ -202,6 +203,7 @@ type User struct {
 	FirstName   string         `json:"first_name"`
 	LastName    string         `json:"last_name"`
 	Email       string         `json:"email"`
+	Password    sql.NullString `json:"password"`
 	Type        Role           `json:"type"`
 	Avatar      sql.NullString `json:"avatar"`
 	AvatarColor sql.NullString `json:"avatar_color"`

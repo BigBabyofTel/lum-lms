@@ -1,31 +1,28 @@
 'use client'
-import React, {useEffect, useState} from 'react'
+import React, {useEffect} from 'react'
 import {useUserStore} from "@/store/useUserStore";
 import {getAllClasses} from "@/lib/actions";
-import {Class} from "@/lib/types";
 import ClassCard from "@/components/class-card";
+import {useClassStore} from "@/store/useClassesStore";
 
 
 export default function Page() {
     const id = useUserStore((state) => state.id)
-    const [classData, setClassData] = useState<Class[]>([{
-        id: '',
-        subject: '',
-        grade: 0,
-        teacher: '',
-    }])
+    const setClasses = useClassStore((state) => state.setClasses)
+    const classes = useClassStore((state) => state.classes)
 
 //load the data attached to users_id that is set in auth
     useEffect(() => {
         if (!id) return
         //add logic for GET request
        (async() => {
-            const data: Class[] = await getAllClasses(id as string)
-            setClassData(data)
+            const data = await getAllClasses(id as string)
+           console.log(data)
+            setClasses(data)
             return
         })()
     }, [id])
-console.log(classData)
+console.log(classes)
 //add conditional rendering for if there is nothing here
 // this is the view for a teacher
     return (
@@ -36,17 +33,20 @@ console.log(classData)
             </div>
 
             {/* Class Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {classData?.map((data) => (
-                    <ClassCard
-                        key={data.id}
-                        name={data.subject}
-                        grade={data.grade}
-                        teacher={data.teacherId?.UUID ?? 'Mr. Baker'}
-                        color={'bg-blue-400'}
-                    />
-                ))}
-            </div>
+            {id && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {classes?.map((data) => (
+                        <ClassCard
+                            key={data.id}
+                            name={data.subject}
+                            grade={data.grade}
+                            teacher={'Mr. Baker'}
+                            color={'bg-blue-400'}
+                        />
+                    ))}
+                </div>
+            )}
+
         </div>
     )
 }

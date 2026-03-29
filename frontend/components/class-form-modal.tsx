@@ -1,9 +1,10 @@
 'use client'
-import React, {useActionState, useState} from 'react'
+import React, {useActionState, useEffect, useState} from 'react'
 import {X} from 'lucide-react'
 import {submitForm} from "@/lib/actions";
 import {FormState} from "@/lib/types";
 import {useUserStore} from "@/store/useUserStore";
+
 
 interface ClassFormModalProps {
     onClose: () => void
@@ -16,9 +17,14 @@ export default function ClassFormModal({onClose}: ClassFormModalProps) {
 
     const teacherId = useUserStore((state) => state.id)
 
-const [state, formAction, isPending] = useActionState<FormState |null, FormData>(submitForm, null)
+    const [state, formAction, isPending] = useActionState<FormState |null, FormData>(submitForm, null)
 
-console.log(teacherId)
+    useEffect(() => {
+        if (state?.success) {
+            onClose()
+        }
+    }, [state]);
+
     return (
         /* Backdrop — click outside the card to close */
         <div

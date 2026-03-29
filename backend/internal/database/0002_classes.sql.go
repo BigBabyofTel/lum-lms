@@ -19,7 +19,7 @@ VALUES (gen_random_uuid(),
         $1,
         $2,
         $3)
-RETURNING id, subject, grade, teacher_id, created_at, updated_at
+RETURNING id, subject, grade, teacher_id, created_at, updated_at, color
 `
 
 type CreateClassParams struct {
@@ -38,12 +38,13 @@ func (q *Queries) CreateClass(ctx context.Context, arg CreateClassParams) (Class
 		&i.TeacherID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Color,
 	)
 	return i, err
 }
 
 const getClasses = `-- name: GetClasses :many
-SELECT id, subject, grade, teacher_id, created_at, updated_at
+SELECT id, subject, grade, teacher_id, created_at, updated_at, color
 FROM classes
 WHERE teacher_id = $1
 `
@@ -64,45 +65,7 @@ func (q *Queries) GetClasses(ctx context.Context, teacherID uuid.NullUUID) ([]Cl
 			&i.TeacherID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getStudents = `-- name: GetStudents :many
-SELECT id, first_name, last_name, email, type, avatar, avatar_color, created_at, updated_at
-FROM users
-WHERE type = 'student'
-`
-
-func (q *Queries) GetStudents(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getStudents)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.FirstName,
-			&i.LastName,
-			&i.Email,
-			&i.Type,
-			&i.Avatar,
-			&i.AvatarColor,
-			&i.CreatedAt,
-			&i.UpdatedAt,
+			&i.Color,
 		); err != nil {
 			return nil, err
 		}
