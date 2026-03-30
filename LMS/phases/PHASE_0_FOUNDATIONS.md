@@ -470,7 +470,7 @@ Phase 0 is complete when **all** of the following are true:
 - [ ] `make dev` starts both the Gin server and Next.js in watch mode
 - [ ] `users.password` column exists in the database
 - [ ] `classes.color` column exists in the database
-- [ ] `apiFetch` is the only way components call the API (no raw `fetch`)
+- [ ]  action.ts file is the only way components call the API (no raw `fetch`)
 - [ ] `NEXT_PUBLIC_API_URL` is read from `.env.local`, not hardcoded
 - [ ] At least one Go handler test passes with `go test ./...`
 - [ ] No handler reaches a second `c.JSON()` call after an error (all have `return`)
