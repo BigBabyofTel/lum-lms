@@ -8,7 +8,56 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
+
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (id, first_name, last_name, email, password, type, avatar_color, created_at)
+VALUES (gen_random_uuid(),
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        NOW())
+RETURNING id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
+`
+
+type CreateUserParams struct {
+	FirstName   string         `json:"first_name"`
+	LastName    string         `json:"last_name"`
+	Email       string         `json:"email"`
+	Password    sql.NullString `json:"password"`
+	Type        Role           `json:"type"`
+	AvatarColor sql.NullString `json:"avatar_color"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.FirstName,
+		arg.LastName,
+		arg.Email,
+		arg.Password,
+		arg.Type,
+		arg.AvatarColor,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.Password,
+		&i.Type,
+		&i.Avatar,
+		&i.AvatarColor,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
 
 const getStudents = `-- name: GetStudents :many
 SELECT id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
@@ -75,37 +124,15 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	return i, err
 }
 
-const createUser = `-- name: createUser :one
-INSERT INTO users (id, first_name, last_name, email, password, type, avatar_color, created_at)
-VALUES (gen_random_uuid(),
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        NOW())
-RETURNING id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
+FROM users
+WHERE id = $1
+LIMIT 1
 `
 
-type createUserParams struct {
-	FirstName   string         `json:"first_name"`
-	LastName    string         `json:"last_name"`
-	Email       string         `json:"email"`
-	Password    sql.NullString `json:"password"`
-	Type        Role           `json:"type"`
-	AvatarColor sql.NullString `json:"avatar_color"`
-}
-
-func (q *Queries) createUser(ctx context.Context, arg createUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.FirstName,
-		arg.LastName,
-		arg.Email,
-		arg.Password,
-		arg.Type,
-		arg.AvatarColor,
-	)
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
 		&i.ID,

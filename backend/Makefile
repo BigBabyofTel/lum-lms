@@ -13,3 +13,7 @@ migrate-status:
 
 migrate-create:
 	goose -dir ./sql/schema create $(name) sql
+
+sqlc-gen:
+	rm -f ./internal/database/*sql.go
+	sqlc generate

@@ -43,6 +43,82 @@ func (q *Queries) CreateClass(ctx context.Context, arg CreateClassParams) (Class
 	return i, err
 }
 
+const deleteClass = `-- name: DeleteClass :exec
+DELETE
+FROM classes
+WHERE id = $1
+  AND teacher_id = $2
+`
+
+type DeleteClassParams struct {
+	ID        uuid.UUID     `json:"id"`
+	TeacherID uuid.NullUUID `json:"teacher_id"`
+}
+
+func (q *Queries) DeleteClass(ctx context.Context, arg DeleteClassParams) error {
+	_, err := q.db.ExecContext(ctx, deleteClass, arg.ID, arg.TeacherID)
+	return err
+}
+
+const getClassByID = `-- name: GetClassByID :one
+SELECT id, subject, grade, teacher_id, created_at, updated_at, color
+FROM classes
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetClassByID(ctx context.Context, id uuid.UUID) (Class, error) {
+	row := q.db.QueryRowContext(ctx, getClassByID, id)
+	var i Class
+	err := row.Scan(
+		&i.ID,
+		&i.Subject,
+		&i.Grade,
+		&i.TeacherID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Color,
+	)
+	return i, err
+}
+
+const getClassByTeacherID = `-- name: GetClassByTeacherID :many
+SELECT id, subject, grade, teacher_id, created_at, updated_at, color
+FROM classes
+WHERE teacher_id = $1
+`
+
+func (q *Queries) GetClassByTeacherID(ctx context.Context, teacherID uuid.NullUUID) ([]Class, error) {
+	rows, err := q.db.QueryContext(ctx, getClassByTeacherID, teacherID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Class
+	for rows.Next() {
+		var i Class
+		if err := rows.Scan(
+			&i.ID,
+			&i.Subject,
+			&i.Grade,
+			&i.TeacherID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Color,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getClasses = `-- name: GetClasses :many
 SELECT id, subject, grade, teacher_id, created_at, updated_at, color
 FROM classes
@@ -78,4 +154,44 @@ func (q *Queries) GetClasses(ctx context.Context, teacherID uuid.NullUUID) ([]Cl
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateClass = `-- name: UpdateClass :one
+UPDATE classes
+SET subject    = $1,
+    grade      = $2,
+    color      = $3,
+    updated_at = NOW()
+WHERE id = $4
+  AND teacher_id = $5
+RETURNING id, subject, grade, teacher_id, created_at, updated_at, color
+`
+
+type UpdateClassParams struct {
+	Subject   string        `json:"subject"`
+	Grade     int32         `json:"grade"`
+	Color     string        `json:"color"`
+	ID        uuid.UUID     `json:"id"`
+	TeacherID uuid.NullUUID `json:"teacher_id"`
+}
+
+func (q *Queries) UpdateClass(ctx context.Context, arg UpdateClassParams) (Class, error) {
+	row := q.db.QueryRowContext(ctx, updateClass,
+		arg.Subject,
+		arg.Grade,
+		arg.Color,
+		arg.ID,
+		arg.TeacherID,
+	)
+	var i Class
+	err := row.Scan(
+		&i.ID,
+		&i.Subject,
+		&i.Grade,
+		&i.TeacherID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Color,
+	)
+	return i, err
 }
