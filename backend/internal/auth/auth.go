@@ -8,7 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/BigBabyofTel/lum-lms/internal/database"
 	"github.com/alexedwards/argon2id"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -99,4 +101,24 @@ func GetAPIKey(headers http.Header) (string, error) {
 		return "", fmt.Errorf("api key is empty")
 	}
 	return apiKey, nil
+}
+
+type PublicUser struct {
+	ID          string `json:"id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	Email       string `json:"email"`
+	Type        string `json:"type"`
+	AvatarColor string `json:"avatar_color"`
+}
+
+func SanitizeUser(u database.User) PublicUser {
+	return PublicUser{
+		ID:          u.ID.String(),
+		FirstName:   u.FirstName,
+		LastName:    u.LastName,
+		Email:       u.Email,
+		Type:        string(u.Type),
+		AvatarColor: u.AvatarColor.String,
+	}
 }

@@ -17,3 +17,10 @@ migrate-create:
 sqlc-gen:
 	rm -f ./internal/database/*sql.go
 	sqlc generate
+
+dev:
+	@trap 'kill 0' SIGINT; \
+	(cd backend && air) & \
+	(cd frontend && bun run dev) & \
+	wait
+
