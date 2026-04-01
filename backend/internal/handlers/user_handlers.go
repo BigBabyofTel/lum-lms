@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 	"os"
 	"time"
@@ -44,7 +45,7 @@ func (h *Handler) Register(c *gin.Context) {
 		FirstName: params.FirstName,
 		LastName:  params.LastName,
 		Email:     params.Email,
-		Password:  hash,
+		Password:  sql.NullString{String: hash, Valid: true},
 		Type:      database.Role(params.Type),
 	})
 	if err != nil {
@@ -52,7 +53,7 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.h{"user": auth.SanitizeUser(user)})
+	c.JSON(http.StatusCreated, gin.H{"user": auth.SanitizeUser(user)})
 }
 
 func (h *Handler) Login(c *gin.Context) {
@@ -79,9 +80,6 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 
 	expires := time.Hour
-	if params.ExpiresInSeconds > 0 {
-		expires = time.Duration(params.ExpiresInSeconds) * time.Second
-	}
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	token, err := auth.MakeJWT(user.ID, jwtSecret, expires)
@@ -90,33 +88,48 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	refreshToken, err := auth.MakeRefreshToken()
+	refreshToken, err := auth.MakeJWT(user.ID, jwtSecret, expires*24)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create refresh token"})
+		return
 	}
-
+	//The access token lasts 1 hr and the refresh lasts 1 day
 	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie("token", token, 3600, "/", "localhost", true, true)
-	c.SetCookie("refresh_token", refreshToken, 3600, "/", "localhost", true, true)
+	c.SetCookie("refresh_token", refreshToken, 604800, "/", "localhost", true, true)
 
 	c.JSON(http.StatusCreated, gin.H{"message": "successfully logged in"})
 }
 
 func (h *Handler) Refresh(c *gin.Context) {
 	//make refresh tokens a signed JWT and set the refresh for 7 days
-	cookie, err := c.Cookie("refresh_token")
+	rToken, err := c.Cookie("refresh_token")
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "no refresh token"})
+		return
 	}
 
-	claims, err := auth.ValidateJWT(cookie, os.Getenv("JWT_SECRET"))
+	claims, err := auth.ValidateJWT(rToken, os.Getenv("JWT_SECRET"))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid refresh token"})
+		return
 	}
 
-	token, err := auth.MakeJWT(claims.ID.String, os.Getenv("JWT_SECRET"), expired)
+	expires := time.Hour
+
+	newToken, err := auth.MakeJWT(claims, os.Getenv("JWT_SECRET"), expires*24)
 	if err != nil {
-
+		c.JSON(http.StatusNotFound, gin.H{"error": "could not create token"})
+		return
 	}
 
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("refresh_token", newToken, 604800, "/", "localhost", true, true)
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Token created"})
+}
+
+func (h *Handler) Logout(c *gin.Context) {
+	c.SetCookie("refresh_token", "", -1, "/", "localhost", true, true)
+	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
