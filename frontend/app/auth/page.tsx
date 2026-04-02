@@ -176,3 +176,11 @@ export default function Page() {
     </>
   );
 }
+
+/*
+use this
+need to make routes for teacher, student, parent
+onClick={() => router.push(`/auth/${role}`)}
+*
+*
+* */
