@@ -31,3 +31,6 @@ Accept: application/json
 GET http://localhost:8080/api/v1/users
 Accept: application/json
 
+### LOGIN
+POST http://localhost:8080/api/v1/users/login
+Content-Type: application/json

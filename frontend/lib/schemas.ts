@@ -8,11 +8,19 @@ export const userSchema = z.object({
     type: z.enum(['teacher', 'student', 'parent'])
 })
 
+export type User = z.infer<typeof userSchema>;
 // Omits certain values
 export const testUserSchema = userSchema.omit({email: true, first_name: true, last_name: true,})
 
+export const loginSchema = z.object({
+    email: z.email('must be a valid email'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    role: z.enum(['teacher','student', 'parent'], {
+        error: 'Please select a role'
+    })
+})
 
-export type User = z.infer<typeof userSchema>;
+export type Login = z.infer<typeof loginSchema>
 
 export const classSchema = z.object({
     id: z.uuid(),

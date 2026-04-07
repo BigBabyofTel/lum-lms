@@ -1,12 +1,12 @@
 "use server"
 
 import {Class, FormState, User} from "@/lib/types";
-import {classSchema, testUserSchema} from "@/lib/schemas";
+import {classSchema, loginSchema, testUserSchema} from "@/lib/schemas";
 import {redirect} from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
-
+// need to rename create class
 export async function submitForm(_state: FormState | null, formData: FormData): Promise<FormState> {
     const {subject, grade, teacher_id} = Object.fromEntries(formData)
     if (!subject || !grade || !teacher_id) {
@@ -26,6 +26,7 @@ export async function submitForm(_state: FormState | null, formData: FormData): 
         if (!response.ok) {
             return {error: 'Failed to create class.'}
         }
+
 
     } catch (err) {
         console.error(err)
@@ -73,4 +74,31 @@ export async function getAllStudents(): Promise<User[]> {
         console.error(err)
     }
     return []
+}
+
+export async function handleRegister(_state: FormState | null, formData: FormData ) {
+
+}
+
+export async function handleLogin(_state: FormState | null, formData: FormData ): Promise<FormState> {
+    try {
+        const data = Object.fromEntries(formData)
+        const valid = loginSchema.safeParse(data)
+
+        if (!valid.success) {
+            return {error: valid.error.issues.map(i => i.message).join(',')}
+        }
+
+        const response = await fetch(`${API_URL}/api/v1/users/login`, {
+            method: "POST",
+            body: JSON.stringify({
+                email: valid.data.email,
+                password: valid.data.password
+            })
+        })
+        if(!response.ok) return { error: 'Invalid credentials'};
+    } catch (err) {
+        console.error(err)
+    }
+    redirect('/dashboard')
 }
