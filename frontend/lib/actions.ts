@@ -1,7 +1,7 @@
 "use server"
 
 import {Class, FormState, User} from "@/lib/types";
-import {classSchema, loginSchema, testUserSchema} from "@/lib/schemas";
+import {classSchema, loginSchema, RegisterSchema, testUserSchema} from "@/lib/schemas";
 import {redirect} from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
@@ -76,8 +76,32 @@ export async function getAllStudents(): Promise<User[]> {
     return []
 }
 
-export async function handleRegister(_state: FormState | null, formData: FormData ) {
+export async function handleRegister(_state: FormState | null, formData: FormData ): Promise<FormState> {
+    try {
+        const data = Object.fromEntries(formData)
+        const valid = RegisterSchema.safeParse(data)
 
+        if (!valid.success) {
+            return {error: valid.error.issues.map(i => i.message).join(',')}
+        }
+
+        const response = await fetch(`${API_URL}/api/v1/users/register`, {
+            method: 'POST',
+            body: JSON.stringify({
+                email: valid.data.email,
+                first_name: valid.data.first_name,
+                last_name: valid.data.last_name,
+                password: valid.data.password,
+                role: valid.data.role
+            })
+        })
+
+        if (!response.ok) return { error: 'Register failed'}
+
+    } catch (err) {
+        console.error(err)
+    }
+    redirect('/auth')
 }
 
 export async function handleLogin(_state: FormState | null, formData: FormData ): Promise<FormState> {
