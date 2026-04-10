@@ -1,12 +1,14 @@
 'use client';
-import Image from 'next/image';
 import { ThemeToggleButton } from '@/components/providers/theme-provider';
-import {useState } from 'react';
+import { useState } from 'react';
 
-import LoginForm from "@/components/login-form";
+import LoginForm from '@/components/login-form';
+import RegisterForm from '@/components/register-form';
+import Portal from '@/components/portal';
 
 export default function Page() {
-  const [role, setRole] = useState<string>('')
+  const [role, setRole] = useState<'teacher' | 'parent' | 'student' | ''>('');
+  const [mode, setMode] = useState<'chooser' | 'login' | 'register'>('chooser');
 
   return (
     <>
@@ -22,60 +24,26 @@ export default function Page() {
             <span className="text-indigo-700 dark:text-orange-600">s</span>cence
           </h1>
         </div>
-        <div>
-          <h2 className="text-lg">Sign in to your account as</h2>
-        </div>
-        <div className="w-full flex flex-row items-center justify-around">
-          <div
-            role="button"
-            onClick={() => {
-              setRole('teacher')
-            }}
-            className="ww-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100"
-          >
-            <span className="mt-5">Staff</span>
-            <Image
-              src="/teacher.webp"
-              width={100}
-              height={100}
-              alt="an icon representing teachers"
-            />
+        {mode === 'login' && (
+          <div>
+            <h2 className="text-lg">Sign in to your account as</h2>
           </div>
-          <div
-            className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100"
-            role="button"
-            onClick={() => {
-              setRole('parent');
-              //router.push('/dashboard');
-            }}
-          >
-            <span className="mt-5">Parent</span>
-            <Image
-              src="/parent.webp"
-              width={70}
-              height={70}
-              style={{ height: 'auto', width: 'auto' }}
-              loading="eager"
-              alt="icon representing parents"
-            />
-          </div>
-          <div
-            className="w-1/4 h-full bg-white/20 backdrop-blur-md border border-white/30 rounded-lg shadow-lg text-center flex flex-col justify-between items-center opacity-100"
-            role="button"
-            onClick={() => {
-              setRole('student');
-            }}
-          >
-            <span className="mt-5">Student</span>
-            <Image
-              src="/student.webp"
-              width={100}
-              height={100}
-              alt="an icon representing students"
-            />
-          </div>
-        </div>
-        {role != '' && <LoginForm role={role} />}
+        )}
+        <button
+          onClick={() => setMode('register')}
+          className={
+            mode === 'register' || role !== ''
+              ? `hidden`
+              : `border-2 bg-blue-400 text-lg p-2 rounded-lg`
+          }
+        >
+          Register
+        </button>
+        {mode === 'chooser' && (
+          <Portal role={role} setRole={setRole} setMode={setMode} />
+        )}
+        {mode === 'login' && <LoginForm role={role} />}
+        {mode === 'register' && <RegisterForm role={role} />}
       </section>
     </>
   );

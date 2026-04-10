@@ -32,9 +32,9 @@ These SVG icons can be used directly in HTML/React components:
 Or in Next.js Image components:
 
 ```jsx
-import Image from 'next/image'
+import Image from 'next/image';
 
-<Image src="/icons/home.svg" alt="Home" width={24} height={24} />
+<Image src="/icons/home.svg" alt="Home" width={24} height={24} />;
 ```
 
 All icons are 24x24px with 2px stroke width and use `currentColor` for easy theming.

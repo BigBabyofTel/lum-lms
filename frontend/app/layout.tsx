@@ -1,31 +1,26 @@
-import type {Metadata} from "next";
-import "./globals.css";
-import React from "react";
+import type { Metadata } from 'next';
+import './globals.css';
+import React from 'react';
 import ThemeProvider from '@/components/providers/theme-provider';
-import {UserProvider} from "@/components/providers/user-provider";
-
+import { UserProvider } from '@/components/providers/user-provider';
 
 export const metadata: Metadata = {
-    title: "Luminescence",
-    description: "A light for your education",
+  title: 'Luminescence',
+  description: 'A light for your education',
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
+  children,
+}: Readonly<{
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-        <body
-            className="bg-gradient-to-r from-yellow-400 to-orange-300 dark:bg-gradient-to-r dark:from-blue-900 dark:to-indigo-950 dark:text-white"
-        >
+  return (
+    <html lang="en">
+      <body className="bg-gradient-to-r from-yellow-400 to-orange-300 dark:bg-gradient-to-r dark:from-blue-900 dark:to-indigo-950 dark:text-white">
         <ThemeProvider>
-            <UserProvider>
-            {children}
-            </UserProvider>
+          <UserProvider>{children}</UserProvider>
         </ThemeProvider>
-        </body>
-        </html>
-    );
+      </body>
+    </html>
+  );
 }
