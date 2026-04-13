@@ -104,8 +104,9 @@ export async function handleRegister(
         first_name: valid.data.first_name,
         last_name: valid.data.last_name,
         password: valid.data.password,
-        role: valid.data.role,
+        type: valid.data.role,
       }),
+      headers: { 'Content-Type': 'application/json' },
     });
 
     if (!response.ok) return { error: 'Register failed' };
@@ -139,6 +140,7 @@ export async function handleLogin(
         email: valid.data.email,
         password: valid.data.password,
       }),
+      headers: { 'Content-Type': 'application/json' },
     });
     if (!response.ok) return { error: 'Invalid credentials' };
   } catch (err) {

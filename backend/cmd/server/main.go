@@ -5,13 +5,13 @@ import (
 	"log"
 	"os"
 
+	"github.com/BigBabyofTel/lum-lms/internal/database"
 	"github.com/BigBabyofTel/lum-lms/internal/handlers"
 	"github.com/BigBabyofTel/lum-lms/internal/routes"
-	_ "github.com/lib/pq"
-
-	"github.com/BigBabyofTel/lum-lms/internal/database"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -43,6 +43,12 @@ func main() {
 	h := handlers.New(dbQueries, db)
 
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowCredentials: true, // required for cookies
+	}))
 	routes.RegisterRoutes(router, h)
 
 	if err := router.Run(":" + port); err != nil {

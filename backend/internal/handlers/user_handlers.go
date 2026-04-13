@@ -27,7 +27,7 @@ func (h *Handler) Register(c *gin.Context) {
 		LastName  string `json:"last_name" binding:"required"`
 		Email     string `json:"email" binding:"required"`
 		Password  string `json:"password" binding:"required"`
-		Type      string `json:"type" binding:"required, oneof=teacher student parent"`
+		Type      string `json:"type" binding:"required,oneof=teacher student parent"`
 	}
 
 	if err := c.ShouldBind(&params); err != nil {
@@ -95,8 +95,8 @@ func (h *Handler) Login(c *gin.Context) {
 	}
 	//The access token lasts 1 hr and the refresh lasts 1 day
 	c.SetSameSite(http.SameSiteStrictMode)
-	c.SetCookie("token", token, 3600, "/", "localhost", true, true)
-	c.SetCookie("refresh_token", refreshToken, 604800, "/", "localhost", true, true)
+	c.SetCookie("token", token, 3600, "/", "", true, true)
+	c.SetCookie("refresh_token", refreshToken, 604800, "/", "", true, true)
 
 	c.JSON(http.StatusCreated, gin.H{"message": "successfully logged in"})
 }
@@ -124,12 +124,16 @@ func (h *Handler) Refresh(c *gin.Context) {
 	}
 
 	c.SetSameSite(http.SameSiteStrictMode)
-	c.SetCookie("refresh_token", newToken, 604800, "/", "localhost", true, true)
+	c.SetCookie("refresh_token", newToken, 604800, "/", "", true, true)
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Token created"})
 }
 
 func (h *Handler) Logout(c *gin.Context) {
-	c.SetCookie("refresh_token", "", -1, "/", "localhost", true, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
+}
+
+func (h *Handler) Health(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "OK"})
 }

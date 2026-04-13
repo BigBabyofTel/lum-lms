@@ -13,8 +13,6 @@ func RegisterUserRoutes(router *gin.RouterGroup, h *handlers.Handler) {
 		users.POST("/login", middleware.RateLimit(), h.Login)
 		users.POST("/refresh", h.Refresh)
 		users.POST("/logout", h.Logout)
-		users.GET("", h.GetStudents)
-
+		users.GET("/", h.GetStudents)
 	}
-
 }

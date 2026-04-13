@@ -132,9 +132,7 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
               Create
             </button>
           </div>
-          {/*
-                    Make a spinner to use isPending
-                    */}
+          {/*  Make a spinner to use isPending  */}
           {isPending ? 'Submitting...' : 'Send Message'}
           {state?.error && <p className="text-red-500">{state.error}</p>}
           {state?.success && <p className="text-green-500">{state.success}</p>}

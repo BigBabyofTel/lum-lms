@@ -59,6 +59,9 @@ export default function RegisterForm(props: RegisterFormProps) {
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
       </div>
+      {state?.fieldErrors?.last_name && (
+        <p className="text-red-500 text-sm">{state.fieldErrors.last_name}</p>
+      )}
       <div className="p-2 w-full">
         <input
           name="password"
@@ -69,6 +72,9 @@ export default function RegisterForm(props: RegisterFormProps) {
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
       </div>
+      {state?.fieldErrors?.password && (
+        <p className="text-red-500 text-sm">{state.fieldErrors?.password}</p>
+      )}
       <div className="p-2 w-full">
         <input
           name="confirmPassword"
@@ -79,6 +85,11 @@ export default function RegisterForm(props: RegisterFormProps) {
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
       </div>
+      {state?.fieldErrors?.confirmPassword && (
+        <p className="text-red-500 text-sm">
+          {state.fieldErrors?.confirmPassword}
+        </p>
+      )}
       <div className="flex items-center flex-col w-full">
         <span>Select a role: </span>
         {roles.map((r) => (
@@ -93,8 +104,6 @@ export default function RegisterForm(props: RegisterFormProps) {
           </label>
         ))}
       </div>
-      {state?.error && <p className="text-red-500">{state.error}</p>}
-      {state?.success && <p className="text-green-500">{state.success}</p>}
       <button
         disabled={isPending}
         type="submit"
