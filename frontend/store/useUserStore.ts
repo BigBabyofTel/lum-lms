@@ -8,7 +8,7 @@ export const useUserStore = create<UserState>()(
     (set) => ({
       //hard coded ID
       id: '',
-      accessToken: '',
+      access_token: '',
       first_name: '',
       last_name: '',
       email: '',
@@ -24,6 +24,7 @@ export const useUserStore = create<UserState>()(
       setUser: (data: User) => {
         set(() => ({
           id: data.id,
+          access_token: data.access_token,
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
@@ -31,13 +32,13 @@ export const useUserStore = create<UserState>()(
       },
       setAccessToken: (token: string) => {
         set(() => ({
-          accessToken: token,
+          access_token: token,
         }));
       },
       clearUser: () => {
         set(() => ({
           id: '',
-          accessToken: '',
+          access_token: '',
           first_name: '',
           last_name: '',
           email: '',
@@ -48,7 +49,7 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'user-storage', // name of the item in storage
-      storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
+      storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
       //partialize: (state) => ({ id: state.id }) // only persist the 'id' field
     }
   )

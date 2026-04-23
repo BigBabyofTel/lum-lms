@@ -13,6 +13,15 @@ Real users can register with a role, log in, receive a JWT, and stay logged in a
 API endpoint rejects unauthenticated requests with a clear `401`. The refresh token cycle works silently so users are
 never unexpectedly logged out mid-session.
 
+### Current Project Implementation Notes
+
+- Backend routes are mounted under `/api/v1/...`, not `/v1/api/...`.
+- Password hashing in the current codebase uses `argon2id` in `backend/internal/auth/auth.go`.
+- The frontend stores the access token as `access_token` in the Zustand user store.
+- Public auth form submissions are handled through `frontend/lib/actions.ts` server actions.
+- Authenticated browser fetches go through `frontend/lib/api.ts`.
+- Session restoration currently runs from `frontend/app/dashboard/layout.tsx`.
+
 > Auth is the most deceptively complex phase. Cookie/CORS interactions, secure cookie flags, and token rotation
 > combine to create bugs that only appear in production environments or cross-origin setups. Front-load the debugging
 > time — budget 3 days for Week 3's core endpoints, not 1.
@@ -37,52 +46,42 @@ never unexpectedly logged out mid-session.
 
 #### Monday — Password Hashing Helpers
 
-Install bcrypt (already available via `golang.org/x/crypto` as a transitive dependency — just import it):
-
-```bash
-go get golang.org/x/crypto/bcrypt
-```
-
-Create `backend/internal/auth/password.go`:
+The current implementation uses `argon2id` via `github.com/alexedwards/argon2id` inside
+`backend/internal/auth/auth.go`:
 
 ```go
 package auth
 
-import "golang.org/x/crypto/bcrypt"
+import "github.com/alexedwards/argon2id"
 
-const bcryptCost = 12 // OWASP recommended minimum as of 2025
+var defaultParams = argon2id.DefaultParams
 
-func HashPassword(plain string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(plain), bcryptCost)
-	return string(bytes), err
+func HashPassword(password string) (string, error) {
+	return argon2id.CreateHash(password, defaultParams)
 }
 
-func CheckPassword(hash, plain string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(plain))
-	return err == nil
+func VerifyPassword(password, encodedHash string) (bool, error) {
+	return argon2id.ComparePasswordAndHash(password, encodedHash)
 }
 ```
 
-> **Why cost 12?** At cost 12, bcrypt takes ~250ms to hash on a modern CPU. This is slow enough to make brute-force
-> impractical but fast enough for a login endpoint. Cost 10 (the common default) is now considered too fast on modern
-> hardware.
-> Reference: [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+> **Why this matters:** The important Phase 1 requirement is that passwords are stored as secure hashes and never
+> returned in API responses. The current project satisfies that using Argon2id rather than bcrypt.
 
 ---
 
-#### Tuesday — `POST /v1/api/auth/register`
+#### Tuesday — `POST /api/v1/auth/register`
 
 ```go
-// Handler: cfg.register
-func (cfg *apiConfig) register(c *gin.Context) {
+func (h *Handler) Register(c *gin.Context) {
 var params struct {
 FirstName string `json:"first_name" binding:"required"`
-LastName  string `json:"last_name"  binding:"required"`
-Email     string `json:"email"      binding:"required,email"`
-Password  string `json:"password"   binding:"required,min=8"`
+LastName  string `json:"last_name" binding:"required"`
+Email     string `json:"email" binding:"required"`
+Password  string `json:"password" binding:"required"`
 Type      string `json:"type"       binding:"required,oneof=teacher student parent"`
 }
-if err := c.ShouldBindJSON(&params); err != nil {
+if err := c.ShouldBind(&params); err != nil {
 c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 return
 }
@@ -93,21 +92,19 @@ c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"}
 return
 }
 
-user, err := cfg.DB.CreateUser(c, database.CreateUserParams{
-FirstName:   params.FirstName,
-LastName:    params.LastName,
-Email:       params.Email,
-Password:    hash,
-Type:        database.RoleType(params.Type),
-AvatarColor: "#3b82f6", // default blue
+user, err := h.DB.CreateUser(c, database.CreateUserParams{
+FirstName: params.FirstName,
+LastName:  params.LastName,
+Email:     params.Email,
+Password:  sql.NullString{String: hash, Valid: true},
+Type:      database.Role(params.Type),
 })
 if err != nil {
-// Check for unique email violation (pq error code 23505)
-c.JSON(http.StatusConflict, gin.H{"error": "email already registered"})
+c.JSON(http.StatusConflict, gin.H{"error": "could not create user"})
 return
 }
 
-c.JSON(http.StatusCreated, gin.H{"user": sanitizeUser(user)}) // never return password hash
+c.JSON(http.StatusCreated, gin.H{"user": auth.SanitizeUser(user)})
 }
 ```
 
@@ -137,98 +134,77 @@ AvatarColor: u.AvatarColor.String,
 
 ---
 
-#### Wednesday — `POST /v1/api/auth/login`
+#### Wednesday — `POST /api/v1/auth/login`
 
-Install the JWT library:
-
-```bash
-go get github.com/golang-jwt/jwt/v5
-```
-
-Create `backend/internal/auth/jwt.go`:
+The current project keeps JWT helpers in `backend/internal/auth/auth.go`:
 
 ```go
 package auth
 
 import (
-	"time"
+  "time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-type Claims struct {
-	UserID uuid.UUID `json:"user_id"`
-	Role   string    `json:"role"`
-	jwt.RegisteredClaims
-}
-
-func GenerateAccessToken(userID uuid.UUID, role, secret string) (string, error) {
-	claims := Claims{
-		UserID: userID,
-		Role:   role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
-}
-
-func GenerateRefreshToken(userID uuid.UUID, role, secret string) (string, error) {
-	claims := Claims{
-		UserID: userID,
-		Role:   role,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
-}
-
-func ParseToken(tokenStr, secret string) (*Claims, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(secret), nil
-	})
-	if err != nil || !token.Valid {
-		return nil, err
-	}
-	return token.Claims.(*Claims), nil
+func MakeJWT(userID uuid.UUID, tokenSecret string, expiresIn time.Duration) (string, error) {
+  token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+    ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiresIn)),
+    IssuedAt:  jwt.NewNumericDate(time.Now()),
+    Issuer:    "lum-lms",
+    Subject:   userID.String(),
+  })
+  return token.SignedString([]byte(tokenSecret))
 }
 ```
 
 **Login handler:**
 
 ```go
-func (cfg *apiConfig) login(c *gin.Context) {
+func (h *Handler) Login(c *gin.Context) {
 var params struct {
-Email    string `json:"email"    binding:"required,email"`
+Email    string `json:"email" binding:"required"`
 Password string `json:"password" binding:"required"`
 }
-if err := c.ShouldBindJSON(&params); err != nil {
-c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+if err := c.ShouldBind(&params); err != nil {
+c.JSON(http.StatusBadRequest, gin.H{"error": "invalid characters"})
 return
 }
 
-user, err := cfg.DB.GetUserByEmail(c, params.Email)
-if err != nil || !auth.CheckPassword(user.Password.String, params.Password) {
-// Return the same error for both "user not found" and "wrong password"
-// — prevents email enumeration attacks
+user, err := h.DB.GetUserByEmail(c, params.Email)
+if err != nil {
+c.JSON(http.StatusBadRequest, gin.H{"error": "invalid credentials"})
+return
+}
+
+ok, err := auth.VerifyPassword(params.Password, user.Password.String)
+if err != nil || !ok {
 c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 return
 }
 
+expires := time.Hour
+
 jwtSecret := os.Getenv("JWT_SECRET")
-accessToken, _ := auth.GenerateAccessToken(user.ID, string(user.Type), jwtSecret)
-refreshToken, _ := auth.GenerateRefreshToken(user.ID, string(user.Type), jwtSecret)
+token, err := auth.MakeJWT(user.ID, jwtSecret, expires)
+if err != nil {
+c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create token"})
+return
+}
 
-// Refresh token goes in an httpOnly cookie — JS cannot read it
+refreshToken, err := auth.MakeJWT(user.ID, jwtSecret, expires*24)
+if err != nil {
+c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create refresh token"})
+return
+}
+
+// In local development the current code uses secure=false for localhost.
 c.SetSameSite(http.SameSiteStrictMode)
-c.SetCookie("refresh_token", refreshToken, 7*24*60*60, "/", "", true, true)
+c.SetCookie("refresh_token", refreshToken, 604800, "/", "", false, true)
 
-c.JSON(http.StatusOK, gin.H{
-"access_token": accessToken,
+c.JSON(http.StatusCreated, gin.H{
+"access_token": token,
 "user":         sanitizeUser(user),
 })
 }
@@ -241,46 +217,48 @@ c.JSON(http.StatusOK, gin.H{
 
 ---
 
-#### Thursday — `POST /v1/api/auth/refresh` & Logout
+#### Thursday — `POST /api/v1/auth/refresh` & Logout
 
 ```go
-func (cfg *apiConfig) refresh(c *gin.Context) {
-cookie, err := c.Cookie("refresh_token")
+func (h *Handler) Refresh(c *gin.Context) {
+rToken, err := c.Cookie("refresh_token")
 if err != nil {
 c.JSON(http.StatusUnauthorized, gin.H{"error": "no refresh token"})
 return
 }
 
-claims, err := auth.ParseToken(cookie, os.Getenv("JWT_SECRET"))
+claims, err := auth.ValidateJWT(rToken, os.Getenv("JWT_SECRET"))
 if err != nil {
 c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid refresh token"})
 return
 }
 
-// Issue new access token
-accessToken, _ := auth.GenerateAccessToken(claims.UserID, claims.Role, os.Getenv("JWT_SECRET"))
-// Rotate refresh token (optional but recommended — limits token theft window)
-refreshToken, _ := auth.GenerateRefreshToken(claims.UserID, claims.Role, os.Getenv("JWT_SECRET"))
+expires := time.Hour
 
-c.SetSameSite(http.SameSiteStrictMode)
-c.SetCookie("refresh_token", refreshToken, 7*24*60*60, "/", "", true, true)
-
-c.JSON(http.StatusOK, gin.H{"access_token": accessToken})
+newToken, err := auth.MakeJWT(claims, os.Getenv("JWT_SECRET"), expires*24)
+if err != nil {
+c.JSON(http.StatusNotFound, gin.H{"error": "could not create token"})
+return
 }
 
-func (cfg *apiConfig) logout(c *gin.Context) {
-// Overwrite the cookie with an expired one
-c.SetCookie("refresh_token", "", -1, "/", "", true, true)
+c.JSON(http.StatusCreated, gin.H{"access_token": newToken})
+}
+
+func (h *Handler) Logout(c *gin.Context) {
+c.SetCookie("refresh_token", "", -1, "/", "", false, true)
 c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
 ```
+
+> **Implementation note:** The current refresh handler issues a new `access_token` from the existing refresh cookie and
+> returns it in JSON. It does not currently rotate or overwrite the refresh cookie.
 
 ---
 
 #### Friday — `AuthMiddleware` & Rate Limiting
 
 ```go
-// backend/internal/middleware/auth.go
+// backend/internal/proxy/auth.go
 func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
 return func (c *gin.Context) {
 header := c.GetHeader("Authorization")
@@ -288,13 +266,12 @@ if header == "" || !strings.HasPrefix(header, "Bearer ") {
 c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
 return
 }
-claims, err := auth.ParseToken(strings.TrimPrefix(header, "Bearer "), jwtSecret)
+claims, err := auth.ValidateJWT(strings.TrimPrefix(header, "Bearer "), jwtSecret)
 if err != nil {
 c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 return
 }
-c.Set("userID", claims.UserID)
-c.Set("userRole", claims.Role)
+c.Set("userID", claims)
 c.Next()
 }
 }
@@ -318,13 +295,13 @@ c.Next()
 
 ```go
 // Public routes — no auth required
-router.POST("/v1/api/auth/register", cfg.register)
-router.POST("/v1/api/auth/login", RateLimit(), cfg.login)
-router.POST("/v1/api/auth/refresh", cfg.refresh)
-router.POST("/v1/api/auth/logout", cfg.logout)
+router.POST("/api/v1/auth/register", h.Register)
+router.POST("/api/v1/auth/login", proxy.RateLimit(), h.Login)
+router.POST("/api/v1/auth/refresh", h.Refresh)
+router.POST("/api/v1/auth/logout", h.Logout)
 
 // Protected routes — require valid JWT
-protected := router.Group("/v1/api").Use(AuthMiddleware(os.Getenv("JWT_SECRET")))
+protected := router.Group("/api/v1").Use(proxy.AuthMiddleware(os.Getenv("JWT_SECRET")))
 protected.POST("/classes", cfg.createClass)
 protected.GET("/classes", cfg.getClasses)
 ```
@@ -337,26 +314,27 @@ protected.GET("/classes", cfg.getClasses)
 
 #### Monday — Wire the Login Form
 
-Connect `app/auth/page.tsx` to the backend:
+Connect `frontend/components/login-form.tsx` and `frontend/lib/actions.ts` to the backend:
 
 ```typescript
-// On form submit
-const handleLogin = async (email: string, password: string) => {
-    try {
-        const data = await apiFetch<{ access_token: string; user: User }>(
-            '/v1/api/auth/login',
-            {method: 'POST', body: JSON.stringify({email, password})}
-        )
-        useUserStore.getState().setUser({...data.user, accessToken: data.access_token})
-        router.push('/dashboard')
-    } catch (err) {
-        setError('Invalid email or password')
-    }
-}
+const [state, formAction, isPending] = useActionState<FormState | null, FormData>(
+  handleLogin,
+  null
+)
+
+useEffect(() => {
+  if (state?.access_token && state?.user) {
+    useUserStore
+      .getState()
+      .setUser({ ...state.user, access_token: state.access_token })
+    router.push('/dashboard')
+  }
+}, [state, router])
 ```
 
-> The refresh token cookie is set by the backend automatically — the browser stores it without any JavaScript. This is
-> correct by design.
+> In the current project, the login POST happens in the `handleLogin` server action at `frontend/lib/actions.ts`, which
+> calls `/api/v1/auth/login`, parses the backend `set-cookie` header, and writes the `refresh_token` into Next.js
+> cookies before returning `{ access_token, user }` to the client form state.
 
 ---
 
@@ -372,7 +350,7 @@ Add a toggle between "Sign In" and "Create Account" on `app/auth/page.tsx`. The 
 | Password   | password | required, min 8 characters         |
 | Role       | select   | one of: Teacher / Student / Parent |
 
-On success: auto-login the user using the same `handleLogin` flow.
+On success: the current implementation redirects back to `/auth`, and the user signs in using the same login flow.
 
 ---
 
@@ -382,8 +360,7 @@ Update `apiFetch` in `frontend/lib/api.ts` to handle 401 by attempting a refresh
 
 ```typescript
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-    const result = await attemptFetch<T>(path, options)
-    return result
+    return attemptFetch<T>(path, options)
 }
 
 async function attemptFetch<T>(
@@ -391,7 +368,7 @@ async function attemptFetch<T>(
     options: RequestInit,
     isRetry = false
 ): Promise<T> {
-    const token = useUserStore.getState().accessToken
+    const token = useUserStore.getState().access_token
     const res = await fetch(`${BASE}${path}`, {
         ...options,
         credentials: 'include', // required for the refresh_token cookie to be sent
@@ -404,7 +381,7 @@ async function attemptFetch<T>(
 
     if (res.status === 401 && !isRetry) {
         // Try refreshing the token once
-        const refreshRes = await fetch(`${BASE}/v1/api/auth/refresh`, {
+        const refreshRes = await fetch(`${BASE}/api/v1/auth/refresh`, {
             method: 'POST',
             credentials: 'include',
         })
@@ -419,11 +396,11 @@ async function attemptFetch<T>(
     }
 
     if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
+        const body: { error?: string } = await res.json().catch(() => ({}))
         throw new Error(body.error ?? `HTTP ${res.status}`)
     }
 
-    return res.json() as Promise<T>
+    return (await res.json()) as T
 }
 ```
 
@@ -436,11 +413,11 @@ async function attemptFetch<T>(
 #### Thursday — Next.js Route Protection Middleware
 
 ```typescript
-// frontend/middleware.ts
+// frontend/proxy.ts
 import {NextResponse} from 'next/server'
 import type {NextRequest} from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const hasRefreshToken = request.cookies.has('refresh_token')
     const isOnDashboard = request.nextUrl.pathname.startsWith('/dashboard')
     const isOnAuth = request.nextUrl.pathname.startsWith('/auth')
@@ -459,8 +436,8 @@ export const config = {
 }
 ```
 
-> **Why check the cookie in middleware instead of the Zustand store?**  
-> Next.js middleware runs on the server (Edge Runtime) — it has no access to `localStorage` or Zustand. The
+> **Why check the cookie in proxy instead of the Zustand store?**  
+> Next.js proxy runs on the server (Edge Runtime) — it has no access to `localStorage` or Zustand. The
 > `refresh_token` cookie is the only auth signal available at the Edge. The access token in Zustand is verified
 > per-request on the client side.
 
@@ -472,21 +449,21 @@ export const config = {
 
 ```typescript
 const handleLogout = async () => {
-    await apiFetch('/v1/api/auth/logout', {method: 'POST'})
+    await apiFetch('/api/v1/auth/logout', {method: 'POST'})
     useUserStore.getState().clearUser()
     useClassesStore.getState().reset() // clear cached class data
     router.push('/auth')
 }
 ```
 
-**Session restoration on app load** — in `app/layout.tsx` or a top-level provider:
+**Session restoration on page load** — the current implementation runs this in `frontend/app/dashboard/layout.tsx`:
 
 ```typescript
 // Runs once on mount — if we have a refresh cookie but no access token, silently refresh
 useEffect(() => {
-    const token = useUserStore.getState().accessToken
+    const token = useUserStore.getState().access_token
     if (!token) {
-        fetch(`${BASE}/v1/api/auth/refresh`, {method: 'POST', credentials: 'include'})
+        fetch(`${BASE}/api/v1/auth/refresh`, {method: 'POST', credentials: 'include'})
             .then(res => res.ok ? res.json() : null)
             .then(data => {
                 if (data?.access_token) {
@@ -518,17 +495,17 @@ useEffect(() => {
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Gin Backend                                  │
 │                                                                 │
-│   AuthMiddleware           /v1/api/auth/refresh                 │
+│   AuthMiddleware           /api/v1/auth/refresh                 │
 │   (validates access_token) (validates refresh_token cookie)     │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 **Token storage rules:**
 
-| Token         | Storage           | Accessible to JS                 | Expiry |
-|---------------|-------------------|----------------------------------|--------|
-| Access token  | Zustand (RAM)     | ✅ Yes — needed to add to headers | 15 min |
-| Refresh token | `httpOnly` cookie | ❌ No — XSS cannot steal it       | 7 days |
+| Token         | Storage                    | Accessible to JS                 | Expiry      |
+|---------------|----------------------------|----------------------------------|-------------|
+| Access token  | Zustand + `sessionStorage` | ✅ Yes — needed to add to headers | app session |
+| Refresh token | `httpOnly` cookie          | ❌ No — XSS cannot steal it       | 7 days      |
 
 **Never do this:**
 
@@ -575,7 +552,7 @@ parent access is plugin-dependent and inconsistent across institutions. Canvas g
 exposes too much — they can see every discussion post in every course.
 
 **Luminescence approach:**  
-Parents register with `type: 'parent'` and get a fully scoped view from day one. The `ParentGuard` middleware (added in
+Parents register with `type: 'parent'` and get a fully scoped view from day one. The `ParentGuard` proxy (added in
 Phase 4) ensures they can only see data for their linked children. This is a real differentiator for K-12 schools
 where parental engagement is a district-level requirement.
 
@@ -630,7 +607,7 @@ configured at the institution level and often misconfigured. Most self-hosted Mo
 limiting at all — Moodle relies on plugins for this.
 
 **Luminescence approach:**  
-A simple token-bucket rate limiter applied as a Gin middleware to the login endpoint. 10 attempts per minute per
+A simple token-bucket rate limiter applied as a Gin proxy to the login endpoint. 10 attempts per minute per
 process is enough to defeat automated attacks without inconveniencing legitimate users. In production this would be
 upgraded to a Redis-backed per-IP limiter, but the in-process version is correct for MVP.
 
@@ -640,13 +617,13 @@ upgraded to a Redis-backed per-IP limiter, but the in-process version is correct
 
 Phase 1 is complete when **all** of the following are true:
 
-- [ ] `POST /v1/api/auth/register` creates a user with a bcrypt-hashed password
-- [ ] `POST /v1/api/auth/login` returns an access token and sets a `httpOnly` refresh cookie
-- [ ] `POST /v1/api/auth/refresh` issues a new access token using the cookie
-- [ ] `POST /v1/api/auth/logout` clears the cookie
-- [ ] All `/v1/api/classes` endpoints return `401` without a valid `Authorization` header
+- [ ] `POST /api/v1/auth/register` creates a user with a secure hashed password (`argon2id` in the current project)
+- [ ] `POST /api/v1/auth/login` returns an `access_token` and sets a `httpOnly` `refresh_token` cookie
+- [ ] `POST /api/v1/auth/refresh` issues a new `access_token` using the cookie
+- [ ] `POST /api/v1/auth/logout` clears the cookie
+- [ ] All `/api/v1/classes` endpoints return `401` without a valid `Authorization` header
 - [ ] The frontend login form works end-to-end and redirects to `/dashboard`
-- [ ] Page refresh restores the session without a re-login prompt
+- [ ] Dashboard refresh restores the session without a re-login prompt
 - [ ] `/dashboard` redirects to `/auth` if no `refresh_token` cookie is present
 - [ ] `/auth` redirects to `/dashboard` if the user is already logged in
 - [ ] Password hashes are never returned in any API response
@@ -658,13 +635,13 @@ Phase 1 is complete when **all** of the following are true:
 | Resource                           | URL                                                                                     |
 |------------------------------------|-----------------------------------------------------------------------------------------|
 | `golang-jwt/jwt` v5                | https://github.com/golang-jwt/jwt                                                       |
-| `golang.org/x/crypto/bcrypt`       | https://pkg.go.dev/golang.org/x/crypto/bcrypt                                           |
+| `alexedwards/argon2id`             | https://github.com/alexedwards/argon2id                                                 |
 | OWASP Password Storage Cheat Sheet | https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html        |
 | OWASP JWT Security Cheat Sheet     | https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html |
 | `gin-contrib/cors`                 | https://github.com/gin-contrib/cors                                                     |
 | `golang.org/x/time/rate`           | https://pkg.go.dev/golang.org/x/time/rate                                               |
 | Next.js Middleware docs            | https://nextjs.org/docs/app/building-your-application/routing/middleware                |
-| Next.js cookies in middleware      | https://nextjs.org/docs/app/api-reference/functions/cookies                             |
+| Next.js cookies in proxy           | https://nextjs.org/docs/app/api-reference/functions/cookies                             |
 | MDN — `credentials: 'include'`     | https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials                    |
 | MDN — `SameSite` cookie attribute  | https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite           |
 | FERPA — student data privacy       | https://studentprivacy.ed.gov/ferpa                                                     |

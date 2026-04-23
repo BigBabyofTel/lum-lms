@@ -1,4 +1,5 @@
 # Luminescence LMS — Detailed Implementation Plan
+
 > Current date: **March 25, 2026** · Target MVP: **May 9, 2026** · ~6.5 weeks remaining
 
 ---
@@ -7,15 +8,15 @@
 
 ### What's Already Built ✅
 
-| Area | Status |
-|------|--------|
-| Docker Compose (Postgres + Go + Next.js) | ✅ Working |
-| PostgreSQL schema via goose (`users`, `classes`, `assignments`, `topics`, `user_assignments`, `posts`, `comments`) | ✅ Migrated |
-| Gin server — `POST/GET /v1/api/classes`, `GET /v1/api/users` | ✅ Running |
-| sqlc configured (`sqlc.yaml`, generated `.sql.go` files) | ✅ Working |
-| Next.js 16 + Tailwind + dark-mode (portal, dashboard, class tabs) | ✅ Scaffolded |
+| Area                                                                                                                                       | Status                               |
+|--------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
+| Docker Compose (Postgres + Go + Next.js)                                                                                                   | ✅ Working                            |
+| PostgreSQL schema via goose (`users`, `classes`, `assignments`, `topics`, `user_assignments`, `posts`, `comments`)                         | ✅ Migrated                           |
+| Gin server — `POST/GET /v1/api/classes`, `GET /v1/api/users`                                                                               | ✅ Running                            |
+| sqlc configured (`sqlc.yaml`, generated `.sql.go` files)                                                                                   | ✅ Working                            |
+| Next.js 16 + Tailwind + dark-mode (portal, dashboard, class tabs)                                                                          | ✅ Scaffolded                         |
 | Auth helpers — `HashPassword`, `VerifyPassword`, `MakeJWT`, `ValidateJWT`, `GetBearerToken`, `MakeRefreshToken` in `internal/auth/auth.go` | ✅ Written (build errors — see below) |
-| `air` hot-reload config (`.air.toml`) | ✅ Configured |
+| `air` hot-reload config (`.air.toml`)                                                                                                      | ✅ Configured                         |
 
 ---
 
@@ -24,28 +25,40 @@
 The backend **does not compile**. Three issues must be patched right now:
 
 ### Bug 1 — Missing JWT dependency
-`internal/auth/auth.go` calls `jwt.NewWithClaims`, `jwt.ParseWithClaims`, etc., but `github.com/golang-jwt/jwt/v5` is absent from `go.mod`.
+
+`internal/auth/auth.go` calls `jwt.NewWithClaims`, `jwt.ParseWithClaims`, etc., but `github.com/golang-jwt/jwt/v5` is
+absent from `go.mod`.
 
 **Fix:**
+
 ```bash
 cd backend
 go get github.com/golang-jwt/jwt/v5
 ```
+
 Then add the import to `auth.go`:
+
 ```go
 import "github.com/golang-jwt/jwt/v5"
 ```
 
 ### Bug 2 — Corrupted `user_routes.go`
-Lines 17–19 of `internal/routes/user_routes.go` contain the literal text of the user's IDE question (a shell echo artifact). Delete those lines.
+
+Lines 17–19 of `internal/routes/user_routes.go` contain the literal text of the user's IDE question (a shell echo
+artifact). Delete those lines.
 
 **Fix:** Truncate the file after the closing `}` on line 14.
 
 ### Bug 3 — Orphaned root `json.go`
-`backend/json.go` declares `package main` with no `main()` function. This breaks `go build ./...`. The helpers (`respondWithError`, `respondWithJSON`) are not used anywhere because Gin handlers return via `c.JSON()`. **Delete this file.**
+
+`backend/json.go` declares `package main` with no `main()` function. This breaks `go build ./...`. The helpers (
+`respondWithError`, `respondWithJSON`) are not used anywhere because Gin handlers return via `c.JSON()`. **Delete this
+file.**
 
 ### Bug 4 — Missing `return` after error responses
+
 In `class_handlers.go`:
+
 - `CreateClass`: UUID parse error falls through → silent 500
 - `CreateClass`: DB error response missing `return` → double-write panic risk
 
@@ -54,11 +67,13 @@ In `class_handlers.go`:
 ---
 
 ## 3. Phase 0 — Foundations (Should be done; mostly NOT done)
+
 > Guide target: **March 13**. Current status: **~20% complete**
 
 ### 3.1 Makefile + Goose Migration Workflow
 
 Create `backend/Makefile`:
+
 ```makefile
 DB_URL=postgres://postgres:dandadan@localhost:5432/postgres?sslmode=disable
 
@@ -87,6 +102,7 @@ Install goose: `go install github.com/pressly/goose/v3/cmd/goose@latest`
 ### 3.2 Schema Migrations (New files)
 
 #### `sql/schema/0003_add_password.sql`
+
 ```sql
 -- +goose Up
 ALTER TABLE users ADD COLUMN password varchar(255);
@@ -95,6 +111,7 @@ ALTER TABLE users DROP COLUMN password;
 ```
 
 #### `sql/schema/0004_add_class_color.sql`
+
 ```sql
 -- +goose Up
 ALTER TABLE classes ADD COLUMN color varchar(50) NOT NULL DEFAULT 'bg-blue-600';
@@ -107,6 +124,7 @@ Run: `make migrate-up` → `make sqlc-gen` (regenerates models with new columns)
 ### 3.3 New sqlc Queries
 
 Create `sql/queries/0003_users.sql`:
+
 ```sql
 -- name: CreateUser :one
 INSERT INTO users (first_name, last_name, email, type, password)
@@ -121,6 +139,7 @@ SELECT * FROM users WHERE id = $1 LIMIT 1;
 ```
 
 Create `sql/queries/0004_classes_extended.sql`:
+
 ```sql
 -- name: GetClassByID :one
 SELECT * FROM classes WHERE id = $1 LIMIT 1;
@@ -146,18 +165,19 @@ npm install -D @types/node
 ### 3.5 Frontend — Create `lib/` Architecture
 
 **`frontend/lib/api.ts`** — The ONLY place components call the API:
+
 ```typescript
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
     // get token from Zustand store
-    const { accessToken } = useUserStore.getState()
+    const {accessToken} = useUserStore.getState()
     const res = await fetch(`${BASE}${path}`, {
         ...options,
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+            ...(accessToken ? {Authorization: `Bearer ${accessToken}`} : {}),
             ...options.headers,
         },
     })
@@ -168,11 +188,12 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
                 method: 'POST', credentials: 'include',
             })
             if (refreshRes.ok) {
-                const { access_token } = await refreshRes.json()
+                const {access_token} = await refreshRes.json()
                 useUserStore.getState().setAccessToken(access_token)
                 return apiFetch<T>(path, options) // retry
             }
-        } catch {}
+        } catch {
+        }
         useUserStore.getState().clearUser()
         throw new Error('Unauthorized')
     }
@@ -185,6 +206,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 ```
 
 **`frontend/lib/stores/user-store.ts`**:
+
 ```typescript
 import { create } from 'zustand'
 
@@ -206,11 +228,18 @@ export const useUserStore = create<UserState>((set) => ({
 ```
 
 **`frontend/lib/stores/classes-store.ts`**:
-```typescript
-import { create } from 'zustand'
-import { apiFetch } from '@/lib/api'
 
-interface Class { id: string; subject: string; grade: number; color: string; teacherId: string }
+```typescript
+import {create} from 'zustand'
+import {apiFetch} from '@/lib/api'
+
+interface Class {
+    id: string;
+    subject: string;
+    grade: number;
+    color: string;
+    teacherId: string
+}
 
 interface ClassesState {
     classes: Class[]
@@ -223,15 +252,15 @@ interface ClassesState {
 export const useClassesStore = create<ClassesState>((set) => ({
     classes: [], loading: false, error: null,
     fetchClasses: async () => {
-        set({ loading: true, error: null })
+        set({loading: true, error: null})
         try {
             const data = await apiFetch<{ classes: Class[] }>('/v1/api/classes')
-            set({ classes: data.classes ?? [], loading: false })
+            set({classes: data.classes ?? [], loading: false})
         } catch (err) {
-            set({ error: String(err), loading: false })
+            set({error: String(err), loading: false})
         }
     },
-    reset: () => set({ classes: [], loading: false, error: null }),
+    reset: () => set({classes: [], loading: false, error: null}),
 }))
 ```
 
@@ -242,17 +271,20 @@ export const useClassesStore = create<ClassesState>((set) => ({
 ### 3.6 Frontend Environment Config
 
 Create `frontend/.env.local`:
+
 ```
 NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
 Update `docker-compose.yml` frontend service with:
+
 ```yaml
 environment:
   NEXT_PUBLIC_API_URL: http://backend:8080
 ```
 
 ### Phase 0 Exit Checklist
+
 - [ ] `go build ./...` succeeds with zero errors
 - [ ] `make migrate-up` runs cleanly on a fresh DB
 - [ ] `users.password` and `classes.color` columns exist
@@ -265,6 +297,7 @@ environment:
 ---
 
 ## 4. Phase 1 — Authentication
+
 > Guide target: **March 27**. Current status: **~5% complete** (helpers written, no endpoints)
 
 ### 4.1 Backend — Dependencies
@@ -276,26 +309,29 @@ go get golang.org/x/time/rate           # rate limiting
 go get github.com/gin-contrib/cors      # CORS
 ```
 
-> **Note:** `golang.org/x/crypto/bcrypt` is implied by the guide, but the codebase already uses `argon2id` (which is cryptographically stronger). Keep argon2id — it's a better choice.
+> **Note:** `golang.org/x/crypto/bcrypt` is implied by the guide, but the codebase already uses `argon2id` (which is
+> cryptographically stronger). Keep argon2id — it's a better choice.
 
 ### 4.2 CORS — Wire Immediately (Day 1 of Phase 1)
 
 In `cmd/server/main.go`, before any route registration:
+
 ```go
 import "github.com/gin-contrib/cors"
 
 router.Use(cors.New(cors.Config{
-    AllowOrigins:     []string{"http://localhost:3000"},
-    AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-    AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-    AllowCredentials: true, // CRITICAL for httpOnly cookie flow
-    MaxAge:           12 * time.Hour,
+AllowOrigins:     []string{"http://localhost:3000"},
+AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+AllowCredentials: true, // CRITICAL for httpOnly cookie flow
+MaxAge:           12 * time.Hour,
 }))
 ```
 
 ### 4.3 JWT Secret in Handler
 
 Add `JWTSecret` to the `Handler` struct:
+
 ```go
 type Handler struct {
     DB        *database.Queries
@@ -303,6 +339,7 @@ type Handler struct {
     JWTSecret string
 }
 ```
+
 Load from env in `main.go`: `jwtSecret := os.Getenv("JWT_SECRET")` — fatal if empty.
 
 Add to `.env`: `JWT_SECRET=your-secret-here`
@@ -310,6 +347,7 @@ Add to `.env`: `JWT_SECRET=your-secret-here`
 ### 4.4 New SQL Queries
 
 Add to `sql/queries/0003_users.sql`:
+
 ```sql
 -- name: CreateRefreshToken :one
 -- Note: add a refresh_tokens table (optional for MVP — storing in cookie is sufficient)
@@ -323,12 +361,14 @@ Add to `sql/queries/0003_users.sql`:
 Create `internal/handlers/auth_handlers.go`:
 
 **`POST /v1/api/auth/register`**
+
 - Bind: `first_name`, `last_name`, `email`, `password`, `type`
 - Hash password with argon2id
 - Call `DB.CreateUser()`
 - Return 201 + sanitized user object (no password hash)
 
 **`POST /v1/api/auth/login`**
+
 - Look up user by email
 - Compare password with argon2id
 - **Use same error for wrong email and wrong password** ("Invalid email or password")
@@ -338,6 +378,7 @@ Create `internal/handlers/auth_handlers.go`:
 - Set: `Set-Cookie: refresh_token=...; HttpOnly; Secure; SameSite=Strict; Path=/v1/api/auth`
 
 **`POST /v1/api/auth/refresh`**
+
 - Read `refresh_token` cookie
 - Validate JWT signature + expiry
 - Issue new access token (15min) + new refresh token (7d) — rotate both
@@ -345,10 +386,12 @@ Create `internal/handlers/auth_handlers.go`:
 - Set new refresh cookie
 
 **`POST /v1/api/auth/logout`**
+
 - Overwrite cookie with expired value: `Max-Age=-1`
 - Return 200
 
 Helper — `sanitizeUser()`:
+
 ```go
 type SafeUser struct {
     ID        uuid.UUID `json:"id"`
@@ -362,7 +405,8 @@ func sanitizeUser(u database.User) SafeUser { ... }
 
 ### 4.6 AuthMiddleware
 
-Create `internal/middleware/auth.go`:
+Create `internal/proxy/auth.go`:
+
 ```go
 func AuthMiddleware(secret string) gin.HandlerFunc {
     return func(c *gin.Context) {
@@ -389,11 +433,12 @@ import "golang.org/x/time/rate"
 var loginLimiter = rate.NewLimiter(rate.Every(time.Minute/10), 10) // 10 req/min
 ```
 
-Apply as middleware on login route only.
+Apply as proxy on login route only.
 
 ### 4.8 Update Routes
 
 `RegisterUserRoutes` becomes:
+
 ```go
 func RegisterAuthRoutes(router *gin.RouterGroup, h *handlers.Handler) {
     auth := router.Group("/auth")
@@ -407,18 +452,20 @@ func RegisterAuthRoutes(router *gin.RouterGroup, h *handlers.Handler) {
 ```
 
 Wrap all non-auth routes with `AuthMiddleware`:
+
 ```go
 protected := v1.Group("")
-protected.Use(middleware.AuthMiddleware(h.JWTSecret))
+protected.Use(proxy.AuthMiddleware(h.JWTSecret))
 {
-    RegisterClassRoutes(protected, h)
-    // future: assignments, submissions, grading
+RegisterClassRoutes(protected, h)
+// future: assignments, submissions, grading
 }
 ```
 
 ### 4.9 Frontend — Auth Pages
 
 Rename/update `app/portal/page.tsx` → `app/auth/page.tsx` (or add proper auth logic to portal):
+
 - Login form: email + password → `apiFetch POST /v1/api/auth/login`
 - Register form: toggle with login (first_name, last_name, email, password, type selector)
 - On success: `useUserStore.getState().setAuth(token, user)` → `router.push('/dashboard')`
@@ -427,6 +474,7 @@ Rename/update `app/portal/page.tsx` → `app/auth/page.tsx` (or add proper auth 
 ### 4.10 Frontend — Session Restoration
 
 In root `layout.tsx`, on mount:
+
 ```typescript
 useEffect(() => {
     // attempt silent refresh on every page load
@@ -438,11 +486,12 @@ useEffect(() => {
 
 ### 4.11 Frontend — Next.js Route Middleware
 
-Create `frontend/middleware.ts`:
-```typescript
-import { NextRequest, NextResponse } from 'next/server'
+Create `frontend/proxy.ts`:
 
-export function middleware(req: NextRequest) {
+```typescript
+import {NextRequest, NextResponse} from 'next/server'
+
+export function proxy(req: NextRequest) {
     const hasRefreshToken = req.cookies.has('refresh_token')
     const isAuthPage = req.nextUrl.pathname.startsWith('/auth') || req.nextUrl.pathname.startsWith('/portal')
     const isDashboard = req.nextUrl.pathname.startsWith('/dashboard')
@@ -452,10 +501,11 @@ export function middleware(req: NextRequest) {
     return NextResponse.next()
 }
 
-export const config = { matcher: ['/dashboard/:path*', '/portal', '/auth/:path*'] }
+export const config = {matcher: ['/dashboard/:path*', '/portal', '/auth/:path*']}
 ```
 
 ### Phase 1 Exit Checklist
+
 - [ ] `POST /v1/api/auth/register` → 201 + sanitized user (no password hash)
 - [ ] `POST /v1/api/auth/login` → access token in JSON + httpOnly refresh cookie
 - [ ] `POST /v1/api/auth/refresh` → new access token from cookie
@@ -470,9 +520,11 @@ export const config = { matcher: ['/dashboard/:path*', '/portal', '/auth/:path*'
 ---
 
 ## 5. Phase 2 — Classes & Assignments (Weeks 5–6)
+
 > Guide target: **April 10**
 
 ### 5.1 Migration: `0005_class_enrollments.sql`
+
 ```sql
 -- +goose Up
 CREATE TABLE class_enrollments (
@@ -521,6 +573,7 @@ SELECT student_id FROM class_enrollments WHERE class_id = $1;
 ### 5.3 Backend — Class Endpoints (Hardened)
 
 **Update `GET /v1/api/classes`** (role-scoped, no `teacherId` query param):
+
 ```go
 // From JWT claims:
 userID := c.MustGet("userID").(uuid.UUID)
@@ -549,6 +602,7 @@ case "parent":
 ### 5.4 Assignment Endpoints
 
 **`POST /v1/api/classes/:id/assignments`** — teacher only:
+
 ```go
 // 1. Verify teacher owns class
 // 2. Create assignment
@@ -570,6 +624,7 @@ case "parent":
 ### 5.5 Missing Assignment Background Job
 
 In `cmd/server/main.go`, after DB setup:
+
 ```go
 go func() {
     ticker := time.NewTicker(1 * time.Hour)
@@ -583,6 +638,7 @@ go func() {
 ```
 
 SQL query:
+
 ```sql
 -- name: MarkMissingAssignments :exec
 UPDATE user_assignments ua
@@ -602,6 +658,7 @@ WHERE ua.assignment_id = a.id
 - `class/[id]/classwork/page.tsx`: `apiFetch GET /v1/api/classes/:id/assignments`
 
 ### Phase 2 Exit Checklist
+
 - [ ] `class_enrollments` table migrated and indexed
 - [ ] `GET /v1/api/classes` is role-scoped — no `teacherId` query param
 - [ ] Creating an assignment bulk-inserts `user_assignments` for all enrolled students
@@ -613,11 +670,13 @@ WHERE ua.assignment_id = a.id
 ---
 
 ## 6. Phase 3 — Submissions & Grading (Weeks 7–8)
+
 > Guide target: **April 24**
 
 ### 6.1 Migrations
 
 **`0006_submission_content.sql`:**
+
 ```sql
 -- +goose Up
 ALTER TABLE user_assignments
@@ -630,6 +689,7 @@ ALTER TABLE user_assignments
 ```
 
 **`0007_grading_columns.sql`:**
+
 ```sql
 -- +goose Up
 ALTER TABLE user_assignments
@@ -682,24 +742,29 @@ ORDER BY u.last_name, u.first_name, a.created_at;
 ### 6.3 New Endpoints
 
 **`POST /v1/api/assignments/:id/submit`** — student only:
+
 - Verify student is enrolled in the assignment's class
 - Idempotent: re-submission overwrites previous text
 - Guard: `status != 'graded'` — cannot overwrite a returned grade
 
 **`GET /v1/api/assignments/:id/submissions`** — teacher only:
+
 - Verify teacher owns the class
 - Returns all submissions joined with student info
 
 **`PATCH /v1/api/user-assignments/:id/grade`** — teacher only:
+
 - Body: `{ grade: int (0-100), feedback: string }`
 - Sets `status = 'graded'`
 
 **`GET /v1/api/classes/:id/gradebook`** — teacher only:
+
 - Full `CROSS JOIN` matrix (every student × every assignment)
 
 ### 6.4 Frontend
 
 **Student submission form** (`app/dashboard/class/[id]/assignments/[assignmentId]/page.tsx`):
+
 - Textarea with draft auto-save to `localStorage`
   ```typescript
   const DRAFT_KEY = `lum_draft_${assignmentId}_${userId}`
@@ -709,14 +774,17 @@ ORDER BY u.last_name, u.first_name, a.created_at;
 - Show returned grade + feedback if `status === 'graded'`
 
 **Teacher submission list** (`/assignments/:id` view):
+
 - Table: student name | status badge | submission text preview | timestamp | grade input
 - Inline grading panel: integer input (0-100) + feedback textarea + Save
 
 **Gradebook page** (`app/dashboard/class/[id]/gradebook/page.tsx`):
+
 - Table matrix: students as rows, assignments as columns
 - Color coding: 🟢 80-100, 🟡 60-79, 🔴 0-59, `—` not graded, 🔴 missing
 
 ### Phase 3 Exit Checklist
+
 - [ ] `submission_text`, `submitted_at`, `feedback`, `graded_by`, `graded_at` columns exist
 - [ ] Students can submit and re-submit (idempotent)
 - [ ] Graded submissions cannot be overwritten by student
@@ -728,11 +796,13 @@ ORDER BY u.last_name, u.first_name, a.created_at;
 ---
 
 ## 7. Phase 4 — Communication & Parent Portal (Week 9)
+
 > Guide target: **May 1**
 
 ### 7.1 Migrations
 
 **`0008_posts_class_id.sql`:**
+
 ```sql
 -- +goose Up
 ALTER TABLE posts ADD COLUMN class_id uuid REFERENCES classes(id) ON DELETE CASCADE;
@@ -743,6 +813,7 @@ ALTER TABLE posts DROP COLUMN class_id;
 ```
 
 **`0009_parent_student_links.sql`:**
+
 ```sql
 -- +goose Up
 CREATE TABLE parent_student_links (
@@ -761,6 +832,7 @@ DROP TABLE IF EXISTS parent_student_links;
 ### 7.2 Announcements
 
 SQL queries:
+
 ```sql
 -- name: CreateAnnouncement :one
 INSERT INTO posts (author_id, class_id, content)
@@ -774,6 +846,7 @@ ORDER BY p.created_at DESC;
 ```
 
 Endpoints:
+
 - `POST /v1/api/classes/:id/announcements` — teacher only
 - `GET /v1/api/classes/:id/announcements` — teacher + enrolled students
 
@@ -781,9 +854,10 @@ Endpoints:
 
 ### 7.3 Parent Endpoints
 
-**`ParentGuard` middleware** — verifies `parent_student_links` row exists before passing through.
+**`ParentGuard` proxy** — verifies `parent_student_links` row exists before passing through.
 
 SQL queries:
+
 ```sql
 -- name: LinkParentToStudent :one
 INSERT INTO parent_student_links (parent_id, student_id)
@@ -802,7 +876,9 @@ SELECT EXISTS(
 ```
 
 Endpoints:
-- `POST /v1/api/parent/link` — look up student by email, verify `type='student'`, create link. Same error for non-existent and non-student emails.
+
+- `POST /v1/api/parent/link` — look up student by email, verify `type='student'`, create link. Same error for
+  non-existent and non-student emails.
 - `GET /v1/api/parent/students` — list linked students
 - `GET /v1/api/parent/students/:id/classes` — ParentGuard + student's classes
 - `GET /v1/api/parent/students/:id/grades` — ParentGuard + student's graded assignments
@@ -811,10 +887,12 @@ Endpoints:
 ### 7.4 Parent Frontend
 
 In dashboard layout, check `useUserStore().user?.type`:
+
 - `'parent'` → render `ParentDashboard` component (linked student cards, grade summaries, upcoming assignments)
 - `'teacher'` / `'student'` → render existing dashboard
 
 ### Phase 4 Exit Checklist
+
 - [ ] `posts.class_id` migrated and indexed
 - [ ] `parent_student_links` migrated and indexed
 - [ ] Announcements scoped to class; stream renders from API
@@ -827,6 +905,7 @@ In dashboard layout, check `useUserStore().user?.type`:
 ---
 
 ## 8. Phase 5 — Polish, Testing & Launch (Week 10)
+
 > Guide target: **May 9**
 
 ### 8.1 Input Validation
@@ -834,6 +913,7 @@ In dashboard layout, check `useUserStore().user?.type`:
 **Backend:** All handlers must have `binding:"required"` tags + validated enum values.
 
 **Frontend** — `frontend/lib/schemas.ts`:
+
 ```typescript
 import { z } from 'zod'
 export const loginSchema = z.object({ email: z.string().email(), password: z.string().min(8) })
@@ -853,11 +933,11 @@ Validate in every form before calling `apiFetch`.
 
 Every page must handle three states:
 
-| State | Implementation |
-|-------|---------------|
-| **Loading** | Skeleton loaders (Tailwind `animate-pulse`) |
-| **Empty** | Role-appropriate CTA ("Create your first class", "No classes yet — ask your teacher") |
-| **Error** | Error message + retry button |
+| State       | Implementation                                                                        |
+|-------------|---------------------------------------------------------------------------------------|
+| **Loading** | Skeleton loaders (Tailwind `animate-pulse`)                                           |
+| **Empty**   | Role-appropriate CTA ("Create your first class", "No classes yet — ask your teacher") |
+| **Error**   | Error message + retry button                                                          |
 
 Install `react-hot-toast`, add `<Toaster />` to root layout. Toast on every create/update/delete action.
 
@@ -882,6 +962,7 @@ Create global `ErrorBoundary` component wrapping the app.
 ### 8.4 Testing Baseline
 
 **Backend** — Go table-driven tests:
+
 ```go
 // backend/internal/handlers/auth_handlers_test.go
 func TestRegister(t *testing.T) {
@@ -891,6 +972,7 @@ func TestRegister(t *testing.T) {
 ```
 
 **Frontend** — Vitest + React Testing Library:
+
 ```bash
 npm install -D vitest @testing-library/react @testing-library/user-event jsdom @vitejs/plugin-react
 ```
@@ -898,6 +980,7 @@ npm install -D vitest @testing-library/react @testing-library/user-event jsdom @
 ### 8.5 Docker Compose Production Config
 
 Create `docker-compose.prod.yml`:
+
 - `GIN_MODE=release`
 - `JWT_SECRET` from env (not hardcoded)
 - Postgres uses named volume + least-privilege user
@@ -914,6 +997,7 @@ Create `docker-compose.prod.yml`:
 6. `git tag v0.1.0 && git push --tags`
 
 ### Phase 5 Exit Checklist (= MVP Ship Criteria)
+
 - [ ] All 5 QA journey scripts pass
 - [ ] All security items verified
 - [ ] `next build` zero TypeScript errors
@@ -929,6 +1013,7 @@ Create `docker-compose.prod.yml`:
 ## 9. File Creation Summary (All New Files)
 
 ### Backend — New Files
+
 ```
 backend/
 ├── Makefile                                          # migrate-up, migrate-down, sqlc-gen
@@ -954,7 +1039,7 @@ backend/
 │   │   ├── assignment_handlers.go                  # Assignment CRUD
 │   │   ├── submission_handlers.go                  # Submit, ListSubmissions, Grade
 │   │   └── parent_handlers.go                      # Link, ListStudents, Grades, etc.
-│   ├── middleware/
+│   ├── proxy/
 │   │   ├── auth.go                                 # AuthMiddleware
 │   │   ├── rate_limit.go                           # Login rate limiter
 │   │   └── parent_guard.go                         # ParentGuard
@@ -965,10 +1050,11 @@ backend/
 ```
 
 ### Frontend — New Files
+
 ```
 frontend/
 ├── .env.local                                       # NEXT_PUBLIC_API_URL
-├── middleware.ts                                    # Route protection
+├── proxy.ts                                    # Route protection
 ├── lib/
 │   ├── api.ts                                       # apiFetch<T>()
 │   ├── types.ts                                     # Shared TypeScript types
@@ -1015,15 +1101,16 @@ Priority order to get the project back on track:
 
 ## 11. Timeline Snapshot
 
-| Week | Dates | Focus | Status |
-|------|-------|-------|--------|
-| 0 (fixes) | Mar 25–26 | Build errors, goose, password migration, sqlc queries, apiFetch, Zustand | 🔴 Not started |
-| 1 | Mar 27–28 | Auth backend (register, login, refresh, logout, CORS, middleware) | 🔴 Not started |
-| 2 | Mar 30–Apr 4 | Auth frontend (forms, session, route protection) | 🔴 Not started |
-| 3 | Apr 6–10 | Classes (enrollment, role-scoped API, frontend wired to real data) | 🔴 Not started |
-| 4 | Apr 13–17 | Assignments (CRUD, auto user_assignments, background job, classwork page) | 🔴 Not started |
-| 5 | Apr 20–24 | Submissions (submit, grade, gradebook) | 🔴 Not started |
-| 6 | Apr 27–May 1 | Stream (announcements) + parent portal | 🔴 Not started |
-| 7 | May 4–9 | Polish, testing, security audit, Docker prod, v0.1.0 tag | 🔴 Not started |
+| Week      | Dates        | Focus                                                                     | Status         |
+|-----------|--------------|---------------------------------------------------------------------------|----------------|
+| 0 (fixes) | Mar 25–26    | Build errors, goose, password migration, sqlc queries, apiFetch, Zustand  | 🔴 Not started |
+| 1         | Mar 27–28    | Auth backend (register, login, refresh, logout, CORS, proxy)              | 🔴 Not started |
+| 2         | Mar 30–Apr 4 | Auth frontend (forms, session, route protection)                          | 🔴 Not started |
+| 3         | Apr 6–10     | Classes (enrollment, role-scoped API, frontend wired to real data)        | 🔴 Not started |
+| 4         | Apr 13–17    | Assignments (CRUD, auto user_assignments, background job, classwork page) | 🔴 Not started |
+| 5         | Apr 20–24    | Submissions (submit, grade, gradebook)                                    | 🔴 Not started |
+| 6         | Apr 27–May 1 | Stream (announcements) + parent portal                                    | 🔴 Not started |
+| 7         | May 4–9      | Polish, testing, security audit, Docker prod, v0.1.0 tag                  | 🔴 Not started |
 
-> The original Phase 0 target (March 13) and Phase 1 target (March 27) are now compressed into a tight catch-up sprint. The most critical bottleneck is Phase 1 authentication — it blocks everything else.
+> The original Phase 0 target (March 13) and Phase 1 target (March 27) are now compressed into a tight catch-up sprint.
+> The most critical bottleneck is Phase 1 authentication — it blocks everything else.

@@ -78,11 +78,11 @@ CREATE TABLE users
 **Backend (Go + Gin):**
 
 - Gin's `c *gin.Context` is used instead of the standard `http.ResponseWriter`/`*http.Request` pair
-- Route groups can be protected per role using Gin middleware: `router.Group("/v1/api").Use(AuthMiddleware())`
-- A `RequireRole(roles ...string)` middleware wraps Gin handler groups
+- Route groups can be protected per role using Gin proxy: `router.Group("/v1/api").Use(AuthMiddleware())`
+- A `RequireRole(roles ...string)` proxy wraps Gin handler groups
 
 ```go
-// internal/middleware/auth.go
+// internal/proxy/auth.go
 func RequireRole(roles ...string) gin.HandlerFunc {
 return func (c *gin.Context) {
 claims := GetClaims(c) // extracted from JWT stored in Authorization header
@@ -525,7 +525,7 @@ CREATE TABLE notifications
 ```go
 // Lightweight SSE handler with Gin
 func (cfg *apiConfig) NotificationStream(c *gin.Context) {
-userID := GetUserID(c) // extracted from JWT claims set by auth middleware
+userID := GetUserID(c) // extracted from JWT claims set by auth proxy
 
 c.Stream(func (w io.Writer) bool {
 ch := notifier.Subscribe(userID)
@@ -608,7 +608,7 @@ CREATE TABLE parent_student_links
 **Backend scoping (Gin):**
 
 - All parent API calls go through `GET /v1/api/parent/students/:student_id/...`
-- Gin middleware validates that `student_id` is in the parent's `parent_student_links` before calling `c.Next()`
+- Gin proxy validates that `student_id` is in the parent's `parent_student_links` before calling `c.Next()`
 - Parents can never modify any data — all their endpoints are GET-only
 
 ```go
@@ -1165,7 +1165,7 @@ Login flow:
    - Refresh token: 7d expiry, stored as httpOnly cookie
 3. Access token returned in JSON body → stored in Zustand (in-memory only)
 4. Every API request includes: Authorization: Bearer <access_token>
-5. Gin auth middleware: validate JWT signature and expiry, set user claims in c.Set()
+5. Gin auth proxy: validate JWT signature and expiry, set user claims in c.Set()
 6. On 401: client silently uses refresh token cookie to fetch new access token
 ```
 
@@ -1177,7 +1177,7 @@ ALTER TABLE users
     ADD COLUMN password varchar(255);
 ```
 
-**Gin auth middleware:**
+**Gin auth proxy:**
 
 ```go
 func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
@@ -1205,7 +1205,7 @@ protected.GET("/classes", cfg.getClasses)
 protected.POST("/classes", cfg.createClass)
 ```
 
-**Rate limiting on the login endpoint (Gin middleware):**
+**Rate limiting on the login endpoint (Gin proxy):**
 
 ```go
 // Using golang.org/x/time/rate — already available via golang.org/x/net transitive dep

@@ -5,6 +5,7 @@ export interface User {
   email: string;
   type: string;
   //link to the url for the image
+  access_token?: string | null;
   avatar?: string;
   avatarColor?: string;
   role?: 'teacher' | 'student' | 'parent' | null;
@@ -15,6 +16,8 @@ export interface User {
 export interface FormState {
   error?: string;
   success?: string;
+  access_token?: string;
+  user?: User;
   fieldErrors?: {
     email?: string;
     password?: string;

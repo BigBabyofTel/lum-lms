@@ -20,9 +20,11 @@ Tests a single handler in isolation with no real DB. Verifies input validation l
 ### Backend (Go)
 
 #### 1. Unit Tests
+
 Test a single function in complete isolation. The current `handlers_test.go` counts as this.
 
 #### 2. Integration Tests
+
 Test the full request → handler → real database flow. Requires a real test DB or Docker.
 
 ```go
@@ -31,7 +33,8 @@ func TestCreateClass_Integration(t *testing.T) { ... }
 ```
 
 #### 3. Middleware Tests
-Test your JWT auth middleware once added in Phase 1.
+
+Test your JWT auth proxy once added in Phase 1.
 
 ```go
 // assert that a request without a Bearer token gets 401
@@ -44,6 +47,7 @@ Test your JWT auth middleware once added in Phase 1.
 ### Frontend (Next.js / TypeScript)
 
 #### 4. Unit Tests (Vitest)
+
 Test individual functions like Zod schemas or store actions.
 
 ```typescript
@@ -55,6 +59,7 @@ it('rejects grade over 12', () => {
 ```
 
 #### 5. Component Tests (React Testing Library)
+
 Render a component and assert what the user sees.
 
 ```typescript
@@ -66,6 +71,7 @@ it('displays subject name', () => {
 ```
 
 #### 6. End-to-End Tests (Playwright or Cypress)
+
 Simulates a real user clicking through the browser.
 
 ```typescript
@@ -83,19 +89,20 @@ test('user can log in and see dashboard', async ({ page }) => {
 
 ## Recommended Order
 
-| Phase | Test Type | Priority |
-|---|---|---|
-| Phase 0 (now) | Validation unit tests (Go) | ✅ Done |
-| Phase 1 (auth) | Middleware / JWT tests (Go) | 🔜 Next |
-| Phase 1 (auth) | Zod schema tests (Vitest) | 🔜 Next |
-| Phase 2 (classes) | Integration tests with test DB | Later |
-| Phase 3+ | Component + E2E tests | Later |
+| Phase             | Test Type                      | Priority |
+|-------------------|--------------------------------|----------|
+| Phase 0 (now)     | Validation unit tests (Go)     | ✅ Done   |
+| Phase 1 (auth)    | Middleware / JWT tests (Go)    | 🔜 Next  |
+| Phase 1 (auth)    | Zod schema tests (Vitest)      | 🔜 Next  |
+| Phase 2 (classes) | Integration tests with test DB | Later    |
+| Phase 3+          | Component + E2E tests          | Later    |
 
 ---
 
 ## Integration Test Options
 
 ### Option 1 — Real Test Database
+
 Spin up a separate Postgres DB just for tests. Add a test database URL to `.env`:
 
 ```env
@@ -108,6 +115,7 @@ TEST_DATABASE_URL=postgres://postgres:password@localhost:5432/postgres_test?sslm
 ---
 
 ### Option 2 — Docker Test Container (Recommended)
+
 Spin up a fresh Postgres container automatically per test run using `testcontainers-go`.
 
 **Pros:** No manual DB setup, fully isolated, CI-friendly
@@ -118,6 +126,7 @@ Spin up a fresh Postgres container automatically per test run using `testcontain
 ---
 
 ### Option 3 — Mock the DB Interface
+
 Generate a mock of the `database.Queries` interface instead of using a real DB.
 
 ```go
@@ -135,7 +144,8 @@ func (m *MockDB) CreateClass(ctx context.Context, arg database.CreateClassParams
 
 ## Option 2 Full Setup — Docker Test Container
 
-> **Note:** This is a Phase 2+ task. Phase 0 exit criteria is already met with the current validation tests. Come back to this once your class and user endpoints are stable.
+> **Note:** This is a Phase 2+ task. Phase 0 exit criteria is already met with the current validation tests. Come back
+> to this once your class and user endpoints are stable.
 
 ### Prerequisites
 
@@ -341,11 +351,11 @@ Stopping container...               ← Container is destroyed after test
 
 ### Files Added
 
-| File | Purpose |
-|---|---|
-| `backend/tests/testhelper_test.go` | Container setup + migration runner |
-| `backend/tests/integration_test.go` | The actual integration test |
-| `backend/go.mod` | Updated automatically by `go get` |
+| File                                | Purpose                            |
+|-------------------------------------|------------------------------------|
+| `backend/tests/testhelper_test.go`  | Container setup + migration runner |
+| `backend/tests/integration_test.go` | The actual integration test        |
+| `backend/go.mod`                    | Updated automatically by `go get`  |
 
 ---
 

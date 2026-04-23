@@ -288,7 +288,7 @@ c.JSON(http.StatusCreated, gin.H{"link": link})
 
 #### Thursday — Parent-Scoped API Endpoints
 
-**`ParentGuard` middleware** — validates the parent is linked to the student in the path:
+**`ParentGuard` proxy** — validates the parent is linked to the student in the path:
 
 ```go
 func (cfg *apiConfig) ParentGuard() gin.HandlerFunc {
@@ -450,7 +450,7 @@ every classmate's name in the People tab. This exposes more data than most paren
 
 **Luminescence approach:**  
 The parent view is explicitly scoped to: **grades**, **assignments**, and **announcements** for their linked child
-only. The `ParentGuard` middleware enforces this at the API layer — parents cannot request data for students they are
+only. The `ParentGuard` proxy enforces this at the API layer — parents cannot request data for students they are
 not linked to, and the frontend never renders classmate information. This is FERPA-compliant by design.
 
 ---
@@ -522,7 +522,7 @@ Phase 4 is complete when **all** of the following are true:
 - [ ] The class Stream tab renders real announcements from the API
 - [ ] Teachers see a compose box; students see the feed read-only
 - [ ] `POST /v1/api/parent/link` links a parent to a student by student email
-- [ ] `ParentGuard` middleware rejects requests from parents not linked to the student in the path
+- [ ] `ParentGuard` proxy rejects requests from parents not linked to the student in the path
 - [ ] `GET /v1/api/parent/students/:id/grades` returns the student's grades scoped to the parent's linked child only
 - [ ] The parent dashboard renders when `type === 'parent'` after login
 - [ ] Parents can see their child's grade list and upcoming assignments
@@ -538,7 +538,7 @@ Phase 4 is complete when **all** of the following are true:
 | COPPA — parental consent for under-13           | https://www.ftc.gov/business-guidance/privacy-security/childrens-privacy |
 | Schoology parent portal overview                | https://uc.powerschool-docs.com/en/schoology/latest/                     |
 | Canvas Observer role documentation              | https://community.canvaslms.com/t5/Observer-Guide/tkb-p/observer         |
-| Gin middleware chaining                         | https://gin-gonic.com/docs/examples/custom-middleware/                   |
+| Gin proxy chaining                              | https://gin-gonic.com/docs/examples/custom-middleware/                   |
 | PostgreSQL self-referential FK (threaded posts) | https://www.postgresql.org/docs/current/ddl-constraints.html             |
 | Next.js conditional rendering by role           | https://nextjs.org/docs/app/building-your-application/rendering          |
 

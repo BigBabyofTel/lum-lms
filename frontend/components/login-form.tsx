@@ -1,12 +1,17 @@
-import React, { useActionState, useState } from 'react';
+'use client';
+
+import React, { useActionState, useEffect, useState } from 'react';
 import { FormState } from '@/lib/types';
 import { handleLogin } from '@/lib/actions';
+import { useUserStore } from '@/store/useUserStore';
+import { useRouter } from 'next/navigation';
 
 interface LoginFormProps {
   role: string;
 }
 
 export default function LoginForm(props: LoginFormProps) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -14,6 +19,15 @@ export default function LoginForm(props: LoginFormProps) {
     FormState | null,
     FormData
   >(handleLogin, null);
+
+  useEffect(() => {
+    if (state?.access_token && state?.user) {
+      useUserStore
+        .getState()
+        .setUser({ ...state.user, access_token: state.access_token });
+      router.push('/dashboard');
+    }
+  }, [state]);
 
   return (
     <form

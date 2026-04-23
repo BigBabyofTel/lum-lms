@@ -176,17 +176,17 @@ valid token.
 | Mon | Auth page wiring             | Connect `app/auth/page.tsx` login form to `POST /v1/api/auth/login`. On success: store access token in `useUserStore`, redirect to `/dashboard`.                          |
 | Tue | Register form                | Add a registration tab/toggle on the auth page. Wire to `POST /v1/api/auth/register`. Auto-login on success.                                                              |
 | Wed | Token refresh logic          | In `api.ts`, on 401 response: call `POST /v1/api/auth/refresh` (cookie is sent automatically). On success, retry original request. On failure, redirect to `/auth`.       |
-| Thu | Route protection middleware  | Add `middleware.ts` at the Next.js root. Redirect unauthenticated users from `/dashboard/...` to `/auth`. Redirect authenticated users away from `/auth`.                 |
+| Thu | Route protection proxy       | Add `proxy.ts` at the Next.js root. Redirect unauthenticated users from `/dashboard/...` to `/auth`. Redirect authenticated users away from `/auth`.                      |
 | Fri | Logout + session persistence | `POST /v1/api/auth/logout` clears the cookie server-side. On frontend: clear Zustand store and redirect. On page load, attempt a silent token refresh to restore session. |
 
-**Next.js middleware reference:**
+**Next.js proxy reference:**
 
 ```typescript
-// middleware.ts (root of frontend/)
+// proxy.ts (root of frontend/)
 import {NextResponse} from 'next/server'
 import type {NextRequest} from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const isAuth = request.cookies.has('refresh_token')
     const isAuthPage = request.nextUrl.pathname.startsWith('/auth')
 
@@ -373,7 +373,7 @@ assignments.
 | Mon | Announcements CRUD            | `POST /v1/api/classes/:id/announcements`, `GET /v1/api/classes/:id/announcements`. The existing `posts` table covers this — add a `class_id` column to `posts` via migration, or use the existing structure. Sqlc queries: `CreateAnnouncement`, `GetAnnouncementsByClass`. |
 | Tue | Class stream page (frontend)  | Wire `app/dashboard/class/[id]/page.tsx` (the Stream tab) to the announcements API. Teachers see a compose box; everyone sees the announcement feed in reverse-chronological order.                                                                                         |
 | Wed | Parent student link migration | `CREATE TABLE parent_student_links (id uuid PK, parent_id uuid FK, student_id uuid FK, UNIQUE(parent_id, student_id))`. Add enrollment flow: when a parent registers, link them to a student by student email or code.                                                      |
-| Thu | Parent-scoped API endpoints   | `GET /v1/api/parent/students` — list linked students. `GET /v1/api/parent/students/:id/classes` — classes the child is in. `GET /v1/api/parent/students/:id/grades` — child's `user_assignments` with grades. Add `ParentGuard` middleware.                                 |
+| Thu | Parent-scoped API endpoints   | `GET /v1/api/parent/students` — list linked students. `GET /v1/api/parent/students/:id/classes` — classes the child is in. `GET /v1/api/parent/students/:id/grades` — child's `user_assignments` with grades. Add `ParentGuard` proxy.                                      |
 | Fri | Parent dashboard (frontend)   | When `useUserStore().type === 'parent'`, render a parent dashboard at `/dashboard` showing linked student cards with grade summary and upcoming due dates.                                                                                                                  |
 
 **Announcements migration note:** The existing `posts` table has `author_id` and `parent_id` (for threaded replies). Add
@@ -422,15 +422,15 @@ ALTER TABLE posts
 
 Risks most likely to delay the schedule, with mitigations.
 
-| # | Risk                                                                                               | Likelihood | Impact | Mitigation                                                                                                                                                                                        |
-|---|----------------------------------------------------------------------------------------------------|------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1 | JWT implementation takes longer than expected (cookie/CORS issues)                                 | High       | High   | Budget 3 days instead of 1 for cookie/CORS debugging. Test with Postman before wiring frontend. Reference: [Gin CORS middleware](https://github.com/gin-contrib/cors)                             |
-| 2 | `sqlc generate` breaks after schema changes                                                        | Medium     | Medium | Always run `sqlc generate` immediately after every migration. Keep `go.sum` in version control.                                                                                                   |
-| 3 | Next.js middleware cookie reading doesn't work as expected                                         | Medium     | Medium | Test middleware with a minimal reproduction before relying on it for auth routing. Reference: [Next.js Middleware docs](https://nextjs.org/docs/app/building-your-application/routing/middleware) |
-| 4 | `class_enrollments` table not in original schema — retroactive foreign keys cause migration issues | Low        | Medium | Always write both `-- +goose Up` and `-- +goose Down` in every migration file. Test `migrate-down` before merging.                                                                                |
-| 5 | Gradebook CROSS JOIN performance degrades with large classes                                       | Low        | Low    | Add `LIMIT` to the gradebook query during MVP. Index `user_assignments(student_id, assignment_id)`.                                                                                               |
-| 6 | Scope creep (adding features mid-phase)                                                            | High       | High   | Strictly follow this guide. Log new ideas in a `BACKLOG.md` file — don't implement during MVP sprint.                                                                                             |
-| 7 | Frontend and backend out of sync on data shapes                                                    | Medium     | Medium | Define shared TypeScript types in `frontend/lib/types.ts` and update them immediately when backend responses change.                                                                              |
+| # | Risk                                                                                               | Likelihood | Impact | Mitigation                                                                                                                                                                                   |
+|---|----------------------------------------------------------------------------------------------------|------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1 | JWT implementation takes longer than expected (cookie/CORS issues)                                 | High       | High   | Budget 3 days instead of 1 for cookie/CORS debugging. Test with Postman before wiring frontend. Reference: [Gin CORS proxy](https://github.com/gin-contrib/cors)                             |
+| 2 | `sqlc generate` breaks after schema changes                                                        | Medium     | Medium | Always run `sqlc generate` immediately after every migration. Keep `go.sum` in version control.                                                                                              |
+| 3 | Next.js proxy cookie reading doesn't work as expected                                              | Medium     | Medium | Test proxy with a minimal reproduction before relying on it for auth routing. Reference: [Next.js Middleware docs](https://nextjs.org/docs/app/building-your-application/routing/middleware) |
+| 4 | `class_enrollments` table not in original schema — retroactive foreign keys cause migration issues | Low        | Medium | Always write both `-- +goose Up` and `-- +goose Down` in every migration file. Test `migrate-down` before merging.                                                                           |
+| 5 | Gradebook CROSS JOIN performance degrades with large classes                                       | Low        | Low    | Add `LIMIT` to the gradebook query during MVP. Index `user_assignments(student_id, assignment_id)`.                                                                                          |
+| 6 | Scope creep (adding features mid-phase)                                                            | High       | High   | Strictly follow this guide. Log new ideas in a `BACKLOG.md` file — don't implement during MVP sprint.                                                                                        |
+| 7 | Frontend and backend out of sync on data shapes                                                    | Medium     | Medium | Define shared TypeScript types in `frontend/lib/types.ts` and update them immediately when backend responses change.                                                                         |
 
 ---
 
@@ -483,7 +483,7 @@ implementation details.
 | Resource                                 | URL                                                              |
 |------------------------------------------|------------------------------------------------------------------|
 | Gin framework docs                       | https://gin-gonic.com/docs/                                      |
-| Gin routing & middleware                 | https://gin-gonic.com/docs/examples/custom-middleware/           |
+| Gin routing & proxy                      | https://gin-gonic.com/docs/examples/custom-middleware/           |
 | `golang-jwt/jwt` v5                      | https://github.com/golang-jwt/jwt                                |
 | `golang.org/x/crypto/bcrypt`             | https://pkg.go.dev/golang.org/x/crypto/bcrypt                    |
 | `golang.org/x/time/rate` (rate limiting) | https://pkg.go.dev/golang.org/x/time/rate                        |

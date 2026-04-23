@@ -389,7 +389,7 @@ Use this as a PR gate from now on. Every PR must pass every item before merging.
 - [ ] Every teacher endpoint verifies `class.TeacherID == c.MustGet("userID")`
 - [ ] Every student endpoint verifies enrollment before returning assignment/submission data
 - [ ] Every parent endpoint passes through `ParentGuard`
-- [ ] Login endpoint has rate limiting middleware
+- [ ] Login endpoint has rate limiting proxy
 - [ ] `sanitizeUser()` called before returning any user object — no password hash in responses
 - [ ] `httpOnly; Secure; SameSite=Strict` set on refresh token cookie
 - [ ] Error messages don't expose internal details (no stack traces in JSON responses)

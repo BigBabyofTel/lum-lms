@@ -8,6 +8,7 @@ import {
   testUserSchema,
 } from '@/lib/schemas';
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { z } from 'zod';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
@@ -70,7 +71,7 @@ export async function getAllClasses(teacherId: string): Promise<Class[]> {
 
 export async function getAllStudents(): Promise<User[]> {
   try {
-    const response = await fetch(`${API_URL}/api/v1/users`, {
+    const response = await fetch(`${API_URL}/api/v1/auth`, {
       method: 'GET',
       headers: { Accept: 'application/json' },
     });
@@ -97,7 +98,7 @@ export async function handleRegister(
       return { error: valid.error.issues.map((i) => i.message).join(',') };
     }
 
-    const response = await fetch(`${API_URL}/api/v1/users/register`, {
+    const response = await fetch(`${API_URL}/api/v1/auth/register`, {
       method: 'POST',
       body: JSON.stringify({
         email: valid.data.email,
@@ -134,8 +135,9 @@ export async function handleLogin(
         },
       };
     }
-    const response = await fetch(`${API_URL}/api/v1/users/login`, {
+    const response = await fetch(`${API_URL}/api/v1/auth/login`, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify({
         email: valid.data.email,
         password: valid.data.password,
@@ -143,8 +145,25 @@ export async function handleLogin(
       headers: { 'Content-Type': 'application/json' },
     });
     if (!response.ok) return { error: 'Invalid credentials' };
+
+    const d = await response.json();
+    const rawCookie = response.headers.get('set-cookie');
+    if (rawCookie) {
+      const match = rawCookie.match(/refresh_token=([^;]+)/);
+      if (match) {
+        const cookieStore = await cookies();
+        cookieStore.set('refresh_token', match[1], {
+          httpOnly: true,
+          path: '/',
+          maxAge: 604800,
+          sameSite: 'strict',
+        });
+      }
+    }
+
+    return { access_token: d.access_token, user: d.user };
   } catch (err) {
     console.error(err);
+    return { error: 'Something went wrong' };
   }
-  redirect('/dashboard');
 }

@@ -3,7 +3,7 @@
 > **Part of:** [LMS MVP Pacing Guide](../LMS_MVP_PACING_GUIDE.md)  
 > **Dates:** Mar 30 – Apr 10, 2026  
 > **Estimated hours:** 40–60 hrs (4–6 hrs/day × 10 days)  
-> **Depends on:** [Phase 1](./PHASE_1_AUTHENTICATION.md) — JWT auth middleware in place, `AuthMiddleware` applied to
+> **Depends on:** [Phase 1](./PHASE_1_AUTHENTICATION.md) — JWT auth proxy in place, `AuthMiddleware` applied to
 `/v1/api/...`
 
 ---

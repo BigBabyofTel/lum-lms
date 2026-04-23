@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/sidebar';
 import Navbar from '@/components/navbar';
 import {
@@ -7,6 +7,7 @@ import {
   useNavbar,
 } from '@/components/providers/navbar-provider';
 import ClassFormModal from '@/components/class-form-modal';
+import { useUserStore } from '@/store/useUserStore';
 
 // ---------------------------------------------------------------------------
 // Inner layout — needs useNavbar so it must sit inside NavbarProvider
@@ -17,6 +18,24 @@ function DashboardContent({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { title } = useNavbar();
+
+  const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+
+  useEffect(() => {
+    const token = useUserStore.getState().access_token;
+    if (!token) {
+      fetch(`${BASE}/api/v1/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.access_token) {
+            useUserStore.getState().setAccessToken(data.access_token);
+          }
+        });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen">
