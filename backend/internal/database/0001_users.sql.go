@@ -13,25 +13,23 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, first_name, last_name, email, password, type, avatar_color, created_at)
+INSERT INTO users (id, first_name, last_name, email, password, type, created_at)
 VALUES (gen_random_uuid(),
         $1,
         $2,
         $3,
         $4,
         $5,
-        $6,
         NOW())
 RETURNING id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	FirstName   string         `json:"first_name"`
-	LastName    string         `json:"last_name"`
-	Email       string         `json:"email"`
-	Password    sql.NullString `json:"password"`
-	Type        Role           `json:"type"`
-	AvatarColor sql.NullString `json:"avatar_color"`
+	FirstName string         `json:"first_name"`
+	LastName  string         `json:"last_name"`
+	Email     string         `json:"email"`
+	Password  sql.NullString `json:"password"`
+	Type      Role           `json:"type"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -41,7 +39,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Email,
 		arg.Password,
 		arg.Type,
-		arg.AvatarColor,
 	)
 	var i User
 	err := row.Scan(

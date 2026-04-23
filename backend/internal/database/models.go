@@ -160,9 +160,9 @@ type Class struct {
 	Subject   string        `json:"subject"`
 	Grade     int32         `json:"grade"`
 	TeacherID uuid.NullUUID `json:"teacher_id"`
+	Color     string        `json:"color"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt sql.NullTime  `json:"updated_at"`
-	Color     string        `json:"color"`
 }
 
 type ClassEnrollment struct {

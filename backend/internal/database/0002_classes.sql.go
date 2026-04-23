@@ -19,7 +19,7 @@ VALUES (gen_random_uuid(),
         $1,
         $2,
         $3)
-RETURNING id, subject, grade, teacher_id, created_at, updated_at, color
+RETURNING id, subject, grade, teacher_id, color, created_at, updated_at
 `
 
 type CreateClassParams struct {
@@ -36,9 +36,9 @@ func (q *Queries) CreateClass(ctx context.Context, arg CreateClassParams) (Class
 		&i.Subject,
 		&i.Grade,
 		&i.TeacherID,
+		&i.Color,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Color,
 	)
 	return i, err
 }
@@ -61,7 +61,7 @@ func (q *Queries) DeleteClass(ctx context.Context, arg DeleteClassParams) error 
 }
 
 const getClassByID = `-- name: GetClassByID :one
-SELECT id, subject, grade, teacher_id, created_at, updated_at, color
+SELECT id, subject, grade, teacher_id, color, created_at, updated_at
 FROM classes
 WHERE id = $1
 LIMIT 1
@@ -75,15 +75,15 @@ func (q *Queries) GetClassByID(ctx context.Context, id uuid.UUID) (Class, error)
 		&i.Subject,
 		&i.Grade,
 		&i.TeacherID,
+		&i.Color,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Color,
 	)
 	return i, err
 }
 
 const getClassByTeacherID = `-- name: GetClassByTeacherID :many
-SELECT id, subject, grade, teacher_id, created_at, updated_at, color
+SELECT id, subject, grade, teacher_id, color, created_at, updated_at
 FROM classes
 WHERE teacher_id = $1
 `
@@ -102,9 +102,9 @@ func (q *Queries) GetClassByTeacherID(ctx context.Context, teacherID uuid.NullUU
 			&i.Subject,
 			&i.Grade,
 			&i.TeacherID,
+			&i.Color,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Color,
 		); err != nil {
 			return nil, err
 		}
@@ -120,7 +120,7 @@ func (q *Queries) GetClassByTeacherID(ctx context.Context, teacherID uuid.NullUU
 }
 
 const getClasses = `-- name: GetClasses :many
-SELECT id, subject, grade, teacher_id, created_at, updated_at, color
+SELECT id, subject, grade, teacher_id, color, created_at, updated_at
 FROM classes
 WHERE teacher_id = $1
 `
@@ -139,9 +139,9 @@ func (q *Queries) GetClasses(ctx context.Context, teacherID uuid.NullUUID) ([]Cl
 			&i.Subject,
 			&i.Grade,
 			&i.TeacherID,
+			&i.Color,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Color,
 		); err != nil {
 			return nil, err
 		}
@@ -164,7 +164,7 @@ SET subject    = $1,
     updated_at = NOW()
 WHERE id = $4
   AND teacher_id = $5
-RETURNING id, subject, grade, teacher_id, created_at, updated_at, color
+RETURNING id, subject, grade, teacher_id, color, created_at, updated_at
 `
 
 type UpdateClassParams struct {
@@ -189,9 +189,9 @@ func (q *Queries) UpdateClass(ctx context.Context, arg UpdateClassParams) (Class
 		&i.Subject,
 		&i.Grade,
 		&i.TeacherID,
+		&i.Color,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Color,
 	)
 	return i, err
 }

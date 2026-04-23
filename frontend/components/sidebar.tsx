@@ -2,12 +2,17 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useUserStore } from '@/store/useUserStore';
+import { useClassStore } from '@/store/useClassesStore';
+import { apiFetch } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 interface SidebarItem {
   label: string;
-  href: string;
+  href?: string;
   icon: React.ReactNode;
   active?: boolean;
+  onClick?: () => void;
 }
 
 interface EnrolledClass {
@@ -28,6 +33,14 @@ export default function Sidebar({
   onClose,
   onOpenCreateClass,
 }: SidebarProps) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await apiFetch('/api/v1/auth/logout', { method: 'POST' });
+    useUserStore.getState().clearUser();
+    useClassStore.getState().clearClasses(); // clear cached class data
+    router.push('/auth');
+  };
   // this is what is adding classes to the sidebar
   const initialEnrolledClasses: EnrolledClass[] = [
     { id: '1', name: '2B', grade: 'Grade 2', color: 'bg-blue-600' },
@@ -88,6 +101,13 @@ export default function Sidebar({
         />
       ),
     },
+    {
+      label: 'Logout',
+      onClick: handleLogout,
+      icon: (
+        <Image src="/icons/log-out.svg" alt="logout" width={20} height={20} />
+      ),
+    },
   ];
 
   return (
@@ -143,8 +163,8 @@ export default function Sidebar({
           <nav className="px-4 space-y-1">
             {mainItems.map((item) => (
               <Link
-                key={item.href}
-                href={item.href}
+                key={item.href!}
+                href={item.href!}
                 onClick={onClose}
                 className={`flex items-center gap-3 px-4 py-3 rounded-full transition-colors ${
                   item.active
@@ -181,7 +201,7 @@ export default function Sidebar({
               </Link>
               {enrolledClasses.map((classItem) => (
                 <Link
-                  key={classItem.id}
+                  key={classItem.id!}
                   href={`/dashboard/class/${classItem.id}`}
                   onClick={onClose}
                   className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
@@ -207,17 +227,32 @@ export default function Sidebar({
 
           {/* Bottom Navigation */}
           <nav className="px-4 pb-4 space-y-1">
-            {bottomItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-              >
-                {item.icon}
-                <span className="font-medium">{item.label}</span>
-              </Link>
-            ))}
+            {bottomItems.map((item) =>
+              item.href ? (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={onClose}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {item.icon}
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              ) : (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => {
+                    item.onClick?.();
+                    onClose();
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors text-left"
+                >
+                  {item.icon}
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              )
+            )}
           </nav>
 
           {/* Help Button */}
