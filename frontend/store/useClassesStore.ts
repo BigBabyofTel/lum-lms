@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { ClassState } from '@/store/storeTypes';
 import { Class } from '@/lib/types';
+import { apiFetch } from '@/lib/api';
 
 export const useClassStore = create<ClassState>((set) => ({
   id: '',
@@ -26,6 +27,15 @@ export const useClassStore = create<ClassState>((set) => ({
       classes: data,
       errors: [],
     }));
+  },
+  fetchClasses: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await apiFetch<{ classes: Class[] }>('/api/v1/classes');
+      set({ classes: data.classes ?? [], isLoading: false });
+    } catch (err) {
+      set({ error: (err as Error).message, isLoading: false });
+    }
   },
   clearClasses: () => {
     set(() => ({

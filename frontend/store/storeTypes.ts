@@ -10,6 +10,7 @@ export interface UserState extends User {
 
 export interface ClassState extends Class {
   setClasses: (data: Class[]) => void;
+  fetchClasses: () => Promise<void>;
   clearClasses: () => void;
   isLoading: boolean;
   setLoading: (value: boolean) => void;

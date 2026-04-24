@@ -1,37 +1,23 @@
 'use client';
 import React, { useEffect } from 'react';
 import { useUserStore } from '@/store/useUserStore';
-import { getAllClasses } from '@/lib/actions';
 import ClassCard from '@/components/class-card';
 import { useClassStore } from '@/store/useClassesStore';
 import { ClassCardSkeleton } from '@/components/class-card-skeleton';
 
 export default function Page() {
   const id = useUserStore((state) => state.id);
-  const setClasses = useClassStore((state) => state.setClasses);
+  const fetchClasses = useClassStore((state) => state.fetchClasses);
   const classes = useClassStore((state) => state.classes);
 
   const isLoading = useClassStore((state) => state.isLoading);
-  const setLoading = useClassStore((state) => state.setLoading);
   const error = useClassStore((state) => state.error);
-  const setError = useClassStore((state) => state.setError);
 
-  //load the data attached to users_id that is set in auth
   useEffect(() => {
     if (!id) return;
     if (classes.length > 0) return;
-    setLoading(true);
-    (async () => {
-      try {
-        const data = await getAllClasses(id as string);
-        setClasses(data);
-      } catch (err) {
-        setError('Failed to load classes');
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [id]);
+    fetchClasses();
+  }, [id, classes.length, fetchClasses]);
   //add conditional rendering for if there is nothing here
   // this is the view for a teacher
   return (
