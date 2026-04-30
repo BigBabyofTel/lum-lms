@@ -1,9 +1,8 @@
 'use client';
 import React, { useActionState, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { submitForm } from '@/lib/actions';
+import { createClassForm } from '@/lib/actions';
 import { FormState } from '@/lib/types';
-import { useUserStore } from '@/store/useUserStore';
 
 interface ClassFormModalProps {
   onClose: () => void;
@@ -13,12 +12,10 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState<number | ''>('');
 
-  const teacherId = useUserStore((state) => state.id);
-
   const [state, formAction, isPending] = useActionState<
     FormState | null,
     FormData
-  >(submitForm, null);
+  >(createClassForm, null);
 
   useEffect(() => {
     if (state?.success) {
@@ -94,17 +91,6 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
                 setGrade(e.target.value === '' ? '' : Number(e.target.value))
               }
               placeholder="e.g. 2"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2
-                                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                                       placeholder-gray-400 dark:placeholder-gray-500
-                                       focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400
-                                       transition-colors"
-            />
-            <input
-              name="teacherId"
-              id="teacherId"
-              type="hidden"
-              value={teacherId as string}
               className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2
                                        bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                                        placeholder-gray-400 dark:placeholder-gray-500

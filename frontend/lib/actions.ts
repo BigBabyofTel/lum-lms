@@ -13,8 +13,7 @@ import { z } from 'zod';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
-// need to rename create class
-export async function submitForm(
+export async function createClassForm(
   _state: FormState | null,
   formData: FormData
 ): Promise<FormState> {
