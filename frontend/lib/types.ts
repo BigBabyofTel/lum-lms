@@ -25,6 +25,8 @@ export interface FormState {
     first_name?: string;
     last_name?: string;
     confirmPassword?: string;
+    subject?: string;
+    grade?: string;
   };
 }
 

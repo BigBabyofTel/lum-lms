@@ -17,13 +17,13 @@ func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
 			return
 		}
-		claims, err := auth.ValidateJWT(strings.TrimPrefix(header, "Bearer "), jwtSecret)
+		userID, err := auth.ValidateJWT(strings.TrimPrefix(header, "Bearer "), jwtSecret)
 		if err != nil {
 
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}
-		c.Set("userID", claims.ID)
+		c.Set("userID", userID)
 		c.Next()
 	}
 }

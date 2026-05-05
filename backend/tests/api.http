@@ -10,13 +10,14 @@ Accept: application/json
 
 
 ### POST request
-POST http://localhost:8080/v1/api/classes
+POST http://localhost:8080/api/v1/classes/create
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsdW0tbG1zIiwic3ViIjoiYWNkNGExMzQtZGM4Yy00OWJjLTliMTAtMmM5Y2I3YjBhNTI4IiwiZXhwIjoxNzc3OTIwMjQ1LCJpYXQiOjE3Nzc5MTY2NDV9.RDmj_ER-B4zGfc7xDA5twce6dMT3x1SlRsTOPDJmz3I
 
 {
-  "subject": "Automotive",
-  "grade": 5,
-  "teacher_id": "49afc0c3-a283-4364-a0a7-dfda2d440880"
+  "subject": "English",
+  "grade": 4,
+  "teacher_id": "af282865-19c1-417f-ae18-064b30f9a3a1"
 }
 
 ### GET request
@@ -36,7 +37,7 @@ POST http://localhost:8080/api/v1/users/login
 Content-Type: application/json
 
 ### User health
-POST http://localhost:8080/api/v1/users/register
+POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 
 {
@@ -48,7 +49,7 @@ Content-Type: application/json
 }
 
 ### Login
-POST http://localhost:8080/api/v1/users/login
+POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {

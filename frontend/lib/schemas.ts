@@ -45,10 +45,8 @@ export const loginSchema = z.object({
 export type Login = z.infer<typeof loginSchema>;
 
 export const classSchema = z.object({
-  id: z.uuid(),
-  subject: z.string().min(1).max(20),
-  grade: z.int().min(1).max(12),
-  teacher_id: z.uuid(),
+  subject: z.string().min(1, 'Subject is required'),
+  grade: z.coerce.number().min(1, 'Grade must be at least 1'),
 });
 
 export type Class = z.infer<typeof classSchema>;

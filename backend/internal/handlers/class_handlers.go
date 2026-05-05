@@ -22,18 +22,23 @@ func (h *Handler) GetClassesByID(c *gin.Context) {
 	}
 
 	userID := c.MustGet("userID").(uuid.UUID)
-	userRole := c.MustGet("userRole").(string)
 
-	if userRole == "teacher" && class.TeacherID.UUID != userID {
+	user, err := h.DB.GetUserByID(c, userID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+	if user.Type == database.RoleTeacher && class.TeacherID.UUID != userID {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have access to this class"})
 		return
 	}
 
-	if userRole == "student" {
+	if user.Type == database.RoleStudent {
 		enrolled, _ := h.DB.IsStudentEnrolled(c, database.IsStudentEnrolledParams{
 			ClassID:   class.ID,
 			StudentID: userID,
 		})
+
 		if !enrolled {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Not enrolled in this class"})
 			return
@@ -45,10 +50,15 @@ func (h *Handler) GetClassesByID(c *gin.Context) {
 func (h *Handler) GetClasses(c *gin.Context) {
 
 	userID := c.MustGet("userID").(uuid.UUID)
-	userRole := c.MustGet("userRole").(string)
 
-	switch userRole {
-	case "teacher":
+	user, err := h.DB.GetUserByID(c, userID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	switch user.Type {
+	case database.RoleTeacher:
 		classes, err := h.DB.GetClasses(c, uuid.NullUUID{UUID: userID, Valid: true})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -56,13 +66,14 @@ func (h *Handler) GetClasses(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, gin.H{"classes": classes})
 
-	case "student":
-		classes, err := h.DB.GetClasses(c, uuid.NullUUID{UUID: userID, Valid: true})
+	case database.RoleStudent:
+		classes, err := h.DB.GetStudentClasses(c, userID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"classes": classes})
+
 	default:
 		c.JSON(http.StatusForbidden, gin.H{"error": "role not permitted"})
 	}
@@ -106,9 +117,8 @@ func (h *Handler) CreateClass(c *gin.Context) {
 
 	//define the structure
 	var parameters struct {
-		Subject   string `json:"subject" binding:"required"`
-		Grade     int32  `json:"grade" binding:"required"`
-		TeacherId string `json:"teacher_id" binding:"required"`
+		Subject string `json:"subject" binding:"required"`
+		Grade   int32  `json:"grade" binding:"required"`
 	}
 	// data binding
 	if err := c.ShouldBindJSON(&parameters); err != nil {
@@ -116,19 +126,15 @@ func (h *Handler) CreateClass(c *gin.Context) {
 		return
 	}
 
-	teacherUUID, err := uuid.Parse(parameters.TeacherId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "TeacherId is not a valid UUID"})
-		return
-	}
+	teacherID := c.MustGet("userID").(uuid.UUID)
 	//create params
 	classParams := database.CreateClassParams{
 		Subject:   parameters.Subject,
 		Grade:     parameters.Grade,
-		TeacherID: uuid.NullUUID{UUID: teacherUUID, Valid: true},
+		TeacherID: uuid.NullUUID{UUID: teacherID, Valid: true},
 	}
 	//add to db using cfg
-	_, err = h.DB.CreateClass(c, classParams)
+	_, err := h.DB.CreateClass(c, classParams)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -140,7 +146,7 @@ func (h *Handler) CreateClass(c *gin.Context) {
 
 func (h *Handler) DeleteClass(c *gin.Context) {
 	classID, _ := uuid.Parse(c.Param("id"))
-	teacherID, _ := c.MustGet("userID").(uuid.UUID)
+	teacherID := c.MustGet("userID").(uuid.UUID)
 
 	err := h.DB.DeleteClass(c, database.DeleteClassParams{
 		ID:        classID,

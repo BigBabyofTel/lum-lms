@@ -3,6 +3,7 @@ import React, { useActionState, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { createClassForm } from '@/lib/actions';
 import { FormState } from '@/lib/types';
+import { useUserStore } from '@/store/useUserStore';
 
 interface ClassFormModalProps {
   onClose: () => void;
@@ -98,7 +99,11 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
                                        transition-colors"
             />
           </div>
-
+          <input
+            type="hidden"
+            name="access_token"
+            value={useUserStore((state) => state.access_token) ?? ''}
+          />
           {/* Footer buttons */}
           <div className="flex items-center justify-end gap-3 pt-2">
             <button
@@ -120,7 +125,10 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
           </div>
           {/*  Make a spinner to use isPending  */}
           {isPending ? 'Submitting...' : 'Send Message'}
-          {state?.error && <p className="text-red-500">{state.error}</p>}
+          {state?.fieldErrors?.subject && (
+            <p className="text-red-500 text-sm">{state.fieldErrors.subject}</p>
+          )}
+
           {state?.success && <p className="text-green-500">{state.success}</p>}
         </form>
       </div>

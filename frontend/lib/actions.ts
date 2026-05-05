@@ -17,20 +17,29 @@ export async function createClassForm(
   _state: FormState | null,
   formData: FormData
 ): Promise<FormState> {
-  const { subject, grade, teacher_id } = Object.fromEntries(formData);
-  if (!subject || !grade || !teacher_id) {
+  const { subject, grade, access_token } = Object.fromEntries(formData);
+  if (!subject || !grade || !access_token || typeof access_token !== 'string') {
     return { error: 'All fields are required.' };
   }
 
   try {
-    const valid = classSchema.safeParse({ subject, grade, teacher_id });
+    const valid = classSchema.safeParse({ subject, grade });
     if (!valid.success) {
-      return { error: valid.error.issues.map((i) => i.message).join(', ') };
+      const fieldErrors = z.flattenError(valid.error).fieldErrors;
+      return {
+        fieldErrors: {
+          subject: fieldErrors.subject?.[0],
+          grade: fieldErrors.grade?.[0],
+        },
+      };
     }
-    const response = await fetch(`${API_URL}/api/v1/classes`, {
+    const response = await fetch(`${API_URL}/api/v1/classes/create`, {
       method: 'POST',
       body: JSON.stringify(valid.data),
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `bearer ${access_token}`,
+      },
     });
     if (!response.ok) {
       return { error: 'Failed to create class.' };
@@ -39,7 +48,6 @@ export async function createClassForm(
     console.error(err);
     return { error: 'Something went wrong. Please try again.' };
   }
-  redirect('/dashboard');
 }
 
 export async function getAllClasses(teacherId: string): Promise<Class[]> {
@@ -54,7 +62,7 @@ export async function getAllClasses(teacherId: string): Promise<Class[]> {
 
   try {
     const response = await fetch(
-      `${API_URL}/api/v1/classes?teacherId=${valid.data.id}`,
+      `${API_URL}/api/v1/classes/get?teacherId=${valid.data.id}`,
       {
         method: 'GET',
         headers: { Accept: 'application/json' },

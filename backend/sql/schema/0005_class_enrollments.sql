@@ -1,6 +1,6 @@
 -- +goose Up
 
-CREATE TABLE class_enrollments
+CREATE TABLE IF NOT EXISTS class_enrollments
 (
     id          uuid PRIMARY KEY     default gen_random_uuid(),
     class_id    uuid        NOT NULL REFERENCES classes (id) ON DELETE CASCADE,
@@ -9,8 +9,8 @@ CREATE TABLE class_enrollments
     UNIQUE (class_id, student_id)
 );
 
-CREATE INDEX idx_enrollments_class_id ON class_enrollments (class_id);
-CREATE INDEX idx_enrollments_student_id ON class_enrollments (student_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_class_id ON class_enrollments (class_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_student_id ON class_enrollments (student_id);
 
 -- +goose Down
 DROP TABLE IF EXISTS class_enrollments;
