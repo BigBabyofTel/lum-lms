@@ -38,7 +38,7 @@ export async function createClassForm(
       body: JSON.stringify(valid.data),
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `bearer ${access_token}`,
+        Authorization: `Bearer ${access_token}`,
       },
     });
     if (!response.ok) {
@@ -46,8 +46,9 @@ export async function createClassForm(
     }
   } catch (err) {
     console.error(err);
-    return { error: 'Something went wrong. Please try again.' };
+    return { error: 'Something went wrong. Please try again.', err };
   }
+  return { success: 'Class created!' };
 }
 
 export async function getAllClasses(teacherId: string): Promise<Class[]> {

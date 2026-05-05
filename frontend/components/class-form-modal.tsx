@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { createClassForm } from '@/lib/actions';
 import { FormState } from '@/lib/types';
 import { useUserStore } from '@/store/useUserStore';
+import { useClassStore } from '@/store/useClassesStore';
 
 interface ClassFormModalProps {
   onClose: () => void;
@@ -12,6 +13,8 @@ interface ClassFormModalProps {
 export default function ClassFormModal({ onClose }: ClassFormModalProps) {
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState<number | ''>('');
+  const fetchClasses = useClassStore((state) => state.fetchClasses);
+  const clearClasses = useClassStore((state) => state.clearClasses);
 
   const [state, formAction, isPending] = useActionState<
     FormState | null,
@@ -20,6 +23,8 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
 
   useEffect(() => {
     if (state?.success) {
+      clearClasses();
+      fetchClasses();
       onClose();
     }
   }, [state]);
@@ -128,7 +133,7 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
           {state?.fieldErrors?.subject && (
             <p className="text-red-500 text-sm">{state.fieldErrors.subject}</p>
           )}
-
+          {state?.error && <p className="text-red-500">{state.error}</p>}
           {state?.success && <p className="text-green-500">{state.success}</p>}
         </form>
       </div>
