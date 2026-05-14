@@ -46,7 +46,7 @@ export async function createClassForm(
     }
   } catch (err) {
     console.error(err);
-    return { error: 'Something went wrong. Please try again.', err };
+    return { error: 'Something went wrong. Please try again.' };
   }
   return { success: 'Class created!' };
 }
