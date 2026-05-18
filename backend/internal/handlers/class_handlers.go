@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -127,28 +129,43 @@ func (h *Handler) CreateClass(c *gin.Context) {
 	}
 
 	teacherID := c.MustGet("userID").(uuid.UUID)
-	//create params
-	classParams := database.CreateClassParams{
-		Subject:   parameters.Subject,
-		Grade:     parameters.Grade,
-		TeacherID: uuid.NullUUID{UUID: teacherID, Valid: true},
-	}
-	//add to db using cfg
-	_, err := h.DB.CreateClass(c, classParams)
+	user, err := h.DB.GetUserByID(c, teacherID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"class created": classParams})
 
-	fmt.Println("creating class")
+	if user.Type == database.RoleTeacher {
+		//create params
+		classParams := database.CreateClassParams{
+			Subject:   parameters.Subject,
+			Grade:     parameters.Grade,
+			TeacherID: uuid.NullUUID{UUID: teacherID, Valid: true},
+		}
+		//add to db using cfg
+		_, err = h.DB.CreateClass(c, classParams)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"class created": classParams})
+
+		fmt.Println("creating class")
+	} else {
+		c.JSON(http.StatusForbidden, gin.H{"error": "role not permitted"})
+		return
+	}
 }
 
 func (h *Handler) DeleteClass(c *gin.Context) {
-	classID, _ := uuid.Parse(c.Param("id"))
+	classID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
+		return
+	}
 	teacherID := c.MustGet("userID").(uuid.UUID)
 
-	err := h.DB.DeleteClass(c, database.DeleteClassParams{
+	err = h.DB.DeleteClass(c, database.DeleteClassParams{
 		ID:        classID,
 		TeacherID: uuid.NullUUID{UUID: teacherID, Valid: true},
 	})
@@ -156,4 +173,88 @@ func (h *Handler) DeleteClass(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not delete class"})
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "class deleted"})
+}
+
+func (h *Handler) EnrollInClass(c *gin.Context) {
+	classID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
+		return
+	}
+
+	teacherID := c.MustGet("userID").(uuid.UUID)
+
+	user, err := h.DB.GetUserByID(c, teacherID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	if user.Type != database.RoleStudent {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only teachers can enroll students"})
+		return
+	}
+
+	class, err := h.DB.GetClassByID(c, classID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Class not found"})
+		return
+	}
+
+	if !class.TeacherID.Valid || class.TeacherID.UUID != teacherID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not own this class"})
+		return
+	}
+
+	var params struct {
+		Email string `json:"email" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	student, err := h.DB.GetUserByEmail(c, params.Email)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Student not found"})
+		return
+	}
+
+	if student.Type != database.RoleStudent {
+		c.JSON(http.StatusForbidden, gin.H{"error": "User is not a student"})
+		return
+	}
+
+	enrollment, err := h.DB.EnrollStudent(c, database.EnrollStudentParams{
+		classID:   classID,
+		StudentID: student.ID,
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.JSON(http.StatusConflict, gin.H{"error": "Student already enrolled"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not enroll student"})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"enrollment": enrollment})
+
+}
+
+func (h *Handler) GetClassStudents(c *gin.Context) {
+	classID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
+		return
+	}
+	teacherID := c.MustGet("userID").(uuid.UUID)
+
+	user, err := h.DB.GetUserByID(c, teacherID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	if user.Type != 
+
 }
