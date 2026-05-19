@@ -1,12 +1,7 @@
 'use server';
 
 import { Class, FormState, User } from '@/lib/types';
-import {
-  classSchema,
-  loginSchema,
-  RegisterSchema,
-  testUserSchema,
-} from '@/lib/schemas';
+import { classSchema, loginSchema, RegisterSchema } from '@/lib/schemas';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
@@ -33,7 +28,7 @@ export async function createClassForm(
         },
       };
     }
-    const response = await fetch(`${API_URL}/api/v1/classes/create`, {
+    const response = await fetch(`${API_URL}/api/v1/classes`, {
       method: 'POST',
       body: JSON.stringify(valid.data),
       headers: {
@@ -51,24 +46,18 @@ export async function createClassForm(
   return { success: 'Class created!' };
 }
 
-export async function getAllClasses(teacherId: string): Promise<Class[]> {
-  if (!teacherId) {
+export async function getAllClasses(accessToken: string): Promise<Class[]> {
+  if (!accessToken) {
     return [];
   }
-  const valid = testUserSchema.safeParse({ id: teacherId });
-
-  if (!valid.success) {
-    return [];
-  }
-
   try {
-    const response = await fetch(
-      `${API_URL}/api/v1/classes/get?teacherId=${valid.data.id}`,
-      {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-      }
-    );
+    const response = await fetch(`${API_URL}/api/v1/classes`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
     if (!response.ok) return [];
     return await response.json();
   } catch (err) {

@@ -4,10 +4,12 @@ import { getAllStudents } from '@/lib/actions';
 import { User } from '@/lib/types';
 import StudentCard from '@/components/student-card';
 import { useUserStore } from '@/store/useUserStore';
+import StudentCardModalOptions from '@/components/student-card-modal-options';
 
 export default function Page() {
   const [role, _] = useState('teacher');
   const id = useUserStore((state) => state.id);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState<User[]>([
     {
       id: '',
@@ -41,8 +43,13 @@ export default function Page() {
               lastName={data.last_name}
               email={data.email}
               grade={'0'}
+              setIsModalOpen={setIsModalOpen}
+              onOpenStudentOptions={() => setIsModalOpen(true)}
             />
           ))}
+          {isModalOpen && (
+            <StudentCardModalOptions onClose={() => setIsModalOpen(false)} />
+          )}
         </div>
       )}
     </>

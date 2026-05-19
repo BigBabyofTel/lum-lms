@@ -1,11 +1,12 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useUserStore } from '@/store/useUserStore';
 import { useClassStore } from '@/store/useClassesStore';
 import { apiFetch } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { getInitial } from '@/lib/helper';
 
 interface SidebarItem {
   label: string;
@@ -34,6 +35,19 @@ export default function Sidebar({
   onOpenCreateClass,
 }: SidebarProps) {
   const router = useRouter();
+  const first_name = useUserStore((state) => state.first_name);
+  const last_name = useUserStore((state) => state.last_name);
+  const email = useUserStore((state) => state.email);
+  const classes = useClassStore((state) => state.classes);
+  const fetchClasses = useClassStore((state) => state.fetchClasses);
+  const userId = useUserStore((state) => state.id);
+
+  useEffect(() => {
+    if (!userId) return;
+    if (classes.length > 0) return;
+
+    void fetchClasses();
+  }, [userId, classes.length, fetchClasses]);
 
   const handleLogout = async () => {
     await apiFetch('/api/v1/auth/logout', { method: 'POST' });
@@ -42,9 +56,12 @@ export default function Sidebar({
     router.push('/auth');
   };
   // this is what is adding classes to the sidebar
-  const initialEnrolledClasses: EnrolledClass[] = [
-    { id: '1', name: '2B', grade: 'Grade 2', color: 'bg-blue-600' },
-  ];
+  const initialEnrolledClasses: EnrolledClass[] = classes.map((classItem) => ({
+    id: classItem.id,
+    name: classItem.subject,
+    grade: `Grade ${classItem.grade}`,
+    color: 'bg-blue-600',
+  }));
 
   const enrolledClasses: EnrolledClass[] = [...initialEnrolledClasses];
 
@@ -133,14 +150,14 @@ export default function Sidebar({
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold">
-                A
+                {getInitial(last_name)}
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Augustus Baker
+                  {first_name} {last_name}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  mrbaker@gmail.com
+                  {email}
                 </p>
               </div>
             </div>
@@ -182,7 +199,7 @@ export default function Sidebar({
           <div className="mt-6 px-4">
             <div className="flex items-center justify-between px-4 mb-2">
               <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                Enrolled
+                Classes
               </h3>
             </div>
             <nav className="space-y-1">

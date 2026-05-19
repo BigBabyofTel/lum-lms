@@ -6,7 +6,7 @@ import Image from 'next/image';
 interface ClassCardProps {
   name: string;
   grade: number;
-  teacher: string;
+  teacher?: string;
   color?: string;
 }
 

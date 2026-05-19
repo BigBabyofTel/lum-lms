@@ -16,7 +16,7 @@ export default function Page() {
   useEffect(() => {
     if (!id) return;
     if (classes.length > 0) return;
-    fetchClasses();
+    void fetchClasses();
   }, [id, classes.length, fetchClasses]);
   //add conditional rendering for if there is nothing here
   // this is the view for a teacher
@@ -45,7 +45,6 @@ export default function Page() {
               key={data.id}
               name={data.subject}
               grade={data.grade}
-              teacher={'Mr. Baker'}
               color={'bg-blue-400'}
             />
           ))}

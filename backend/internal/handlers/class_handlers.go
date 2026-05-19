@@ -205,6 +205,7 @@ func (h *Handler) DeleteClass(c *gin.Context) {
 	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not delete class"})
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "class deleted"})
 }
@@ -225,7 +226,7 @@ func (h *Handler) EnrollInClass(c *gin.Context) {
 	}
 	student, err := h.DB.GetUserByEmail(c, params.Email)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Student not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Student not found"})
 		return
 	}
 
@@ -243,6 +244,7 @@ func (h *Handler) EnrollInClass(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not enroll student"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"enrollment": enrollment})
@@ -259,7 +261,7 @@ func (h *Handler) GetClassStudents(c *gin.Context) {
 
 	user, err := h.DB.GetUserByID(c, teacherID)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "User not found"})
 		return
 	}
 
@@ -269,7 +271,7 @@ func (h *Handler) GetClassStudents(c *gin.Context) {
 	}
 	class, err := h.DB.GetClassByID(c, classID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "You do not own this class"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "You do not own this class"})
 		return
 	}
 	if !class.TeacherID.Valid || class.TeacherID.UUID != teacherID {

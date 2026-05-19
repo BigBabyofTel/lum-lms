@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import Image from 'next/image';
 
 interface StudentCardProps {
@@ -8,6 +8,8 @@ interface StudentCardProps {
   lastName: string;
   email: string;
   grade: string;
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+  onOpenStudentOptions: () => void;
 }
 
 export default function StudentCard({
@@ -15,6 +17,7 @@ export default function StudentCard({
   lastName,
   email,
   grade,
+  onOpenStudentOptions,
 }: StudentCardProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
@@ -67,11 +70,12 @@ export default function StudentCard({
             className="text-gray-600 dark:text-gray-400"
           />
         </button>
+        {/*
+         create function to open a modal for class enrollment
+
+        */}
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            console.log('More options clicked for class:');
-          }}
+          onClick={onOpenStudentOptions}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           aria-label="More options"
         >

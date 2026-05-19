@@ -31,7 +31,7 @@ export const useClassStore = create<ClassState>((set) => ({
   fetchClasses: async () => {
     set({ isLoading: true, error: null });
     try {
-      const data = await apiFetch<{ classes: Class[] }>('/api/v1/classes/get');
+      const data = await apiFetch<{ classes: Class[] }>('/api/v1/classes');
       set({ classes: data.classes ?? [], isLoading: false });
     } catch (err) {
       set({ error: (err as Error).message, isLoading: false });
