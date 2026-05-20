@@ -45,6 +45,9 @@ export default function StudentCardModalOptions({
             <X size={20} className="text-gray-600 dark:text-gray-400" />
           </button>
         </div>
+        {/*
+        figure out how to select the options
+        */}
         {classes.map((data) => (
           <div>
             <span key={data.id}>{data.subject}</span>
