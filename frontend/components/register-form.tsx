@@ -34,10 +34,10 @@ export default function RegisterForm(props: RegisterFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
+        {state?.fieldErrors?.email && (
+          <p className="text-red-500 text-sm">{state.fieldErrors.email}</p>
+        )}
       </div>
-      {state?.fieldErrors?.email && (
-        <p className="text-red-500 text-sm">{state.fieldErrors.email}</p>
-      )}
       <div className="p-2 w-full">
         <input
           name="first_name"
@@ -46,10 +46,10 @@ export default function RegisterForm(props: RegisterFormProps) {
           onChange={(e) => setFirstName(e.target.value)}
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
+        {state?.fieldErrors?.first_name && (
+          <p className="text-red-500 text-sm">{state.fieldErrors.first_name}</p>
+        )}
       </div>
-      {state?.fieldErrors?.first_name && (
-        <p className="text-red-500 text-sm">{state.fieldErrors.first_name}</p>
-      )}
       <div className="p-2 w-full">
         <input
           name="last_name"
@@ -58,10 +58,10 @@ export default function RegisterForm(props: RegisterFormProps) {
           onChange={(e) => setLastName(e.target.value)}
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
+        {state?.fieldErrors?.last_name && (
+          <p className="text-red-500 text-sm">{state.fieldErrors.last_name}</p>
+        )}
       </div>
-      {state?.fieldErrors?.last_name && (
-        <p className="text-red-500 text-sm">{state.fieldErrors.last_name}</p>
-      )}
       <div className="p-2 w-full">
         <input
           name="password"
@@ -71,10 +71,10 @@ export default function RegisterForm(props: RegisterFormProps) {
           onChange={(e) => setPassword(e.target.value)}
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
+        {state?.fieldErrors?.password && (
+          <p className="text-red-500 text-sm">{state.fieldErrors.password}</p>
+        )}
       </div>
-      {state?.fieldErrors?.password && (
-        <p className="text-red-500 text-sm">{state.fieldErrors?.password}</p>
-      )}
       <div className="p-2 w-full">
         <input
           name="confirmPassword"
@@ -84,12 +84,12 @@ export default function RegisterForm(props: RegisterFormProps) {
           onChange={(e) => setConfirmPassword(e.target.value)}
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
+        {state?.fieldErrors?.confirmPassword && (
+          <p className="text-red-500 text-sm">
+            {state.fieldErrors.confirmPassword}
+          </p>
+        )}
       </div>
-      {state?.fieldErrors?.confirmPassword && (
-        <p className="text-red-500 text-sm">
-          {state.fieldErrors?.confirmPassword}
-        </p>
-      )}
       <div className="flex items-center flex-col w-full">
         <span>Select a role: </span>
         {roles.map((r) => (
@@ -103,6 +103,9 @@ export default function RegisterForm(props: RegisterFormProps) {
             {r}
           </label>
         ))}
+        {state?.fieldErrors?.role && (
+          <p className="text-red-500 text-sm">{state.fieldErrors.role}</p>
+        )}
       </div>
       <button
         disabled={isPending}

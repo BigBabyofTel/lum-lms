@@ -18,14 +18,14 @@ export const testUserSchema = userSchema.omit({
 
 export const RegisterSchema = z
   .object({
-    email: z.email(),
-    first_name: z.string(),
-    last_name: z.string(),
+    email: z.email('Must be a valid email'),
+    first_name: z.string().min(1, 'First name is required'),
+    last_name: z.string().min(1, 'Last name is required'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z
-      .string()
-      .min(8, 'Confirm password must be at least 8 characters'),
-    role: z.enum(['teacher', 'student', 'parent']),
+    confirmPassword: z.string().min(8, 'Passwords must match'),
+    role: z.enum(['teacher', 'student', 'parent'], {
+      error: 'Please select a role',
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',

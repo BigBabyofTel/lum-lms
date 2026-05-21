@@ -92,7 +92,17 @@ export async function handleRegister(
     const valid = RegisterSchema.safeParse(data);
 
     if (!valid.success) {
-      return { error: valid.error.issues.map((i) => i.message).join(',') };
+      const fieldErrors = z.flattenError(valid.error).fieldErrors;
+      return {
+        fieldErrors: {
+          email: fieldErrors.email?.[0],
+          first_name: fieldErrors.first_name?.[0],
+          last_name: fieldErrors.last_name?.[0],
+          password: fieldErrors.password?.[0],
+          confirmPassword: fieldErrors.confirmPassword?.[0],
+          role: fieldErrors.role?.[0],
+        },
+      };
     }
 
     const response = await fetch(`${API_URL}/api/v1/auth/register`, {
@@ -110,6 +120,7 @@ export async function handleRegister(
     if (!response.ok) return { error: 'Register failed' };
   } catch (err) {
     console.error(err);
+    return { error: 'Something went wrong' };
   }
   redirect('/auth');
 }

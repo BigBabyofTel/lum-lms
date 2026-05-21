@@ -27,7 +27,7 @@ export default function LoginForm(props: LoginFormProps) {
         .setUser({ ...state.user, access_token: state.access_token });
       router.push('/dashboard');
     }
-  }, [state]);
+  }, [router, state]);
 
   return (
     <form
@@ -55,13 +55,15 @@ export default function LoginForm(props: LoginFormProps) {
           onChange={(e) => setPassword(e.target.value)}
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
         />
+        {state?.fieldErrors?.password && (
+          <p className="text-red-500 text-sm">{state.fieldErrors.password}</p>
+        )}
       </div>
-      {state?.fieldErrors?.password && (
-        <p className="text-red-500 text-sm">{state.fieldErrors.password}</p>
-      )}
+
       <div>
         <input name="role" id="role" type="hidden" value={props.role} />
       </div>
+      {state?.error && <p className="text-red-500 text-sm">{state.error}</p>}
       <button
         disabled={isPending}
         type="submit"

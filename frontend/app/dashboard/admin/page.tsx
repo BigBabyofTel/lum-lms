@@ -4,7 +4,7 @@ import { getAllStudents } from '@/lib/actions';
 import { User } from '@/lib/types';
 import StudentCard from '@/components/student-card';
 import { useUserStore } from '@/store/useUserStore';
-import StudentCardModalOptions from '@/components/student-card-modal-options';
+import EnrollmentModal from '@/components/enrollment-modal';
 
 export default function Page() {
   const [role, _] = useState('teacher');
@@ -29,7 +29,6 @@ export default function Page() {
     })();
   }, [id]);
 
-  console.log(user);
   return (
     <>
       {role === 'student' && <h1>student panel</h1>}
@@ -48,7 +47,7 @@ export default function Page() {
             />
           ))}
           {isModalOpen && (
-            <StudentCardModalOptions onClose={() => setIsModalOpen(false)} />
+            <EnrollmentModal onClose={() => setIsModalOpen(false)} />
           )}
         </div>
       )}
