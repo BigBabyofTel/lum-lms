@@ -12,7 +12,7 @@ import (
 )
 
 func (h *Handler) requireTeacherOwnedClass(c *gin.Context) (database.Class, uuid.UUID, bool) {
-	classID, err := uuid.Parse(c.Param("id"))
+	classID, err := uuid.Parse(c.Param("classId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
 		return database.Class{}, uuid.Nil, false
@@ -266,7 +266,7 @@ func (h *Handler) GetClassStudents(c *gin.Context) {
 	}
 
 	if user.Type != database.RoleTeacher {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Only teachers can enroll students"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Only teachers can get class's students"})
 		return
 	}
 	class, err := h.DB.GetClassByID(c, classID)
@@ -284,4 +284,204 @@ func (h *Handler) GetClassStudents(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"students": students})
+}
+
+func (h *Handler) UnenrollStudent(c *gin.Context) {
+	_, classID, ok := h.requireTeacherOwnedClass(c)
+	if !ok {
+		return
+	}
+
+	studentID, err := uuid.Parse(c.Param("studentId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid student id"})
+		return
+	}
+
+	err = h.DB.UnenrollStudent(c, database.UnenrollStudentParams{
+		ClassID:   classID,
+		StudentID: studentID,
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not unenroll student"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "unenrolled student"})
+}
+
+func (h *Handler) GetStudentClasses(c *gin.Context) {
+	studentID, err := uuid.Parse(c.Param("studentId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid student id"})
+		return
+	}
+
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	user, err := h.DB.GetUserByID(c, userID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	if user.Type == database.RoleStudent && userID != studentID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only view your own classes"})
+		return
+	}
+
+	if user.Type != database.RoleStudent && user.Type != database.RoleTeacher {
+		c.JSON(http.StatusForbidden, gin.H{"error": "role not permitted"})
+		return
+	}
+
+	classes, err := h.DB.GetStudentClasses(c, studentID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get student classes"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"classes": classes})
+}
+
+func (h *Handler) GetClassEnrollments(c *gin.Context) {
+	classID, err := uuid.Parse(c.Param("classId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
+		return
+	}
+
+	studentID, err := uuid.Parse(c.Param("studentId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid student id"})
+		return
+	}
+
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	user, err := h.DB.GetUserByID(c, userID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	if user.Type == database.RoleStudent && userID != studentID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only view your own enrollment"})
+		return
+	}
+
+	if user.Type == database.RoleTeacher {
+		class, err := h.DB.GetClassByID(c, classID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Class not found"})
+			return
+		}
+
+		if !class.TeacherID.Valid || class.TeacherID.UUID != userID {
+			c.JSON(http.StatusForbidden, gin.H{"error": "You do not own this class"})
+			return
+		}
+	}
+
+	if user.Type != database.RoleStudent && user.Type != database.RoleTeacher {
+		c.JSON(http.StatusForbidden, gin.H{"error": "role not permitted"})
+		return
+	}
+
+	enrolled, err := h.DB.IsStudentEnrolled(c, database.IsStudentEnrolledParams{
+		ClassID:   classID,
+		StudentID: studentID,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not check enrollment"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"enrolled": enrolled})
+}
+
+func (h *Handler) BatchEnrollment(c *gin.Context) {
+	studentID, err := uuid.Parse(c.Param("studentId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid student id"})
+		return
+	}
+
+	teacherID := c.MustGet("userID").(uuid.UUID)
+
+	user, err := h.DB.GetUserByID(c, teacherID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+
+	if user.Type != database.RoleTeacher {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only teachers can enroll students"})
+		return
+	}
+
+	student, err := h.DB.GetUserByID(c, studentID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Student not found"})
+		return
+	}
+
+	if student.Type != database.RoleStudent {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User is not a student"})
+		return
+	}
+
+	var params struct {
+		ClassIDs []uuid.UUID `json:"class_ids" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(params.ClassIDs) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "class_ids cannot be empty"})
+		return
+	}
+
+	var enrolled []uuid.UUID
+	var alreadyEnrolled []uuid.UUID
+	var failed []uuid.UUID
+
+	for _, classID := range params.ClassIDs {
+		class, err := h.DB.GetClassByID(c, classID)
+		if err != nil {
+			failed = append(failed, classID)
+			continue
+		}
+
+		if !class.TeacherID.Valid || class.TeacherID.UUID != teacherID {
+			failed = append(failed, classID)
+			continue
+		}
+
+		_, err = h.DB.EnrollStudent(c, database.EnrollStudentParams{
+			ClassID:   classID,
+			StudentID: studentID,
+		})
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				alreadyEnrolled = append(alreadyEnrolled, classID)
+				continue
+			}
+
+			failed = append(failed, classID)
+			continue
+		}
+
+		enrolled = append(enrolled, classID)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"student_id":       studentID,
+		"enrolled":         enrolled,
+		"already_enrolled": alreadyEnrolled,
+		"failed":           failed,
+	})
 }
