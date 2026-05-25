@@ -46,7 +46,7 @@ func (h *Handler) requireTeacherOwnedClass(c *gin.Context) (database.Class, uuid
 }
 
 func (h *Handler) GetClassesByID(c *gin.Context) {
-	classID, err := uuid.Parse(c.Param("id"))
+	classID, err := uuid.Parse(c.Param("classId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
 		return
@@ -116,7 +116,7 @@ func (h *Handler) GetClasses(c *gin.Context) {
 }
 
 func (h *Handler) UpdateClass(c *gin.Context) {
-	classID, err := uuid.Parse(c.Param("id"))
+	classID, err := uuid.Parse(c.Param("classId"))
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
@@ -192,7 +192,7 @@ func (h *Handler) CreateClass(c *gin.Context) {
 }
 
 func (h *Handler) DeleteClass(c *gin.Context) {
-	classID, err := uuid.Parse(c.Param("id"))
+	classID, err := uuid.Parse(c.Param("classId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
 		return
@@ -252,7 +252,7 @@ func (h *Handler) EnrollInClass(c *gin.Context) {
 }
 
 func (h *Handler) GetClassStudents(c *gin.Context) {
-	classID, err := uuid.Parse(c.Param("id"))
+	classID, err := uuid.Parse(c.Param("classId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid class id"})
 		return
