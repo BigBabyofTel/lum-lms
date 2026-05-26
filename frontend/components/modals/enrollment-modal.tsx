@@ -4,14 +4,18 @@ import { X } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { useClassStore } from '@/store/useClassesStore';
 import { useUserStore } from '@/store/useUserStore';
+import { User } from '@/lib/types';
+import Image from 'next/image';
 
-interface StudentCardModalOptionsProps {
+interface EnrollmentModalProps {
   onClose?: () => void;
+  students: User[];
 }
 
 export default function EnrollmentModal({
   onClose,
-}: StudentCardModalOptionsProps) {
+  students,
+}: EnrollmentModalProps) {
   const id = useUserStore((state) => state.id);
   const fetchClasses = useClassStore((state) => state.fetchClasses);
   const classes = useClassStore((state) => state.classes);
@@ -21,6 +25,8 @@ export default function EnrollmentModal({
     if (classes.length > 0) return;
     void fetchClasses();
   }, [id, classes.length, fetchClasses]);
+  const student = students[0];
+  console.log(student);
   return (
     /* Backdrop — click outside the card to close */
     <div
@@ -45,15 +51,25 @@ export default function EnrollmentModal({
             <X size={20} className="text-gray-600 dark:text-gray-400" />
           </button>
         </div>
-        {/*
-        figure out how to select the options
-        */}
-        {classes.map((data) => (
-          <div key={data.id}>
-            <span>{data.subject}</span>
-            <span>{data.grade}</span>
+        <div className="flex flex-col items-center justify-between bg-slate-600 p-2 text-sm">
+          <div className="flex">
+            <Image
+              src="/icons/user-circle.svg"
+              alt="User"
+              width={20}
+              height={20}
+              className="text-gray-500 dark:text-gray-400"
+            />
+            <span className="w-full p-2">
+              {student.first_name} {student.last_name}
+            </span>
           </div>
-        ))}
+          <div className="w-full flex items-center justify-between">
+            <div className="">{`${student.grade}th Grade`}</div>
+            <div>{`Student ID: ${student.id}`}</div>
+          </div>
+        </div>
+        search bar available classes
       </div>
     </div>
   );

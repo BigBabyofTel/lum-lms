@@ -57,7 +57,10 @@ export default function Page() {
           </div>
 
           {isEnrollmentModalOpen && (
-            <EnrollmentModal onClose={() => setIsEnrollmentModalOpen(false)} />
+            <EnrollmentModal
+              onClose={() => setIsEnrollmentModalOpen(false)}
+              students={students}
+            />
           )}
 
           {isStudentModalOpen && (
