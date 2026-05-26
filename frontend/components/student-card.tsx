@@ -7,8 +7,8 @@ interface StudentCardProps {
   firstName: string;
   lastName: string;
   email: string;
-  grade: string;
-  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+  grade: number;
+  setIsEnrollmentModalOpen: Dispatch<SetStateAction<boolean>>;
   onOpenStudentOptions: () => void;
 }
 

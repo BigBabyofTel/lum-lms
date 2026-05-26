@@ -18,7 +18,12 @@ func (h *Handler) GetStudents(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, students)
+	publicStudents := make([]auth.PublicUser, 0, len(students))
+	for _, student := range students {
+		publicStudents = append(publicStudents, auth.SanitizeUser(student))
+	}
+
+	c.JSON(http.StatusOK, publicStudents)
 }
 
 func (h *Handler) Register(c *gin.Context) {
@@ -28,10 +33,24 @@ func (h *Handler) Register(c *gin.Context) {
 		Email     string `json:"email" binding:"required"`
 		Password  string `json:"password" binding:"required"`
 		Type      string `json:"type" binding:"required,oneof=teacher student parent"`
+		Grade     *int32 `json:"grade"`
 	}
 
 	if err := c.ShouldBind(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var grade sql.NullInt32
+
+	if params.Type == "student" {
+		if params.Grade == nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "grade is required for students"})
+			return
+		}
+		grade = sql.NullInt32{Int32: *params.Grade, Valid: true}
+	} else if params.Grade != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "grade is only allowed for students"})
 		return
 	}
 
@@ -47,6 +66,7 @@ func (h *Handler) Register(c *gin.Context) {
 		Email:     params.Email,
 		Password:  sql.NullString{String: hash, Valid: true},
 		Type:      database.Role(params.Type),
+		Grade:     grade,
 	})
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "could not create user"})

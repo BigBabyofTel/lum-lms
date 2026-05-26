@@ -9,6 +9,7 @@ export interface User {
   avatar?: string;
   avatarColor?: string;
   role?: 'teacher' | 'student' | 'parent' | null;
+  grade?: number;
   createdAt?: string;
   updatedAt?: string;
 }

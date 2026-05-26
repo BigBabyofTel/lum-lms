@@ -5,13 +5,14 @@ WHERE email = sqlc.arg(email)
 LIMIT 1;
 
 -- name: CreateUser :one
-INSERT INTO users (id, first_name, last_name, email, password, type, created_at)
+INSERT INTO users (id, first_name, last_name, email, password, type, grade, created_at)
 VALUES (gen_random_uuid(),
         sqlc.arg(first_name),
         sqlc.arg(last_name),
         sqlc.arg(email),
         sqlc.arg(password),
         sqlc.arg(type),
+        sqlc.arg(grade),
         NOW())
 RETURNING *;
 

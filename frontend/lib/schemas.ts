@@ -6,16 +6,18 @@ export const userSchema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().min(1),
   type: z.enum(['teacher', 'student', 'parent']),
+  grade: z.coerce.number().optional(),
 });
 
 export type User = z.infer<typeof userSchema>;
 // Omits certain values
+/*
 export const testUserSchema = userSchema.omit({
   email: true,
   first_name: true,
   last_name: true,
 });
-
+*/
 export const RegisterSchema = z
   .object({
     email: z.email('Must be a valid email'),
@@ -26,10 +28,15 @@ export const RegisterSchema = z
     role: z.enum(['teacher', 'student', 'parent'], {
       error: 'Please select a role',
     }),
+    grade: z.coerce.number().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
+  })
+  .refine((data) => data.role !== 'student' || data.grade, {
+    message: 'Grade is required for students',
+    path: ['grade'],
   });
 
 export type Register = z.infer<typeof RegisterSchema>;
@@ -41,8 +48,6 @@ export const loginSchema = z.object({
     error: 'Please select a role',
   }),
 });
-
-export type Login = z.infer<typeof loginSchema>;
 
 export const classSchema = z.object({
   subject: z.string().min(1, 'Subject is required'),

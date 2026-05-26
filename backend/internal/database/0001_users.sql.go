@@ -13,15 +13,16 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (id, first_name, last_name, email, password, type, created_at)
+INSERT INTO users (id, first_name, last_name, email, password, type, grade, created_at)
 VALUES (gen_random_uuid(),
         $1,
         $2,
         $3,
         $4,
         $5,
+        $6,
         NOW())
-RETURNING id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
+RETURNING id, first_name, last_name, email, password, type, grade, avatar, avatar_color, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -30,6 +31,7 @@ type CreateUserParams struct {
 	Email     string         `json:"email"`
 	Password  sql.NullString `json:"password"`
 	Type      Role           `json:"type"`
+	Grade     sql.NullInt32  `json:"grade"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -39,6 +41,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Email,
 		arg.Password,
 		arg.Type,
+		arg.Grade,
 	)
 	var i User
 	err := row.Scan(
@@ -48,6 +51,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.Password,
 		&i.Type,
+		&i.Grade,
 		&i.Avatar,
 		&i.AvatarColor,
 		&i.CreatedAt,
@@ -57,7 +61,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getStudents = `-- name: GetStudents :many
-SELECT id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
+SELECT id, first_name, last_name, email, password, type, grade, avatar, avatar_color, created_at, updated_at
 FROM users
 WHERE type = 'student'
 `
@@ -78,6 +82,7 @@ func (q *Queries) GetStudents(ctx context.Context) ([]User, error) {
 			&i.Email,
 			&i.Password,
 			&i.Type,
+			&i.Grade,
 			&i.Avatar,
 			&i.AvatarColor,
 			&i.CreatedAt,
@@ -97,7 +102,7 @@ func (q *Queries) GetStudents(ctx context.Context) ([]User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
+SELECT id, first_name, last_name, email, password, type, grade, avatar, avatar_color, created_at, updated_at
 FROM users
 WHERE email = $1
 LIMIT 1
@@ -113,6 +118,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Email,
 		&i.Password,
 		&i.Type,
+		&i.Grade,
 		&i.Avatar,
 		&i.AvatarColor,
 		&i.CreatedAt,
@@ -122,7 +128,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at
+SELECT id, first_name, last_name, email, password, type, grade, avatar, avatar_color, created_at, updated_at
 FROM users
 WHERE id = $1
 LIMIT 1
@@ -138,6 +144,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Email,
 		&i.Password,
 		&i.Type,
+		&i.Grade,
 		&i.Avatar,
 		&i.AvatarColor,
 		&i.CreatedAt,

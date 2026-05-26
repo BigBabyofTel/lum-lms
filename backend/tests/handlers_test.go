@@ -55,7 +55,7 @@ func performRequest(router *gin.Engine, method, path, body, authorization string
 
 func userRows(userID uuid.UUID, role database.Role) *sqlmock.Rows {
 	return sqlmock.NewRows([]string{
-		"id", "first_name", "last_name", "email", "password", "type", "avatar", "avatar_color", "created_at", "updated_at",
+		"id", "first_name", "last_name", "email", "password", "type", "grade", "avatar", "avatar_color", "created_at", "updated_at",
 	}).AddRow(
 		userID,
 		"Test",
@@ -63,6 +63,7 @@ func userRows(userID uuid.UUID, role database.Role) *sqlmock.Rows {
 		"test@example.com",
 		sql.NullString{},
 		string(role),
+		sql.NullInt32{},
 		sql.NullString{},
 		sql.NullString{},
 		time.Now(),
@@ -96,17 +97,17 @@ func enrollmentRows(enrollmentID, classID, studentID uuid.UUID) *sqlmock.Rows {
 }
 
 func expectGetUserByID(mock sqlmock.Sqlmock, userID uuid.UUID, role database.Role) {
-	mock.ExpectQuery(`SELECT id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at\s+FROM users\s+WHERE id = \$1\s+LIMIT 1`).
+	mock.ExpectQuery(`SELECT id, first_name, last_name, email, password, type, grade, avatar, avatar_color, created_at, updated_at\s+FROM users\s+WHERE id = \$1\s+LIMIT 1`).
 		WithArgs(userID).
 		WillReturnRows(userRows(userID, role))
 }
 
 func expectGetUserByEmail(mock sqlmock.Sqlmock, email string, userID uuid.UUID, role database.Role) {
-	mock.ExpectQuery(`SELECT id, first_name, last_name, email, password, type, avatar, avatar_color, created_at, updated_at\s+FROM users\s+WHERE email = \$1\s+LIMIT 1`).
+	mock.ExpectQuery(`SELECT id, first_name, last_name, email, password, type, grade, avatar, avatar_color, created_at, updated_at\s+FROM users\s+WHERE email = \$1\s+LIMIT 1`).
 		WithArgs(email).
 		WillReturnRows(
 			sqlmock.NewRows([]string{
-				"id", "first_name", "last_name", "email", "password", "type", "avatar", "avatar_color", "created_at", "updated_at",
+				"id", "first_name", "last_name", "email", "password", "type", "grade", "avatar", "avatar_color", "created_at", "updated_at",
 			}).AddRow(
 				userID,
 				"Test",
@@ -114,6 +115,7 @@ func expectGetUserByEmail(mock sqlmock.Sqlmock, email string, userID uuid.UUID, 
 				email,
 				sql.NullString{},
 				string(role),
+				sql.NullInt32{},
 				sql.NullString{},
 				sql.NullString{},
 				time.Now(),
@@ -325,7 +327,7 @@ func TestGetClassStudentsUsesClassIDRouteParam(t *testing.T) {
 
 	expectGetUserByID(mock, teacherID, database.RoleTeacher)
 	expectGetClassByID(mock, classID, teacherID)
-	mock.ExpectQuery(`(?s)SELECT u\.id, u\.first_name, u\.last_name, u\.email, u\.password, u\.type, u\.avatar, u\.avatar_color, u\.created_at, u\.updated_at\s+FROM users u\s+JOIN class_enrollments e ON e\.student_id = u\.id\s+WHERE e\.class_id = \$1`).
+	mock.ExpectQuery(`(?s)SELECT u\.id, u\.first_name, u\.last_name, u\.email, u\.password, u\.type, u\.grade, u\.avatar, u\.avatar_color, u\.created_at, u\.updated_at\s+FROM users u\s+JOIN class_enrollments e ON e\.student_id = u\.id\s+WHERE e\.class_id = \$1`).
 		WithArgs(classID).
 		WillReturnRows(userRows(studentID, database.RoleStudent))
 

@@ -101,6 +101,7 @@ export async function handleRegister(
           password: fieldErrors.password?.[0],
           confirmPassword: fieldErrors.confirmPassword?.[0],
           role: fieldErrors.role?.[0],
+          grade: fieldErrors.grade?.[0],
         },
       };
     }
@@ -113,6 +114,7 @@ export async function handleRegister(
         last_name: valid.data.last_name,
         password: valid.data.password,
         type: valid.data.role,
+        ...(valid.data.role === 'student' ? { grade: valid.data.grade } : {}),
       }),
       headers: { 'Content-Type': 'application/json' },
     });
@@ -173,5 +175,126 @@ export async function handleLogin(
   } catch (err) {
     console.error(err);
     return { error: 'Something went wrong' };
+  }
+}
+
+export async function enrollStudent(
+  _state: FormState | null,
+  formData: FormData
+): Promise<FormState> {
+  try {
+    const student = Object.fromEntries(formData);
+    const valid = RegisterSchema.safeParse(student);
+
+    if (!valid.success) {
+      const fieldErrors = z.flattenError(valid.error).fieldErrors;
+      return {
+        fieldErrors: {
+          email: fieldErrors.email?.[0],
+          first_name: fieldErrors.first_name?.[0],
+          last_name: fieldErrors.last_name?.[0],
+          password: fieldErrors.password?.[0],
+          confirmPassword: fieldErrors.confirmPassword?.[0],
+          role: fieldErrors.role?.[0],
+          grade: fieldErrors.grade?.[0],
+        },
+      };
+    }
+
+    const response = await fetch(`${API_URL}/api/v1/auth/register`, {
+      method: 'POST',
+      body: JSON.stringify({
+        email: valid.data.email,
+        first_name: valid.data.first_name,
+        last_name: valid.data.last_name,
+        password: valid.data.password,
+        type: valid.data.role,
+        ...(valid.data.role === 'student' ? { grade: valid.data.grade } : {}),
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) return { error: 'Adding student failed' };
+  } catch (err) {
+    console.error(err);
+    return { error: 'Something went wrong' };
+  }
+  redirect('/dashboard/admin');
+}
+
+export async function fetchStudentClasses(
+  accessToken: string,
+  studentId: string
+): Promise<Class[]> {
+  if (!accessToken) {
+    return [];
+  }
+  try {
+    const response = await fetch(
+      `${API_URL}/api/v1/students/${studentId}/classes`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (err) {
+    console.error(err);
+  }
+  return [];
+}
+
+export async function batchEnroll(
+  accessToken: string,
+  studentId: string
+): Promise<void> {
+  if (!accessToken) {
+    return;
+  }
+  try {
+    const response = await fetch(
+      `${API_URL}/api/v1/students/${studentId}/enrollments`,
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    if (!response.ok) return;
+    return await response.json();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function unenrollStudent(
+  accessToken: string,
+  studentId: string,
+  classId: string
+): Promise<void> {
+  if (!accessToken) {
+    return;
+  }
+  try {
+    const response = await fetch(
+      `${API_URL}/api/v1/classes/${classId}/students/${studentId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    if (!response.ok) return;
+    return await response.json();
+  } catch (err) {
+    console.error(err);
   }
 }

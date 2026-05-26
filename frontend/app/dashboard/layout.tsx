@@ -6,7 +6,7 @@ import {
   NavbarProvider,
   useNavbar,
 } from '@/components/providers/navbar-provider';
-import ClassFormModal from '@/components/class-form-modal';
+import ClassFormModal from '../../components/modals/class-form-modal';
 import { useUserStore } from '@/store/useUserStore';
 
 // ---------------------------------------------------------------------------

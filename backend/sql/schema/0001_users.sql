@@ -10,6 +10,13 @@ CREATE TABLE users
     email        varchar(255) NOT NULL UNIQUE,
     password     varchar(255),
     type         role         NOT NULL,
+    grade        int
+        CONSTRAINT users_grade_role_check
+            CHECK (
+                (type = 'student' AND grade IS NOT NULL)
+                    OR
+                (type <> 'student' AND grade IS NULL)
+                ),
     avatar       varchar(255),
     avatar_color varchar(255),
     created_at   timestamptz  NOT NULL DEFAULT now(),

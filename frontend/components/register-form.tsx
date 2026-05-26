@@ -13,6 +13,8 @@ export default function RegisterForm(props: RegisterFormProps) {
   const [lastName, setLastName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [selectedRole, setSelectedRole] = useState(props.role || '');
+  const [grade, setGrade] = useState<string>('');
 
   const [state, formAction, isPending] = useActionState<
     FormState | null,
@@ -41,7 +43,7 @@ export default function RegisterForm(props: RegisterFormProps) {
       <div className="p-2 w-full">
         <input
           name="first_name"
-          placeholder="first_name"
+          placeholder="First name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
@@ -53,7 +55,7 @@ export default function RegisterForm(props: RegisterFormProps) {
       <div className="p-2 w-full">
         <input
           name="last_name"
-          placeholder="last_name"
+          placeholder="Last name"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
@@ -65,7 +67,7 @@ export default function RegisterForm(props: RegisterFormProps) {
       <div className="p-2 w-full">
         <input
           name="password"
-          placeholder="password"
+          placeholder="Password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -78,7 +80,7 @@ export default function RegisterForm(props: RegisterFormProps) {
       <div className="p-2 w-full">
         <input
           name="confirmPassword"
-          placeholder="confirmPassword"
+          placeholder="Confirm Password"
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
@@ -98,11 +100,28 @@ export default function RegisterForm(props: RegisterFormProps) {
               type="radio"
               name="role"
               value={r}
-              defaultChecked={r === props.role}
+              checked={selectedRole === r}
+              onChange={() => setSelectedRole(r)}
             />
             {r}
           </label>
         ))}
+        {selectedRole === 'student' && (
+          <div className="p-2 w-full">
+            <input
+              name="grade"
+              placeholder="grade"
+              type="number"
+              min="1"
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+              className="space-y-1 p-2 bg-white/20 backdrop-blur-md border border-white/30 w-full"
+            />
+            {state?.fieldErrors?.grade && (
+              <p className="text-red-500 text-sm">{state.fieldErrors.grade}</p>
+            )}
+          </div>
+        )}
         {state?.fieldErrors?.role && (
           <p className="text-red-500 text-sm">{state.fieldErrors.role}</p>
         )}

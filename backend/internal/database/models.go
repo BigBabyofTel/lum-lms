@@ -205,6 +205,7 @@ type User struct {
 	Email       string         `json:"email"`
 	Password    sql.NullString `json:"password"`
 	Type        Role           `json:"type"`
+	Grade       sql.NullInt32  `json:"grade"`
 	Avatar      sql.NullString `json:"avatar"`
 	AvatarColor sql.NullString `json:"avatar_color"`
 	CreatedAt   time.Time      `json:"created_at"`

@@ -98,16 +98,23 @@ type PublicUser struct {
 	LastName    string `json:"last_name"`
 	Email       string `json:"email"`
 	Type        string `json:"type"`
+	Grade       *int32 `json:"grade,omitempty"`
 	AvatarColor string `json:"avatar_color"`
 }
 
 func SanitizeUser(u database.User) PublicUser {
+	var grade *int32
+	if u.Grade.Valid {
+		grade = &u.Grade.Int32
+	}
+
 	return PublicUser{
 		ID:          u.ID.String(),
 		FirstName:   u.FirstName,
 		LastName:    u.LastName,
 		Email:       u.Email,
 		Type:        string(u.Type),
+		Grade:       grade,
 		AvatarColor: u.AvatarColor.String,
 	}
 }
