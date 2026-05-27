@@ -196,13 +196,13 @@ export default function Sidebar({
           </nav>
 
           {/* Enrolled Section */}
-          <div className="mt-6 px-4">
-            <div className="flex items-center justify-between px-4 mb-2">
+          <div className="mt-6 flex min-h-0 flex-1 flex-col px-4">
+            <div className="mb-2 flex shrink-0 items-center justify-between px-4">
               <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">
                 Classes
               </h3>
             </div>
-            <nav className="space-y-1">
+            <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
               <Link
                 href="/dashboard/todo"
                 onClick={onClose}
@@ -238,9 +238,6 @@ export default function Sidebar({
               ))}
             </nav>
           </div>
-
-          {/* Spacer */}
-          <div className="flex-1"></div>
 
           {/* Bottom Navigation */}
           <nav className="px-4 pb-4 space-y-1">

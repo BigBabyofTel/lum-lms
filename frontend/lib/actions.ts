@@ -241,7 +241,8 @@ export async function fetchStudentClasses(
       }
     );
     if (!response.ok) return [];
-    return await response.json();
+    const data = await response.json();
+    return Array.isArray(data.classes) ? data.classes : [];
   } catch (err) {
     console.error(err);
   }
@@ -250,17 +251,23 @@ export async function fetchStudentClasses(
 
 export async function batchEnroll(
   accessToken: string,
-  studentId: string
+  studentId: string,
+  classIds: string[]
 ): Promise<void> {
-  if (!accessToken) {
+  if (!accessToken || classIds.length === 0) {
     return;
   }
+
   try {
     const response = await fetch(
       `${API_URL}/api/v1/students/${studentId}/enrollments`,
       {
         method: 'POST',
+        body: JSON.stringify({
+          class_ids: classIds,
+        }),
         headers: {
+          'Content-Type': 'application/json',
           Accept: 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },

@@ -13,6 +13,7 @@ export default function Page() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
   const [students, setStudents] = useState<User[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -21,7 +22,7 @@ export default function Page() {
       setStudents(Array.isArray(data) ? data : []);
     })();
   }, [id]);
-  console.log(students);
+
   return (
     <>
       {role === 'student' && <h1>student panel</h1>}
@@ -47,8 +48,10 @@ export default function Page() {
                   lastName={data.last_name}
                   email={data.email}
                   grade={data.grade as number}
-                  setIsEnrollmentModalOpen={setIsEnrollmentModalOpen}
-                  onOpenStudentOptions={() => setIsEnrollmentModalOpen(true)}
+                  onOpenStudentOptions={() => {
+                    setSelectedStudent(data);
+                    setIsEnrollmentModalOpen(true);
+                  }}
                 />
               ))
             ) : (
@@ -56,10 +59,13 @@ export default function Page() {
             )}
           </div>
 
-          {isEnrollmentModalOpen && (
+          {isEnrollmentModalOpen && selectedStudent && (
             <EnrollmentModal
-              onClose={() => setIsEnrollmentModalOpen(false)}
-              students={students}
+              onClose={() => {
+                setIsEnrollmentModalOpen(false);
+                setSelectedStudent(null);
+              }}
+              student={selectedStudent}
             />
           )}
 

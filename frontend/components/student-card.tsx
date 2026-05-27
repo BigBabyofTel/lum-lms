@@ -1,6 +1,5 @@
 'use client';
 
-import React, { Dispatch, SetStateAction } from 'react';
 import Image from 'next/image';
 
 interface StudentCardProps {
@@ -8,7 +7,6 @@ interface StudentCardProps {
   lastName: string;
   email: string;
   grade: number;
-  setIsEnrollmentModalOpen: Dispatch<SetStateAction<boolean>>;
   onOpenStudentOptions: () => void;
 }
 
