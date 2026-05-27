@@ -40,15 +40,21 @@ export default function ThemeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   useEffect(() => {
     // Check system preference on mount
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    setIsDark(mediaQuery.matches);
 
     // Listen for changes
     const handleChange = (e: MediaQueryListEvent) => setIsDark(e.matches);
+
     mediaQuery.addEventListener('change', handleChange);
 
     return () => mediaQuery.removeEventListener('change', handleChange);
@@ -58,7 +64,7 @@ export default function ThemeProvider({
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark(!isDark);
+  const toggleTheme = () => setIsDark((current) => !current);
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>

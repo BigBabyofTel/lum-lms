@@ -24,10 +24,10 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
   useEffect(() => {
     if (state?.success) {
       clearClasses();
-      fetchClasses();
+      void fetchClasses();
       onClose();
     }
-  }, [state]);
+  }, [state?.success, clearClasses, fetchClasses, onClose]);
 
   return (
     /* Backdrop — click outside the card to close */

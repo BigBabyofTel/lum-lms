@@ -29,10 +29,10 @@ export default function CreateStudentModal({
   useEffect(() => {
     if (state?.success) {
       clearClasses();
-      fetchClasses();
+      void fetchClasses();
       onClose();
     }
-  }, [state]);
+  }, [state?.success, clearClasses, fetchClasses, onClose]);
 
   return (
     /* Backdrop — click outside the card to close */

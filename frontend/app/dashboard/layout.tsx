@@ -12,14 +12,15 @@ import { useUserStore } from '@/store/useUserStore';
 // ---------------------------------------------------------------------------
 // Inner layout — needs useNavbar so it must sit inside NavbarProvider
 // ---------------------------------------------------------------------------
+
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+
 function DashboardContent({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { title } = useNavbar();
-
-  const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 
   useEffect(() => {
     const token = useUserStore.getState().access_token;
