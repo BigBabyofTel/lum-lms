@@ -4,7 +4,7 @@ export function getBaseUrl() {
   if (typeof window !== 'undefined') {
     return `${window.location.protocol}//${window.location.hostname}:8080`;
   }
-  return process.env.NEXT_PUBLIB_API_URL ?? 'http://localhost:8080';
+  return process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
 }
 
 export async function apiFetch<T>(

@@ -8,7 +8,7 @@ import EnrollmentModal from '../../../components/modals/enrollment-modal';
 import CreateStudentModal from '@/components/modals/create-student-modal';
 
 export default function Page() {
-  const [role] = useState('teacher');
+  const role = useUserStore((state) => state.role);
   const id = useUserStore((state) => state.id);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);

@@ -23,3 +23,13 @@ source code for Luminescence frontend
 - Classes home page and student admin page completed
 - modals added for adding students and classes
 - students can be enrolled in multiple classes at a time
+
+## terminal commands
+
+- To watch database logs live:
+
+  docker compose logs -f db
+
+- to start live backend for dev
+
+  air
