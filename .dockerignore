@@ -40,3 +40,6 @@ Thumbs.db
 # Docker files
 Dockerfile
 .dockerignore
+
+# other
+/LMS

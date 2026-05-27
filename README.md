@@ -14,10 +14,12 @@ source code for Luminescence frontend
 
 ## TO-DO
 
-- [ ] add tests
-- [ ] add auth
+- take notes on next steps of the project
+- add github issues
+- add frontend testing
 
 ## notes
 
-- finish up to the people component
-- start auth after people component is complete
+- Classes home page and student admin page completed
+- modals added for adding students and classes
+- students can be enrolled in multiple classes at a time

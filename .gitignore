@@ -255,3 +255,7 @@ next-env.d.ts
 *.iml
 out
 gen
+
+# others
+/LMS
+
