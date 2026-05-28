@@ -28,6 +28,7 @@ export const useUserStore = create<UserState>()(
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
+          type: data.type,
         }));
       },
       setAccessToken: (token: string) => {

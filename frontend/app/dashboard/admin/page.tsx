@@ -8,7 +8,7 @@ import EnrollmentModal from '../../../components/modals/enrollment-modal';
 import CreateStudentModal from '@/components/modals/create-student-modal';
 
 export default function Page() {
-  const role = useUserStore((state) => state.role);
+  const role = useUserStore((state) => state.type);
   const id = useUserStore((state) => state.id);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
@@ -26,7 +26,6 @@ export default function Page() {
   return (
     <>
       {role === 'student' && <h1>student panel</h1>}
-
       {role === 'teacher' && (
         <div className="w-full">
           <div className="w-full mb-4 flex justify-end">
