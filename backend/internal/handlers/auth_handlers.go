@@ -11,21 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *Handler) GetStudents(c *gin.Context) {
-	students, err := h.DB.GetStudents(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "could not get students"})
-		return
-	}
-
-	publicStudents := make([]auth.PublicUser, 0, len(students))
-	for _, student := range students {
-		publicStudents = append(publicStudents, auth.SanitizeUser(student))
-	}
-
-	c.JSON(http.StatusOK, publicStudents)
-}
-
 func (h *Handler) Register(c *gin.Context) {
 	var params struct {
 		FirstName string `json:"first_name" binding:"required"`

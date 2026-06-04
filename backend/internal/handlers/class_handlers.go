@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/BigBabyofTel/lum-lms/internal/auth"
 	"github.com/BigBabyofTel/lum-lms/internal/database"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -43,6 +44,34 @@ func (h *Handler) requireTeacherOwnedClass(c *gin.Context) (database.Class, uuid
 	}
 
 	return class, classID, true
+}
+
+func (h *Handler) GetStudents(c *gin.Context) {
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	user, err := h.DB.GetUserByID(c, userID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if user.Type != database.RoleTeacher {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Only teachers can list students"})
+		return
+	}
+
+	students, err := h.DB.GetStudents(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "could not get students"})
+		return
+	}
+
+	publicStudents := make([]auth.PublicUser, 0, len(students))
+	for _, student := range students {
+		publicStudents = append(publicStudents, auth.SanitizeUser(student))
+	}
+
+	c.JSON(http.StatusOK, publicStudents)
 }
 
 func (h *Handler) GetClassesByID(c *gin.Context) {
@@ -283,7 +312,12 @@ func (h *Handler) GetClassStudents(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not get class students"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"students": students})
+	publicStudents := make([]auth.PublicUser, 0, len(students))
+	for _, student := range students {
+		publicStudents = append(publicStudents, auth.SanitizeUser(student))
+	}
+
+	c.JSON(http.StatusOK, gin.H{"students": publicStudents})
 }
 
 func (h *Handler) UnenrollStudent(c *gin.Context) {

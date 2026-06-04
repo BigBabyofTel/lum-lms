@@ -13,6 +13,5 @@ func RegisterAuthRoutes(router *gin.RouterGroup, h *handlers.Handler) {
 		auth.POST("/login", middleware.RateLimit(), h.Login)
 		auth.POST("/refresh", h.Refresh)
 		auth.POST("/logout", h.Logout)
-		auth.GET("/", h.GetStudents)
 	}
 }

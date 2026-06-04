@@ -59,18 +59,22 @@ export async function getAllClasses(accessToken: string): Promise<Class[]> {
       },
     });
     if (!response.ok) return [];
-    return await response.json();
+    const data: Class[] = await response.json();
+    return Array.isArray(data) ? data : [];
   } catch (err) {
     console.error(err);
   }
   return [];
 }
 
-export async function getAllStudents(): Promise<User[]> {
+export async function getAllStudents(accessToken: string): Promise<User[]> {
   try {
-    const response = await fetch(`${API_URL}/api/v1/auth`, {
+    const response = await fetch(`${API_URL}/api/v1/students`, {
       method: 'GET',
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
     if (!response.ok) {
       console.error('data was not fetched');
@@ -241,8 +245,8 @@ export async function fetchStudentClasses(
       }
     );
     if (!response.ok) return [];
-    const data = await response.json();
-    return Array.isArray(data.classes) ? data.classes : [];
+    const data: Class[] = await response.json();
+    return Array.isArray(data) ? data : [];
   } catch (err) {
     console.error(err);
   }

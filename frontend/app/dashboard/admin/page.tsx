@@ -10,18 +10,19 @@ import CreateStudentModal from '@/components/modals/create-student-modal';
 export default function Page() {
   const role = useUserStore((state) => state.type);
   const id = useUserStore((state) => state.id);
+  const accessToken = useUserStore((state) => state.access_token);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
   const [students, setStudents] = useState<User[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || !accessToken) return;
     (async () => {
-      const data = await getAllStudents();
+      const data = await getAllStudents(accessToken as string);
       setStudents(Array.isArray(data) ? data : []);
     })();
-  }, [id]);
+  }, [id, accessToken]);
 
   return (
     <>

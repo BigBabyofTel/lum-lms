@@ -25,6 +25,8 @@ func RegisterClassRoutes(router *gin.RouterGroup, h *handlers.Handler) {
 		protected.GET("/classes/:classId/students/:studentId/enrollment", h.GetClassEnrollments)
 		// remove a student from the class
 		protected.DELETE("/classes/:classId/students/:studentId", h.UnenrollStudent)
+		// Get all students
+		protected.GET("/students", h.GetStudents)
 		// get all classes a student is in
 		protected.GET("/students/:studentId/classes", h.GetStudentClasses)
 		// enroll a student in multiple classes at a time
