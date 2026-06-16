@@ -1,6 +1,6 @@
 'use server';
 
-import { Class, FormState, User } from '@/lib/types';
+import { FormState } from '@/lib/types';
 import { classSchema, loginSchema, RegisterSchema } from '@/lib/schemas';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
@@ -44,47 +44,6 @@ export async function createClassForm(
     return { error: 'Something went wrong. Please try again.' };
   }
   return { success: 'Class created!' };
-}
-
-export async function getAllClasses(accessToken: string): Promise<Class[]> {
-  if (!accessToken) {
-    return [];
-  }
-  try {
-    const response = await fetch(`${API_URL}/api/v1/classes`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    if (!response.ok) return [];
-    const data: Class[] = await response.json();
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.error(err);
-  }
-  return [];
-}
-
-export async function getAllStudents(accessToken: string): Promise<User[]> {
-  try {
-    const response = await fetch(`${API_URL}/api/v1/students`, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    if (!response.ok) {
-      console.error('data was not fetched');
-      return [];
-    }
-    return await response.json();
-  } catch (err) {
-    console.error(err);
-  }
-  return [];
 }
 
 export async function handleRegister(
@@ -224,88 +183,4 @@ export async function enrollStudent(
     return { error: 'Something went wrong' };
   }
   redirect('/dashboard/admin');
-}
-
-export async function fetchStudentClasses(
-  accessToken: string,
-  studentId: string
-): Promise<Class[]> {
-  if (!accessToken) {
-    return [];
-  }
-  try {
-    const response = await fetch(
-      `${API_URL}/api/v1/students/${studentId}/classes`,
-      {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-    if (!response.ok) return [];
-    const data: Class[] = await response.json();
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.error(err);
-  }
-  return [];
-}
-
-export async function batchEnroll(
-  accessToken: string,
-  studentId: string,
-  classIds: string[]
-): Promise<void> {
-  if (!accessToken || classIds.length === 0) {
-    return;
-  }
-
-  try {
-    const response = await fetch(
-      `${API_URL}/api/v1/students/${studentId}/enrollments`,
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          class_ids: classIds,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-    if (!response.ok) return;
-    return await response.json();
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-export async function unenrollStudent(
-  accessToken: string,
-  studentId: string,
-  classId: string
-): Promise<void> {
-  if (!accessToken) {
-    return;
-  }
-  try {
-    const response = await fetch(
-      `${API_URL}/api/v1/classes/${classId}/students/${studentId}`,
-      {
-        method: 'DELETE',
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-    if (!response.ok) return;
-    return await response.json();
-  } catch (err) {
-    console.error(err);
-  }
 }

@@ -1,5 +1,11 @@
 'use client';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { Moon, Sun } from 'lucide-react';
 
 interface ThemeContextType {
@@ -40,35 +46,39 @@ export default function ThemeProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
+  const systemIsDark = useSyncExternalStore(
+    subscribeToColorScheme,
+    getColorSchemeSnapshot,
+    getServerColorSchemeSnapshot
+  );
+  const [themeOverride, setThemeOverride] = useState<boolean | null>(null);
+  const isDark = themeOverride ?? systemIsDark;
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
-
-  useEffect(() => {
-    // Check system preference on mount
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    // Listen for changes
-    const handleChange = (e: MediaQueryListEvent) => setIsDark(e.matches);
-
-    mediaQuery.addEventListener('change', handleChange);
-
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
 
-  const toggleTheme = () => setIsDark((current) => !current);
+  const toggleTheme = () => setThemeOverride((current) => !(current ?? isDark));
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
+}
+
+function getColorSchemeSnapshot() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function getServerColorSchemeSnapshot() {
+  return false;
+}
+
+function subscribeToColorScheme(callback: () => void) {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  mediaQuery.addEventListener('change', callback);
+
+  return () => mediaQuery.removeEventListener('change', callback);
 }

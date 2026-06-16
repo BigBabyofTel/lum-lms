@@ -8,16 +8,18 @@ interface ClassCardProps {
   grade: number;
   teacher?: string;
   color?: string;
+  id: string;
 }
 
 export default function ClassCard({
+  id,
   name,
   grade,
   teacher,
   color,
 }: ClassCardProps) {
   return (
-    <Link href={`/dashboard/class/${name}`}>
+    <Link href={`/dashboard/class/${id}`}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
         {/* Card Header */}
         <div className={`${color} p-4 h-32 relative`}>

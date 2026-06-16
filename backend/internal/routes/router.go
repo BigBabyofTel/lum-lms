@@ -17,6 +17,7 @@ func RegisterRoutes(router *gin.Engine, h *handlers.Handler) {
 	{
 		RegisterClassRoutes(v1, h)
 		RegisterAuthRoutes(v1, h)
+		RegisterAssignmentRoutes(v1, h)
 	}
 
 }

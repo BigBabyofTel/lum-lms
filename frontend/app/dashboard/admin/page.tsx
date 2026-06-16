@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getAllStudents } from '@/lib/actions';
+import { getAllStudents } from '@/lib/api-client';
 import { User } from '@/lib/types';
 import StudentCard from '@/components/student-card';
 import { useUserStore } from '@/store/useUserStore';
@@ -10,19 +10,18 @@ import CreateStudentModal from '@/components/modals/create-student-modal';
 export default function Page() {
   const role = useUserStore((state) => state.type);
   const id = useUserStore((state) => state.id);
-  const accessToken = useUserStore((state) => state.access_token);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
   const [students, setStudents] = useState<User[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
   useEffect(() => {
-    if (!id || !accessToken) return;
+    if (!id) return;
     (async () => {
-      const data = await getAllStudents(accessToken as string);
+      const data = await getAllStudents();
       setStudents(Array.isArray(data) ? data : []);
     })();
-  }, [id, accessToken]);
+  }, [id]);
 
   return (
     <>

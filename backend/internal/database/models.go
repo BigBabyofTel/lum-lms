@@ -213,11 +213,14 @@ type User struct {
 }
 
 type UserAssignment struct {
-	ID           uuid.UUID        `json:"id"`
-	AssignmentID uuid.NullUUID    `json:"assignment_id"`
-	StudentID    uuid.NullUUID    `json:"student_id"`
-	Grade        sql.NullInt32    `json:"grade"`
-	Status       AssignmentStatus `json:"status"`
-	CreatedAt    time.Time        `json:"created_at"`
-	UpdatedAt    sql.NullTime     `json:"updated_at"`
+	ID             uuid.UUID        `json:"id"`
+	AssignmentID   uuid.NullUUID    `json:"assignment_id"`
+	StudentID      uuid.NullUUID    `json:"student_id"`
+	Grade          sql.NullInt32    `json:"grade"`
+	Status         AssignmentStatus `json:"status"`
+	SubmissionText sql.NullString   `json:"submission_text"`
+	Feedback       sql.NullString   `json:"feedback"`
+	SubmittedAt    sql.NullTime     `json:"submitted_at"`
+	CreatedAt      time.Time        `json:"created_at"`
+	UpdatedAt      sql.NullTime     `json:"updated_at"`
 }

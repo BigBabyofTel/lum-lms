@@ -98,7 +98,13 @@ func (h *Handler) GetClassesByID(c *gin.Context) {
 		return
 	}
 
-	if user.Type == database.RoleStudent {
+	switch user.Type {
+	case database.RoleTeacher:
+		if !class.TeacherID.Valid || class.TeacherID.UUID != userID {
+			c.JSON(http.StatusForbidden, gin.H{"error": "You do not have access to this class"})
+			return
+		}
+	case database.RoleStudent:
 		enrolled, _ := h.DB.IsStudentEnrolled(c, database.IsStudentEnrolledParams{
 			ClassID:   class.ID,
 			StudentID: userID,
@@ -108,8 +114,26 @@ func (h *Handler) GetClassesByID(c *gin.Context) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Not enrolled in this class"})
 			return
 		}
+	default:
+		c.JSON(http.StatusForbidden, gin.H{"error": "role not permitted"})
+		return
 	}
-	c.JSON(http.StatusOK, gin.H{"class": class})
+
+	if !class.TeacherID.Valid {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Class has no teacher"})
+		return
+	}
+
+	teacher, err := h.DB.GetUserByID(c, class.TeacherID.UUID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not get class teacher"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"class":   class,
+		"teacher": auth.SanitizeUser(teacher),
+	})
 }
 
 func (h *Handler) GetClasses(c *gin.Context) {

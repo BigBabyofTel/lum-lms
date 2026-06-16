@@ -2,7 +2,7 @@
 
 import { X } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { batchEnroll, fetchStudentClasses } from '@/lib/actions';
+import { batchEnroll, fetchStudentClasses } from '@/lib/api-client';
 import { Class, User } from '@/lib/types';
 import { useClassStore } from '@/store/useClassesStore';
 import { useUserStore } from '@/store/useUserStore';
@@ -49,10 +49,7 @@ export default function EnrollmentModal({
       setError(null);
 
       try {
-        const enrolledClasses = await fetchStudentClasses(
-          accessToken as string,
-          student.id
-        );
+        const enrolledClasses = await fetchStudentClasses(student.id);
         if (cancelled) return;
 
         setStudentClasses(enrolledClasses);
@@ -140,11 +137,8 @@ export default function EnrollmentModal({
     setError(null);
 
     try {
-      await batchEnroll(accessToken, student.id, newClassIds);
-      const updatedStudentClasses = await fetchStudentClasses(
-        accessToken,
-        student.id
-      );
+      await batchEnroll(student.id, newClassIds);
+      const updatedStudentClasses = await fetchStudentClasses(student.id);
 
       setStudentClasses(updatedStudentClasses);
       setSelectedClassIds(
@@ -160,10 +154,10 @@ export default function EnrollmentModal({
   }
 
   const alreadyEnrolledBadge =
-    'rounded-md border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700';
+    'rounded-md border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:border-blue-700/60 dark:bg-blue-950/50 dark:text-blue-200';
 
   const notEnrolledBadge =
-    'rounded-md border border-green-200 bg-green-50 px-3 py-1 text-sm font-medium text-green-700';
+    'rounded-md border border-green-200 bg-green-50 px-3 py-1 text-sm font-medium text-green-700 dark:border-emerald-700/60 dark:bg-emerald-950/50 dark:text-emerald-200';
 
   const classColors = [
     'bg-emerald-500',
@@ -182,17 +176,17 @@ export default function EnrollmentModal({
     >
       {/* Modal card — stop propagation so clicks inside don't close */}
       <div
-        className="flex max-h-[calc(100vh-24px)] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+        className="flex max-h-[calc(100vh-24px)] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-900"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="shrink-0 p-4 sm:p-6">
           {/* Header */}
           <div className="mb-5 flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <h2 className="text-xl font-semibold text-slate-950 sm:text-2xl">
+              <h2 className="text-xl font-semibold text-slate-950 dark:text-white sm:text-2xl">
                 Enroll Student in Class
               </h2>
-              <p className="mt-2 text-sm text-slate-600">
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                 Select the classes you&apos;d like to enroll this student in.
               </p>
             </div>
@@ -200,23 +194,23 @@ export default function EnrollmentModal({
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+              className="shrink-0 rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-gray-800"
               aria-label="Close modal"
             >
               <X size={22} />
             </button>
           </div>
 
-          <div className="mb-5 flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 sm:gap-4 sm:p-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-100 text-base font-semibold text-violet-700 sm:h-12 sm:w-12">
+          <div className="mb-5 flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800 sm:gap-4 sm:p-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-100 text-base font-semibold text-violet-700 dark:bg-violet-950 dark:text-violet-200 sm:h-12 sm:w-12">
               {initials}
             </div>
 
             <div className="min-w-0">
-              <p className="truncate font-semibold text-slate-950">
+              <p className="truncate font-semibold text-slate-950 dark:text-white">
                 {student.first_name} {student.last_name}
               </p>
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                 <span>
                   {student.grade ? `${student.grade}th Grade` : 'Grade not set'}
                 </span>
@@ -241,39 +235,39 @@ export default function EnrollmentModal({
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Search classes by name, teacher, or grade"
-              className="h-12 w-full rounded-lg border border-slate-200 pl-12 pr-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-12 pr-4 text-sm text-slate-950 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
             />
           </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 sm:px-6">
-          <div className="overflow-hidden rounded-lg border border-slate-200">
-            <div className="border-b border-slate-200 px-4 py-3">
-              <h3 className="text-sm font-semibold text-slate-800">
+          <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-gray-700">
+            <div className="border-b border-slate-200 px-4 py-3 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
                 Available Classes
               </h3>
             </div>
 
             <div>
               {(isLoadingClasses || isLoadingStudentClasses) && (
-                <div className="px-4 py-8 text-center text-sm text-slate-500">
+                <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                   Loading classes...
                 </div>
               )}
 
               {!isLoadingClasses &&
                 !isLoadingStudentClasses &&
-                classes.length === 0 && (
-                  <div className="px-4 py-8 text-center text-sm text-slate-500">
+                  classes.length === 0 && (
+                  <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                     No classes available.
                   </div>
                 )}
 
               {!isLoadingClasses &&
                 !isLoadingStudentClasses &&
-                classes.length > 0 &&
-                filteredClasses.length === 0 && (
-                  <div className="px-4 py-8 text-center text-sm text-slate-500">
+                  classes.length > 0 &&
+                  filteredClasses.length === 0 && (
+                  <div className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
                     No classes match your search.
                   </div>
                 )}
@@ -288,14 +282,14 @@ export default function EnrollmentModal({
                   return (
                     <label
                       key={classItem.id}
-                      className="grid cursor-pointer grid-cols-[auto_1fr] gap-3 border-b border-slate-100 px-4 py-4 last:border-b-0 sm:flex sm:items-center sm:gap-4"
+                      className="grid cursor-pointer grid-cols-[auto_1fr] gap-3 border-b border-slate-100 px-4 py-4 last:border-b-0 hover:bg-slate-50 dark:border-gray-800 dark:hover:bg-gray-800/70 sm:flex sm:items-center sm:gap-4"
                     >
                       <input
                         type="checkbox"
                         checked={isSelected}
                         disabled={isEnrolled}
                         onChange={() => toggleClassSelection(classItem.id)}
-                        className="mt-2 h-5 w-5 rounded border-slate-300 text-blue-600 sm:mt-0"
+                        className="mt-2 h-5 w-5 rounded border-slate-300 text-blue-600 dark:border-gray-600 dark:bg-gray-900 sm:mt-0"
                       />
 
                       <div
@@ -305,10 +299,10 @@ export default function EnrollmentModal({
                       </div>
 
                       <div className="col-start-2 min-w-0 sm:col-auto sm:flex-1">
-                        <p className="truncate font-semibold text-slate-950">
+                        <p className="truncate font-semibold text-slate-950 dark:text-white">
                           {classItem.subject}
                         </p>
-                        <p className="mt-1 text-sm text-slate-600">
+                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                           Grade {classItem.grade} •{' '}
                           {classItem.teacher ?? 'Teacher not assigned'}
                         </p>
@@ -328,7 +322,7 @@ export default function EnrollmentModal({
           </div>
         </div>
 
-        <div className="shrink-0 border-t border-slate-200 p-4 sm:p-6">
+        <div className="shrink-0 border-t border-slate-200 p-4 dark:border-gray-700 sm:p-6">
           {(error || classLoadError) && (
             <p className="mb-3 text-sm text-red-600">
               {error ?? classLoadError}
@@ -336,7 +330,7 @@ export default function EnrollmentModal({
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-slate-700 dark:text-slate-300">
               {newClassIds.length}{' '}
               {newClassIds.length === 1 ? 'class' : 'classes'} selected
             </p>
@@ -345,7 +339,7 @@ export default function EnrollmentModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 sm:px-5"
+                className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-gray-700 dark:text-slate-200 dark:hover:bg-gray-800 sm:px-5"
               >
                 Cancel
               </button>

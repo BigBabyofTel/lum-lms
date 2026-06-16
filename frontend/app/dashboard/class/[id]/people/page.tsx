@@ -1,45 +1,25 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserCircle2, MoreVertical, Mail } from 'lucide-react';
-
-interface Person {
-  id: string;
-  name: string;
-  email?: string;
-  avatar?: string;
-}
-
-// Mock data
-const teachers: Person[] = [
-  {
-    id: '1',
-    name: 'Unknown user',
-    email: 'teacher@example.com',
-  },
-];
-
-const students: Person[] = [
-  {
-    id: '1',
-    name: 'Augustus Baker',
-    email: 'augustus.tb@gmail.com',
-    avatar: 'A',
-  },
-  {
-    id: '2',
-    name: 'Student Two',
-    email: 'student2@example.com',
-    avatar: 'S',
-  },
-  {
-    id: '3',
-    name: 'Student Three',
-    email: 'student3@example.com',
-    avatar: 'S',
-  },
-];
+import { User } from '@/lib/types';
+import { useUserStore } from '@/store/useUserStore';
+import { getClassStudents } from '@/lib/api-client';
+import { useClassInfo } from '@/components/providers/class-provider';
 
 export default function PeoplePage() {
+  const id = useUserStore((state) => state.id);
+  const accessToken = useUserStore((state) => state.access_token);
+  const { classInfo, teacher } = useClassInfo();
+  const [students, setStudents] = useState<User[]>([]);
+
+  useEffect(() => {
+    if (!id || !accessToken || !classInfo) return;
+    (async () => {
+      const data = await getClassStudents(classInfo.id);
+      setStudents(data);
+    })();
+  }, [id, accessToken, classInfo]);
+
   return (
     <div className="space-y-8">
       {/* Teachers Section */}
@@ -59,7 +39,7 @@ export default function PeoplePage() {
           </button>
         </div>
         <div className="border-t border-gray-200 dark:border-gray-700">
-          {teachers.map((teacher) => (
+          {teacher && (
             <div
               key={teacher.id}
               className="flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
@@ -73,7 +53,7 @@ export default function PeoplePage() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {teacher.name}
+                    {teacher.first_name} {teacher.last_name}
                   </p>
                   {teacher.email && (
                     <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -103,7 +83,7 @@ export default function PeoplePage() {
                 </button>
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
@@ -147,7 +127,7 @@ export default function PeoplePage() {
                 )}
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {student.name}
+                    {`${student.first_name} ${student.last_name}`}
                   </p>
                   {student.email && (
                     <p className="text-sm text-gray-600 dark:text-gray-400">

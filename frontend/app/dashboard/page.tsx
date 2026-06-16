@@ -43,6 +43,7 @@ export default function Page() {
           {classes?.map((data) => (
             <ClassCard
               key={data.id}
+              id={data.id}
               name={data.subject}
               grade={data.grade}
               color={'bg-blue-400'}

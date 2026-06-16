@@ -41,6 +41,11 @@ export interface Class {
   updatedAt?: string;
 }
 
+export interface ClassDetailResponse {
+  class: Class;
+  teacher: User;
+}
+
 export interface Assignment {
   id: string;
   title: string;
