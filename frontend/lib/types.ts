@@ -10,8 +10,8 @@ export interface User {
   avatarColor?: string;
   role?: 'teacher' | 'student' | 'parent' | null;
   grade?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string | null;
 }
 
 export interface FormState {
@@ -48,13 +48,73 @@ export interface ClassDetailResponse {
 
 export interface Assignment {
   id: string;
-  title: string;
   type: 'assignment' | 'material';
-  assignDate?: string;
-  dueDate?: string;
-  attachmentCount?: number;
-  createdAt?: string;
-  updatedAt?: string;
+  title: string;
+  class_id: string;
+  details?: string | null;
+  assign_date?: string | null;
+  due_date?: string | null;
+  attachment_count?: number | null;
+  created_at?: string;
+  updated_at?: string | null;
+}
+
+export interface CreateAssignmentPayload {
+  type: 'assignment' | 'material';
+  title: string;
+  details?: string;
+  due_date?: string;
+  attachment_count?: number;
+}
+
+export interface UpdateAssignmentPayload {
+  type: 'assignment' | 'material';
+  title: string;
+  details?: string;
+  due_date?: string;
+  attachment_count?: number;
+}
+
+export type AssignmentStatus = 'assigned' | 'submitted' | 'graded' | 'missing';
+
+export interface UserAssignment {
+  id: string;
+  assignment_id: string;
+  student_id: string;
+  grade?: number | null;
+  status: AssignmentStatus;
+  submission_text?: string | null;
+  submitted_at?: string | null;
+  feedback?: string | null;
+  created_at?: string;
+  updated_at?: string | null;
+}
+
+export interface AssignmentDetailResponse {
+  assignment: Assignment;
+  user_assignment: UserAssignment | null;
+}
+
+export interface AssignmentSubmission extends UserAssignment {
+  first_name: string;
+  last_name: string;
+  email: string;
+  student_grade?: number | null;
+}
+
+export interface GradebookRow {
+  assignment_id: string;
+  title: string;
+  due_date?: string | null;
+  user_assignment_id: string;
+  student_id: string;
+  grade?: number | null;
+  status: AssignmentStatus;
+  feedback?: string | null;
+  submitted_at?: string | null;
+  first_name: string;
+  last_name: string;
+  email: string;
 }
 
 export interface Topic {
