@@ -28,6 +28,14 @@ FROM posts
 WHERE id = sqlc.arg(id)
   AND author_id = sqlc.arg(author_id);
 
+-- name: UpdatePost :one
+UPDATE posts
+SET content = sqlc.arg(content),
+    updated_at = NOW()
+WHERE id = sqlc.arg(id)
+  AND author_id = sqlc.arg(author_id)
+RETURNING *;
+
 -- name: CreateComment :one
 INSERT INTO comments (id, post_id, author_id, content, created_at)
 VALUES (gen_random_uuid(),
@@ -51,3 +59,12 @@ DELETE
 FROM comments
 WHERE id = sqlc.arg(id)
   AND author_id = sqlc.arg(author_id);
+
+-- name: UpdateComment :one
+UPDATE comments
+SET content = sqlc.arg(content),
+    updated_at = NOW()
+WHERE id = sqlc.arg(id)
+  AND post_id = sqlc.arg(post_id)
+  AND author_id = sqlc.arg(author_id)
+RETURNING *;

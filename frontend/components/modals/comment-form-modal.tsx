@@ -1,67 +1,63 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
-import { Send, Users, X } from 'lucide-react';
-import type { Post } from '@/lib/types';
+import { useActionState, useEffect, useState } from 'react';
+import { Send, X } from 'lucide-react';
+import type { FormState, Post } from '@/lib/types';
+import { createClassPost } from '@/lib/api-client';
 
 interface CommentFormModalProps {
-  posts: Post[];
+  classId: string;
   onClose: () => void;
-  onSubmit: (postId: string, content: string) => Promise<void>;
-}
-
-function getPostOptionLabel(post: Post) {
-  const trimmedContent = post.content.trim();
-
-  if (!trimmedContent) {
-    return 'Untitled post';
-  }
-
-  return trimmedContent.length > 80
-    ? `${trimmedContent.slice(0, 80)}...`
-    : trimmedContent;
+  onPostCreated: (post: Post) => void;
 }
 
 export default function CommentFormModal({
-  posts,
+  classId,
   onClose,
-  onSubmit,
+  onPostCreated,
 }: CommentFormModalProps) {
-  const [selectedPostId, setSelectedPostId] = useState(posts[0]?.id ?? '');
   const [content, setContent] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const canSubmit = Boolean(selectedPostId && content.trim() && !isSubmitting);
+  const canSubmit = Boolean(classId && content.trim());
 
-  const selectedPost = useMemo(
-    () => posts.find((post) => post.id === selectedPostId),
-    [posts, selectedPostId]
-  );
+  const submitPostAction = async (
+    _state: FormState | null,
+    formData: FormData
+  ): Promise<FormState> => {
+    const postContent = formData.get('content');
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const trimmedContent = content.trim();
-    if (!selectedPostId || !trimmedContent) {
-      return;
+    if (typeof postContent !== 'string') {
+      return { error: 'Missing post content.' };
     }
 
-    setIsSubmitting(true);
-    setError(null);
+    const trimmedContent = postContent.trim();
+    if (!trimmedContent) {
+      return { error: 'Post content is required.' };
+    }
 
     try {
-      await onSubmit(selectedPostId, trimmedContent);
-      onClose();
+      const post = await createClassPost(classId, trimmedContent);
+      onPostCreated(post);
+      return { success: 'Post created.' };
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : 'Could not add comment'
-      );
-    } finally {
-      setIsSubmitting(false);
+      return {
+        error:
+          submitError instanceof Error
+            ? submitError.message
+            : 'Could not create post',
+      };
     }
   };
+
+  const [state, formAction, isPending] = useActionState<
+    FormState | null,
+    FormData
+  >(submitPostAction, null);
+
+  useEffect(() => {
+    if (state?.success) {
+      onClose();
+    }
+  }, [state?.success, onClose]);
 
   return (
     <div
@@ -85,16 +81,11 @@ export default function CommentFormModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {selectedPost && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {getPostOptionLabel(selectedPost)}
-            </p>
-          )}
-
+        <form action={formAction} className="space-y-4">
           <div className="space-y-1">
             <textarea
-              id="comment"
+              id="post-content"
+              name="content"
               value={content}
               onChange={(event) => setContent(event.target.value)}
               placeholder="Add class post..."
@@ -103,7 +94,9 @@ export default function CommentFormModal({
             />
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {state?.error && (
+            <p className="text-sm text-red-500">{state.error}</p>
+          )}
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <button
@@ -115,11 +108,11 @@ export default function CommentFormModal({
             </button>
             <button
               type="submit"
-              disabled={!canSubmit}
+              disabled={!canSubmit || isPending}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300 dark:disabled:bg-blue-900 transition-colors"
             >
               <Send size={16} />
-              {isSubmitting ? 'Adding...' : 'Add comment'}
+              {isPending ? 'Creating...' : 'Create post'}
             </button>
           </div>
         </form>

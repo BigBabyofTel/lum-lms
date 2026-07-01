@@ -237,3 +237,69 @@ func (q *Queries) GetPostsByClass(ctx context.Context, classID uuid.NullUUID) ([
 	}
 	return items, nil
 }
+
+const updateComment = `-- name: UpdateComment :one
+UPDATE comments
+SET content = $1,
+    updated_at = NOW()
+WHERE id = $2
+  AND post_id = $3
+  AND author_id = $4
+RETURNING id, post_id, author_id, content, created_at, updated_at
+`
+
+type UpdateCommentParams struct {
+	Content  string        `json:"content"`
+	ID       uuid.UUID     `json:"id"`
+	PostID   uuid.NullUUID `json:"post_id"`
+	AuthorID uuid.NullUUID `json:"author_id"`
+}
+
+func (q *Queries) UpdateComment(ctx context.Context, arg UpdateCommentParams) (Comment, error) {
+	row := q.db.QueryRowContext(ctx, updateComment,
+		arg.Content,
+		arg.ID,
+		arg.PostID,
+		arg.AuthorID,
+	)
+	var i Comment
+	err := row.Scan(
+		&i.ID,
+		&i.PostID,
+		&i.AuthorID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updatePost = `-- name: UpdatePost :one
+UPDATE posts
+SET content = $1,
+    updated_at = NOW()
+WHERE id = $2
+  AND author_id = $3
+RETURNING id, class_id, author_id, parent_id, content, created_at, updated_at
+`
+
+type UpdatePostParams struct {
+	Content  string        `json:"content"`
+	ID       uuid.UUID     `json:"id"`
+	AuthorID uuid.NullUUID `json:"author_id"`
+}
+
+func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) (Post, error) {
+	row := q.db.QueryRowContext(ctx, updatePost, arg.Content, arg.ID, arg.AuthorID)
+	var i Post
+	err := row.Scan(
+		&i.ID,
+		&i.ClassID,
+		&i.AuthorID,
+		&i.ParentID,
+		&i.Content,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

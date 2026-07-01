@@ -161,6 +161,44 @@ export async function getClassStream(classId: string): Promise<Post[]> {
   return Array.isArray(data.posts) ? data.posts : [];
 }
 
+export async function createClassPost(
+  classId: string,
+  content: string
+): Promise<Post> {
+  const data = await apiFetch<{ post: Post }>(
+    `/api/v1/classes/${classId}/stream`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }
+  );
+  return data.post;
+}
+
+export async function updatePost(
+  postId: string,
+  content: string
+): Promise<Post> {
+  const data = await apiFetch<{ post: Post }>(`/api/v1/stream/${postId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ content }),
+  });
+  return data.post;
+}
+
+export async function deletePost(postId: string): Promise<void> {
+  await apiFetch<{ message: string }>(`/api/v1/stream/${postId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getPostComments(postId: string): Promise<PostComment[]> {
+  const data = await apiFetch<{ comments: PostComment[] }>(
+    `/api/v1/stream/${postId}/comments`
+  );
+  return Array.isArray(data.comments) ? data.comments : [];
+}
+
 export async function createPostComment(
   postId: string,
   content: string
@@ -173,4 +211,31 @@ export async function createPostComment(
     }
   );
   return data.comment;
+}
+
+export async function updatePostComment(
+  postId: string,
+  commentId: string,
+  content: string
+): Promise<PostComment> {
+  const data = await apiFetch<{ comment: PostComment }>(
+    `/api/v1/stream/${postId}/comments/${commentId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify({ content }),
+    }
+  );
+  return data.comment;
+}
+
+export async function deletePostComment(
+  postId: string,
+  commentId: string
+): Promise<void> {
+  await apiFetch<{ message: string }>(
+    `/api/v1/stream/${postId}/comments/${commentId}`,
+    {
+      method: 'DELETE',
+    }
+  );
 }

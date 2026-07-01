@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/BigBabyofTel/lum-lms/internal/database"
 	"github.com/gin-gonic/gin"
@@ -114,6 +117,84 @@ func (h *Handler) DeletePost(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "post deleted"})
+}
+
+func (h *Handler) UpdateStream(c *gin.Context) {
+	postID, err := uuid.Parse(c.Param("postId"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid post id"})
+		return
+	}
+
+	authorID := c.MustGet("userID").(uuid.UUID)
+	post, err := h.DB.GetPostByID(c, postID)
+	if err != nil || !post.ClassID.Valid {
+		c.JSON(http.StatusNotFound, gin.H{"error": "post not found"})
+		return
+	}
+	if _, err := h.canAccessClassStream(c, post.ClassID.UUID, authorID); err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": "not authorized for this post"})
+		return
+	}
+
+	var params struct {
+		Content string `json:"content" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&params); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	content := strings.TrimSpace(params.Content)
+	if content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "content is required"})
+		return
+	}
+
+	commentParam := c.Param("commentId")
+	if commentParam != "" {
+		commentID, err := uuid.Parse(commentParam)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid comment id"})
+			return
+		}
+
+		comment, err := h.DB.UpdateComment(c, database.UpdateCommentParams{
+			Content:  content,
+			ID:       commentID,
+			PostID:   uuid.NullUUID{UUID: postID, Valid: true},
+			AuthorID: uuid.NullUUID{UUID: authorID, Valid: true},
+		})
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				c.JSON(http.StatusNotFound, gin.H{"error": "comment not found or not authorized"})
+				return
+			}
+
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update comment"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"comment": comment})
+		return
+	}
+
+	updatedPost, err := h.DB.UpdatePost(c, database.UpdatePostParams{
+		Content:  content,
+		ID:       postID,
+		AuthorID: uuid.NullUUID{UUID: authorID, Valid: true},
+	})
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "post not found or not authorized"})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not update post"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"post": updatedPost})
 }
 
 func (h *Handler) CreateComment(c *gin.Context) {

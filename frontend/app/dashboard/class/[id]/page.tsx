@@ -7,17 +7,43 @@ import CommentCard from '@/components/comment-card';
 import CommentFormModal from '@/components/modals/comment-form-modal';
 import { useClassInfo } from '@/components/providers/class-provider';
 import type { Post, PostComment } from '@/lib/types';
-import { createPostComment, getClassStream } from '@/lib/api-client';
+import {
+  createPostComment,
+  deletePost,
+  deletePostComment,
+  getClassStream,
+  getPostComments,
+  updatePost,
+  updatePostComment,
+} from '@/lib/api-client';
 import { useUserStore } from '@/store/useUserStore';
 
-function getInitials(firstName: string, lastName: string) {
-  return `${firstName[0] ?? ''}${lastName[0] ?? ''}`.toUpperCase() || 'U';
+async function loadCommentsForPosts(posts: Post[]): Promise<Post[]> {
+  return Promise.all(
+    posts.map(async (post) => {
+      try {
+        const comments = await getPostComments(post.id);
+
+        return {
+          ...post,
+          comments,
+        };
+      } catch (error) {
+        console.error(`Could not load comments for post ${post.id}:`, error);
+
+        return {
+          ...post,
+          comments: [],
+        };
+      }
+    })
+  );
 }
 
-function appendCommentToPost(
+function replacePostComments(
   posts: Post[],
   postId: string,
-  comment: PostComment
+  comments: PostComment[]
 ) {
   return posts.map((post) => {
     if (post.id !== postId) {
@@ -26,10 +52,7 @@ function appendCommentToPost(
 
     return {
       ...post,
-      comments: [
-        ...(Array.isArray(post.comments) ? post.comments : []),
-        comment,
-      ],
+      comments,
     };
   });
 }
@@ -40,8 +63,10 @@ export default function StreamPage() {
   const firstName = useUserStore((state) => state.first_name);
   const lastName = useUserStore((state) => state.last_name);
   const currentUserName = `${firstName} ${lastName}`.trim() || 'You';
-  const currentUserAvatar = getInitials(firstName, lastName);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [commentInputs, setCommentInputs] = useState<Record<string, string>>(
+    {}
+  );
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
   useEffect(() => {
@@ -50,9 +75,10 @@ export default function StreamPage() {
     async function loadStream() {
       try {
         const streamPosts = await getClassStream(classId);
+        const postsWithComments = await loadCommentsForPosts(streamPosts);
 
         if (!cancelled) {
-          setPosts(streamPosts);
+          setPosts(postsWithComments);
         }
       } catch (error) {
         console.error('Could not load stream:', error);
@@ -70,17 +96,129 @@ export default function StreamPage() {
     };
   }, [classId]);
 
-  const addComment = async (postId: string, content: string) => {
-    const comment = await createPostComment(postId, content);
+  const handlePostCreated = (post: Post) => {
+    setPosts((currentPosts) => [
+      {
+        ...post,
+        author: post.author ?? currentUserName,
+        comments: post.comments ?? [],
+      },
+      ...currentPosts,
+    ]);
+  };
+
+  const handleCommentChange = (postId: string, value: string) => {
+    setCommentInputs((currentInputs) => ({
+      ...currentInputs,
+      [postId]: value,
+    }));
+  };
+
+  const handleCommentSubmit = async (postId: string) => {
+    const content = commentInputs[postId]?.trim();
+
+    if (!content) {
+      return;
+    }
+
+    try {
+      await createPostComment(postId, content);
+      const comments = await getPostComments(postId);
+
+      setPosts((currentPosts) =>
+        replacePostComments(currentPosts, postId, comments)
+      );
+      handleCommentChange(postId, '');
+    } catch (error) {
+      console.error('Could not add comment:', error);
+    }
+  };
+
+  const handleEditPost = async (postId: string, content: string) => {
+    const updatedPost = await updatePost(postId, content);
 
     setPosts((currentPosts) =>
-      appendCommentToPost(currentPosts, postId, {
-        ...comment,
-        author: currentUserName,
-        avatar: currentUserAvatar,
-        createdAt: comment.createdAt ?? comment.created_at,
+      currentPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              ...updatedPost,
+              author: post.author,
+              first_name: post.first_name,
+              last_name: post.last_name,
+              comments: post.comments,
+            }
+          : post
+      )
+    );
+  };
+
+  const handleEditComment = async (
+    postId: string,
+    commentId: string,
+    content: string
+  ) => {
+    const updatedComment = await updatePostComment(postId, commentId, content);
+
+    setPosts((currentPosts) =>
+      currentPosts.map((post) => {
+        if (post.id !== postId) {
+          return post;
+        }
+
+        return {
+          ...post,
+          comments: (post.comments ?? []).map((comment) =>
+            comment.id === commentId
+              ? {
+                  ...comment,
+                  ...updatedComment,
+                  author: comment.author,
+                  first_name: comment.first_name,
+                  last_name: comment.last_name,
+                  avatar: comment.avatar,
+                }
+              : comment
+          ),
+        };
       })
     );
+  };
+
+  const handleDeleteComment = async (postId: string, commentId: string) => {
+    await deletePostComment(postId, commentId);
+
+    setPosts((currentPosts) =>
+      currentPosts.map((post) => {
+        if (post.id !== postId) {
+          return post;
+        }
+
+        return {
+          ...post,
+          comments: (post.comments ?? []).filter(
+            (comment) => comment.id !== commentId
+          ),
+        };
+      })
+    );
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    try {
+      await deletePost(postId);
+      setPosts((currentPosts) =>
+        currentPosts.filter((post) => post.id !== postId)
+      );
+      setCommentInputs((currentInputs) => {
+        const nextInputs = { ...currentInputs };
+        delete nextInputs[postId];
+        return nextInputs;
+      });
+    } catch (error) {
+      console.error('Could not delete post:', error);
+      throw error;
+    }
   };
 
   return (
@@ -115,7 +253,18 @@ export default function StreamPage() {
               key={post.id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
             >
-              <CommentCard post={post} />
+              <CommentCard
+                post={post}
+                commentValue={commentInputs[post.id] || ''}
+                onCommentChange={handleCommentChange}
+                onCommentSubmit={(postId) => {
+                  void handleCommentSubmit(postId);
+                }}
+                onEditPost={handleEditPost}
+                onDeletePost={handleDeletePost}
+                onEditComment={handleEditComment}
+                onDeleteComment={handleDeleteComment}
+              />
             </div>
           ))
         ) : (
@@ -128,9 +277,9 @@ export default function StreamPage() {
 
       {isCommentModalOpen && (
         <CommentFormModal
-          posts={posts}
+          classId={classId}
           onClose={() => setIsCommentModalOpen(false)}
-          onSubmit={addComment}
+          onPostCreated={handlePostCreated}
         />
       )}
     </div>
