@@ -2,6 +2,7 @@
 CREATE TABLE posts
 (
     id         uuid PRIMARY KEY     DEFAULT gen_random_uuid(),
+    class_id   uuid REFERENCES classes (id) ON DELETE CASCADE,
     author_id  uuid REFERENCES users (id) ON DELETE CASCADE,
     parent_id  uuid REFERENCES posts (id) ON DELETE CASCADE, -- Renamed post_id to parent_id for clarity
     content    text        NOT NULL,
@@ -19,7 +20,9 @@ CREATE TABLE comments
     updated_at timestamptz
 );
 
--- +goose Down
+CREATE INDEX idx_posts_class_id ON posts (class_id);
 
+-- +goose Down
+DROP INDEX IF EXISTS idx_posts_class_id;
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS posts;

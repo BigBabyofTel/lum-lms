@@ -5,6 +5,8 @@ import {
   Class,
   CreateAssignmentPayload,
   GradebookRow,
+  Post,
+  PostComment,
   UpdateAssignmentPayload,
   User,
   UserAssignment,
@@ -150,4 +152,25 @@ export async function getClassGradebook(
     `/api/v1/classes/${classId}/gradebook`
   );
   return Array.isArray(data.gradebook) ? data.gradebook : [];
+}
+
+export async function getClassStream(classId: string): Promise<Post[]> {
+  const data = await apiFetch<{ posts: Post[] }>(
+    `/api/v1/classes/${classId}/stream`
+  );
+  return Array.isArray(data.posts) ? data.posts : [];
+}
+
+export async function createPostComment(
+  postId: string,
+  content: string
+): Promise<PostComment> {
+  const data = await apiFetch<{ comment: PostComment }>(
+    `/api/v1/stream/${postId}/comments`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }
+  );
+  return data.comment;
 }

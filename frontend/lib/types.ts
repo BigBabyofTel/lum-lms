@@ -125,18 +125,33 @@ export interface Topic {
   updatedAt?: string;
 }
 
+export interface PostComment {
+  id: string;
+  post_id?: string | null;
+  author_id?: string | null;
+  first_name?: string;
+  last_name?: string;
+  author?: string;
+  content: string;
+  avatar?: string;
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string | null;
+  updated_at?: string | null;
+}
+
 export interface Post {
   id: string;
-  author: string;
+  class_id?: string | null;
+  author_id?: string | null;
+  parent_id?: string | null;
+  first_name?: string;
+  last_name?: string;
+  author?: string;
   content: string;
-  createdAt: string;
-  updatedAt?: string;
-  comments: {
-    id: string;
-    author: string;
-    content: string;
-    avatar?: string;
-    createdAt?: string;
-    updatedAt?: string;
-  }[];
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string | null;
+  updated_at?: string | null;
+  comments?: PostComment[] | null;
 }

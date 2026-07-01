@@ -183,6 +183,7 @@ type Comment struct {
 
 type Post struct {
 	ID        uuid.UUID     `json:"id"`
+	ClassID   uuid.NullUUID `json:"class_id"`
 	AuthorID  uuid.NullUUID `json:"author_id"`
 	ParentID  uuid.NullUUID `json:"parent_id"`
 	Content   string        `json:"content"`
