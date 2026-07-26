@@ -36,7 +36,7 @@ export default function ClassLayout({ children, params }: ClassLayoutProps) {
 
         {/* Tabs Navigation */}
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="flex gap-0">
+          <nav className="flex gap-0 justify-center">
             {tabs.map((tab) => (
               <Link
                 key={tab.href}

@@ -33,3 +33,5 @@ source code for Luminescence frontend
 - to start live backend for dev
 
   air
+
+## update notes on project
