@@ -182,5 +182,5 @@ export async function enrollStudent(
     console.error(err);
     return { error: 'Something went wrong' };
   }
-  redirect('/dashboard/admin');
+  return { success: 'Student added!' };
 }

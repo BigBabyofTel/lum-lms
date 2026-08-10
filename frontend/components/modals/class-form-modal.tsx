@@ -1,6 +1,7 @@
 'use client';
-import React, { useActionState, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { toast } from 'sonner';
 import { createClassForm } from '@/lib/actions';
 import { FormState } from '@/lib/types';
 import { useUserStore } from '@/store/useUserStore';
@@ -13,21 +14,50 @@ interface ClassFormModalProps {
 export default function ClassFormModal({ onClose }: ClassFormModalProps) {
   const [subject, setSubject] = useState('');
   const [grade, setGrade] = useState<number | ''>('');
+  const [state, setState] = useState<FormState | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const accessToken = useUserStore((state) => state.access_token);
   const fetchClasses = useClassStore((state) => state.fetchClasses);
   const clearClasses = useClassStore((state) => state.clearClasses);
 
-  const [state, formAction, isPending] = useActionState<
-    FormState | null,
-    FormData
-  >(createClassForm, null);
+  const onCreate = async (event: React.SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setState(null);
+    setIsPending(true);
 
-  useEffect(() => {
-    if (state?.success) {
+    const promise = createClassForm(
+      null,
+      new FormData(event.currentTarget)
+    ).then((result) => {
+      setState(result);
+
+      if (result.error || result.fieldErrors) {
+        throw new Error(
+          result.error ?? 'Please correct the highlighted fields.'
+        );
+      }
+
       clearClasses();
       void fetchClasses();
+      return result;
+    });
+
+    toast.promise(promise, {
+      loading: 'Creating class...',
+      success: (result: FormState) => result.success ?? 'Class created!',
+      error: (error: unknown) =>
+        error instanceof Error ? error.message : 'Failed to create class.',
+    });
+
+    try {
+      await promise;
       onClose();
+    } catch {
+      // The toast and inline form errors communicate the failure.
+    } finally {
+      setIsPending(false);
     }
-  }, [state?.success, clearClasses, fetchClasses, onClose]);
+  };
 
   return (
     /* Backdrop — click outside the card to close */
@@ -55,7 +85,7 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
         </div>
 
         {/* Form */}
-        <form action={formAction} className="space-y-4">
+        <form onSubmit={onCreate} className="space-y-4">
           {/* Subject field */}
           <div className="space-y-1">
             <label
@@ -104,11 +134,7 @@ export default function ClassFormModal({ onClose }: ClassFormModalProps) {
                                        transition-colors"
             />
           </div>
-          <input
-            type="hidden"
-            name="access_token"
-            value={useUserStore((state) => state.access_token) ?? ''}
-          />
+          <input type="hidden" name="access_token" value={accessToken ?? ''} />
           {/* Footer buttons */}
           <div className="flex items-center justify-end gap-3 pt-2">
             <button

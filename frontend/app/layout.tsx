@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import React from 'react';
 import ThemeProvider from '@/components/providers/theme-provider';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'Luminescence',
@@ -16,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-gradient-to-r from-yellow-400 to-orange-300 dark:bg-gradient-to-r dark:from-blue-900 dark:to-indigo-950 dark:text-white">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

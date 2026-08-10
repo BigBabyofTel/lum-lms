@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "react-hot-toast": "^2.6.0"
+    "sonner": "^2.0.8"
   }
 }

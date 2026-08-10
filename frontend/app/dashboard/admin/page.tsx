@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getAllStudents } from '@/lib/api-client';
 import { User } from '@/lib/types';
 import StudentCard from '@/components/student-card';
@@ -15,13 +15,15 @@ export default function Page() {
   const [students, setStudents] = useState<User[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
+  const loadStudents = useCallback(async () => {
+    const data = await getAllStudents();
+    setStudents(Array.isArray(data) ? data : []);
+  }, []);
+
   useEffect(() => {
     if (!id) return;
-    (async () => {
-      const data = await getAllStudents();
-      setStudents(Array.isArray(data) ? data : []);
-    })();
-  }, [id]);
+    void Promise.resolve().then(loadStudents);
+  }, [id, loadStudents]);
 
   return (
     <>
@@ -69,7 +71,10 @@ export default function Page() {
           )}
 
           {isStudentModalOpen && (
-            <CreateStudentModal onClose={() => setIsStudentModalOpen(false)} />
+            <CreateStudentModal
+              onClose={() => setIsStudentModalOpen(false)}
+              onStudentCreated={loadStudents}
+            />
           )}
         </div>
       )}

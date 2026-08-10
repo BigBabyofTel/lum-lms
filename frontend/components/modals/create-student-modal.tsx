@@ -1,16 +1,18 @@
 'use client';
-import React, { useActionState, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { toast } from 'sonner';
 import { enrollStudent } from '@/lib/actions';
 import { FormState } from '@/lib/types';
-import { useClassStore } from '@/store/useClassesStore';
 
 interface CreateStudentModalProps {
   onClose: () => void;
+  onStudentCreated: () => Promise<void>;
 }
 
 export default function CreateStudentModal({
   onClose,
+  onStudentCreated,
 }: CreateStudentModalProps) {
   const [email, setEmail] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
@@ -18,21 +20,45 @@ export default function CreateStudentModal({
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [grade, setGrade] = useState<string>('');
-  const fetchClasses = useClassStore((state) => state.fetchClasses);
-  const clearClasses = useClassStore((state) => state.clearClasses);
+  const [state, setState] = useState<FormState | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
-  const [state, formAction, isPending] = useActionState<
-    FormState | null,
-    FormData
-  >(enrollStudent, null);
+  const onCreate = async (event: React.SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setState(null);
+    setIsPending(true);
 
-  useEffect(() => {
-    if (state?.success) {
-      clearClasses();
-      void fetchClasses();
+    const promise = enrollStudent(null, new FormData(event.currentTarget)).then(
+      async (result) => {
+        setState(result);
+
+        if (result.error || result.fieldErrors) {
+          throw new Error(
+            result.error ?? 'Please correct the highlighted fields.'
+          );
+        }
+
+        await onStudentCreated();
+        return result;
+      }
+    );
+
+    toast.promise(promise, {
+      loading: 'Adding student...',
+      success: (result: FormState) => result.success ?? 'Student added!',
+      error: (error: unknown) =>
+        error instanceof Error ? error.message : 'Failed to add student.',
+    });
+
+    try {
+      await promise;
       onClose();
+    } catch {
+      // The toast and inline form errors communicate the failure.
+    } finally {
+      setIsPending(false);
     }
-  }, [state?.success, clearClasses, fetchClasses, onClose]);
+  };
 
   return (
     /* Backdrop — click outside the card to close */
@@ -61,7 +87,7 @@ export default function CreateStudentModal({
 
         {/* Form */}
         <form
-          action={formAction}
+          onSubmit={onCreate}
           className="w-full space-y-4 p-2 flex flex-col items-center justify-center"
         >
           <div className="p-2 w-full">
